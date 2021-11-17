@@ -1,0 +1,30 @@
+<div id="app">
+  <ul>
+    <li v-for="todoList in todoLists">
+      <input type="checkbox" v-model="todoList.checkToggle">
+      <label v-bind:class={doneTask:todoList.checkToggle}>
+        {{ todoList.title }}
+      </label>
+    </li>
+  </ul>
+  <hr>
+  <input type="text"
+    class="taskInput"
+    placeholder="新しいタスクを追加する" 
+    v-model="newTitle"
+    v-on:change="checkEnteredValue()"
+  >
+  <button id="addBtn"
+    v-on:click="addToDoList()" 
+    v-bind:class={noclick:!newTitleToggle}
+  >
+    タスクを追加
+  </button>
+  <br>
+  <button id="deleteBtn"
+    v-on:click="deleteToDoList()"
+  >
+    タスクを削除
+  </button>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
