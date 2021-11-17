@@ -1,0 +1,50 @@
+*{
+  font-size: 18px;
+}
+
+*:focus {
+  outline: none;
+}
+
+li{
+  list-style: none;
+}
+
+.taskInput, button{
+  height: 36px;
+  border: none;
+  border-radius: 18px;
+}
+
+.taskInput{
+  width: 216px;
+  background-color: #eeeeee;
+  padding-left: 12px;
+}
+
+button{
+  color: #ffffff;
+  width: 144px;
+  cursor: pointer;
+}
+
+#addBtn{
+  background-color: #c81c14;
+  margin-left: 6px;
+}
+
+#deleteBtn{
+  background-color: #00508e;
+  margin-top: 12px;
+}
+
+.doneTask {
+  opacity: 0.7;
+  text-decoration: line-through;
+}
+
+.noclick {
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.5;
+}
