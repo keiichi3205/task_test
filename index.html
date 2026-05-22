@@ -236,6 +236,21 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .upload-card.swapped { background: var(--primary-light); }
+    .upload-card.swapped .upload-icon { color: var(--primary-dark); }
+    .upload-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      margin-left: 4px;
+      border-radius: var(--r-sm);
+      font: 700 9.5px/1.4 var(--font-mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      vertical-align: 1px;
+    }
 
     /* Button — Primary */
     .btn {
@@ -251,6 +266,15 @@
     .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
     .btn-primary { background: var(--primary); color: var(--on-primary); }
     .btn-primary:hover { background: var(--primary-dark); }
+    .btn.is-loading { pointer-events: none; opacity: 0.75; }
+    .btn.is-loading .btn-spinner {
+      width: 12px; height: 12px;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     .btn-outline {
       background: var(--surface-lowest);
       color: var(--on-surface-variant);
@@ -1360,6 +1384,201 @@
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
+    function formatBytes(b) {
+      const n = parseInt(b, 10);
+      if (!n) return '';
+      if (n < 1024) return n + ' B';
+      if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB';
+      if (n < 1024 * 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + ' MB';
+      return (n / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+    }
+
+    /* ============================================================
+       Google Drive Picker bridge
+       Server (Code.gs) provides API key / project number and
+       OAuth token; this module loads the Picker JS lazily and
+       exposes drive.pick(kind) → Promise<file|null>.
+       ============================================================ */
+    const CONFIG = { apiKey: '', appId: '' };
+    const pickedFiles = { slides: null, audio: null };
+
+    const drive = (() => {
+      let pickerLoaded = false;
+      let configLoaded = false;
+
+      function inGas() {
+        return typeof google !== 'undefined' &&
+               typeof google.script !== 'undefined' &&
+               typeof google.script.run !== 'undefined';
+      }
+
+      function callServer(name, ...args) {
+        return new Promise((resolve, reject) => {
+          if (!inGas()) { reject(new Error('not_in_gas')); return; }
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            [name](...args);
+        });
+      }
+
+      async function loadConfig() {
+        if (configLoaded) return CONFIG;
+        if (!inGas()) { configLoaded = true; return CONFIG; }
+        try {
+          const cfg = await callServer('getDriveConfig');
+          if (cfg && cfg.apiKey && cfg.appId) {
+            CONFIG.apiKey = cfg.apiKey;
+            CONFIG.appId  = cfg.appId;
+          }
+        } catch (e) { /* leave CONFIG empty — caller will surface a setup message */ }
+        configLoaded = true;
+        return CONFIG;
+      }
+
+      function loadPickerScript() {
+        if (pickerLoaded) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          const onReady = () => gapi.load('picker', () => { pickerLoaded = true; resolve(); });
+          if (typeof gapi !== 'undefined') return onReady();
+          const s = document.createElement('script');
+          s.src = 'https://apis.google.com/js/api.js';
+          s.onload = onReady;
+          s.onerror = () => reject(new Error('picker_load_failed'));
+          document.head.appendChild(s);
+        });
+      }
+
+      const MIME_FILTERS = {
+        slides: [
+          'application/vnd.google-apps.presentation',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+          'application/pdf'
+        ].join(','),
+        audio: [
+          'audio/mpeg', 'audio/mp4', 'audio/wav', 'audio/x-m4a',
+          'audio/ogg', 'audio/webm', 'video/mp4', 'video/webm'
+        ].join(',')
+      };
+
+      async function pick(kind) {
+        if (!inGas()) throw new Error('not_in_gas');
+        await loadConfig();
+        if (!CONFIG.apiKey || !CONFIG.appId) throw new Error('not_configured');
+        await loadPickerScript();
+        const oauthToken = await callServer('getOAuthToken');
+
+        const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+          .setMimeTypes(MIME_FILTERS[kind])
+          .setIncludeFolders(false)
+          .setMode(google.picker.DocsViewMode.LIST);
+
+        const title = kind === 'slides' ? '提案資料を選択' : '商談音声を選択';
+
+        return new Promise((resolve) => {
+          const picker = new google.picker.PickerBuilder()
+            .setAppId(CONFIG.appId)
+            .setOAuthToken(oauthToken)
+            .setDeveloperKey(CONFIG.apiKey)
+            .addView(view)
+            .setTitle(title)
+            .setCallback((data) => {
+              if (data.action === google.picker.Action.PICKED) {
+                resolve(data.docs[0]);
+              } else if (data.action === google.picker.Action.CANCEL) {
+                resolve(null);
+              }
+            })
+            .build();
+          picker.setVisible(true);
+        });
+      }
+
+      return { inGas, loadConfig, pick, callServer };
+    })();
+
+    function updateUploadCard(kind, file) {
+      const cardId = kind === 'slides' ? 'slideUpload' : 'audioUpload';
+      const card = document.getElementById(cardId);
+      const baseLabel = kind === 'slides' ? '提案資料' : '商談音声';
+      const sizeStr = file.sizeBytes ? formatBytes(file.sizeBytes) : '';
+      card.querySelector('.upload-label').textContent = baseLabel + (sizeStr ? ' · ' + sizeStr : '');
+      card.querySelector('.upload-filename').innerHTML =
+        escapeHtml(file.name) + ' <span class="upload-status">未分析</span>';
+      card.classList.add('swapped');
+    }
+
+    async function handleUploadClick(kind) {
+      try {
+        const picked = await drive.pick(kind);
+        if (!picked) return;
+        let meta = {
+          id: picked.id, name: picked.name,
+          mimeType: picked.mimeType, sizeBytes: picked.sizeBytes
+        };
+        try {
+          const serverMeta = await drive.callServer('getFileMetadata', picked.id);
+          if (serverMeta && serverMeta.ok) meta = serverMeta;
+        } catch (_) { /* fall back to picker-only metadata */ }
+        pickedFiles[kind] = meta;
+        updateUploadCard(kind, meta);
+      } catch (e) {
+        if (e && e.message === 'not_in_gas') {
+          alert(
+            'Google Drive Picker は Google Apps Script 上で動作します。\n\n' +
+            '現在はローカル/プレビュー環境のため、Drive 連携は無効です。\n' +
+            'Code.gs と appsscript.json と一緒に GAS にデプロイしてください。'
+          );
+        } else if (e && e.message === 'not_configured') {
+          alert(
+            'Google Drive Picker の API 設定が未完了です。\n\n' +
+            'Code.gs 上部のコメントに従って:\n' +
+            '  • Cloud Console で Google Picker API を有効化\n' +
+            '  • API キー (HTTPリファラ制限) を作成\n' +
+            '  • GCP プロジェクト番号を確認\n' +
+            '  • setDriveConfig() で Script Properties に保存\n' +
+            '  • Web アプリを再デプロイ'
+          );
+        } else if (e && e.message === 'picker_load_failed') {
+          alert('Google Picker ライブラリの読み込みに失敗しました。ネットワーク接続を確認してください。');
+        } else {
+          alert('Picker 起動エラー: ' + (e && e.message ? e.message : e));
+        }
+      }
+    }
+
+    async function handleAnalyzeClick() {
+      const btn = document.getElementById('analyzeBtn');
+      if (!drive.inGas()) {
+        alert('（プレビュー）GAS 上で実行すると、選択した Drive ファイルが Whisper + Claude 分析パイプラインに渡されます。');
+        return;
+      }
+      if (!pickedFiles.slides || !pickedFiles.audio) {
+        alert('提案資料と商談音声の両方を選択してください。');
+        return;
+      }
+      const originalHtml = btn.innerHTML;
+      btn.classList.add('is-loading');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-spinner"></span><span>分析中…</span>';
+      try {
+        const result = await drive.callServer('processSession', {
+          slideFileId: pickedFiles.slides.id,
+          audioFileId: pickedFiles.audio.id
+        });
+        if (result.ok) {
+          alert('✓ ' + result.message + '\n\nスライド: ' + result.slide.name + '\n音声: ' + result.audio.name);
+        } else {
+          alert('分析エラー: ' + result.error);
+        }
+      } catch (e) {
+        alert('サーバー呼び出しエラー: ' + (e && e.message ? e.message : e));
+      } finally {
+        btn.classList.remove('is-loading');
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
+    }
 
     /* ============================================================
        Render
@@ -1671,15 +1890,12 @@
         if (e.key === 'ArrowRight') goToSlide(state.currentSlideIdx + 1);
       });
 
-      document.getElementById('analyzeBtn').addEventListener('click', () => {
-        alert('（モック）分析処理を開始します。本番ではWhisperによる文字起こし → 話者分離 → スライド-音声マッピング → Claude APIによるフィードバック生成が実行されます。');
-      });
+      document.getElementById('analyzeBtn').addEventListener('click', handleAnalyzeClick);
+      document.getElementById('slideUpload').addEventListener('click', () => handleUploadClick('slides'));
+      document.getElementById('audioUpload').addEventListener('click', () => handleUploadClick('audio'));
 
-      ['slideUpload', 'audioUpload'].forEach(id => {
-        document.getElementById(id).addEventListener('click', () => {
-          alert('（モック）ファイル選択ダイアログを表示。本番ではGoogle Driveへのアップロード or Apps ScriptのDriveApp連携が動作します。');
-        });
-      });
+      // Warm up the server config so the first Picker click feels instant
+      drive.loadConfig();
     });
   </script>
 </body>
