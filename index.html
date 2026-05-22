@@ -6,106 +6,190 @@
   <title>SalesCoach | 商談分析ツール</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f7f8fa;
-      --surface: #ffffff;
-      --surface-2: #f1f3f6;
-      --border: #e5e7eb;
-      --border-strong: #d1d5db;
-      --text: #1a1a1a;
-      --text-2: #4b5563;
-      --text-3: #6b7280;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --primary-soft: #eff6ff;
-      --success: #10b981;
-      --success-soft: #ecfdf5;
-      --warning: #f59e0b;
-      --warning-soft: #fffbeb;
-      --info: #3b82f6;
-      --info-soft: #eff6ff;
-      --slide-bg: #1e293b;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04);
+      /* ===== Surface — Tonal Layering ===== */
+      --surface-lowest:  #ffffff;
+      --surface-low:     #f6f3f4;
+      --surface:         #fcf8f9;
+      --surface-high:    #eae7e8;
+      --surface-highest: #dedddd;
+      --surface-bright:  #d2d0d1;
+
+      /* ===== Brand — Teal Spectrum ===== */
+      --primary:              #36A191;
+      --on-primary:           #ffffff;
+      --primary-dark:         #297A6E;
+      --primary-light:        rgba(54,161,145,0.08);
+      --primary-fixed:        #5BC8B8;
+      --primary-fixed-dim:    #94DBD1;
+      --primary-container:    #297A6E;
+      --on-primary-container: #CDEEE9;
+      --secondary:            #36A191;
+      --secondary-container:  #CDEEE9;
+      --on-secondary-container:#297A6E;
+      --tertiary:             #b04c00;
+
+      /* ===== Typography Color ===== */
+      --on-surface:           #1b1b1c;
+      --on-surface-variant:   #5a6660;
+      --text-muted:           #8a968a;
+
+      /* ===== Ghost Border ===== */
+      --outline:         #6e7a6f;
+      --outline-variant: #bdcabd;
+      --ghost-border:    rgba(189,202,189,0.20);
+
+      /* ===== Status ===== */
+      --danger:        #ba1a1a;
+      --danger-weak:   rgba(186, 26, 26, 0.14);
+      --warning-bg:    rgba(188,114,0,0.08);
+      --warning-border:#b07000;
+      --warning-accent:#c88000;
+      --warning-text:  #5e3e00;
+      --success:       #36A191;
+      --success-weak:  rgba(54,161,145,0.14);
+      --done-bg:       rgba(54,161,145,0.09);
+      --done-text:     #297A6E;
+      --delay-bg:      rgba(168,54,0,0.09);
+      --delay-text:    #7e3000;
+
+      /* ===== Pipeline ===== */
+      --c-創注: #78CBCA;
+      --c-D:    #5ABFC0;
+      --c-C:    #46A9B8;
+      --c-B:    #3890AE;
+      --c-A:    #2878A4;
+      --c-失注: #c5c4c5;
+
+      /* ===== Radius ===== */
+      --r-sm: 4px;
+      --r:    6px;
+      --r-lg: 8px;
+      --r-xl: 12px;
+
+      /* ===== Typography Scale ===== */
+      --text-xs:   0.6875rem;
+      --text-sm:   0.75rem;
+      --text-base: 0.875rem;
+      --text-md:   1.0rem;
+
+      /* ===== Spacing ===== */
+      --sp-1: 4px;
+      --sp-2: 8px;
+      --sp-3: 12px;
+      --sp-4: 16px;
+      --sp-5: 24px;
+
+      /* ===== Transitions ===== */
+      --dur-fast: 0.1s;
+      --dur-base: 0.18s;
+      --dur-slow: 0.28s;
+
+      /* ===== Elevation — Atmospheric Shadow ===== */
+      --shadow-sm:    0px 4px 12px  rgba(0,39,117,0.04);
+      --shadow-md:    0px 12px 24px rgba(0,39,117,0.05);
+      --shadow-lg:    0px 20px 40px rgba(0,39,117,0.06);
+      --shadow-float: 0px 24px 48px rgba(0,39,117,0.06);
+
+      /* ===== Mono Font ===== */
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      /* ===== Slide viewport ===== */
+      --slide-stage: #1b1b1c;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 14px;
+      font-family: 'Inter', 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+      font-size: var(--text-base);
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
       height: 100vh;
       overflow: hidden;
     }
+    h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.01em; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .mono    { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
-    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    /* Eyebrow — uppercase mono label sitting above titles */
+    .eyebrow {
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
 
     /* ============ HEADER ============ */
     .app-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
+      background: var(--surface-lowest);
+      border-bottom: 1px solid var(--ghost-border);
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
+      padding: 0 20px;
+      position: sticky; top: 0; z-index: 100;
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      font-size: 16px;
+    .brand-cluster { display: flex; align-items: center; gap: 16px; }
+    .brand {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600;
+      letter-spacing: -0.01em;
     }
-    .logo-icon {
-      width: 28px; height: 28px;
-      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 14px;
+    .brand-mark {
+      width: 24px; height: 24px;
+      border-radius: var(--r);
+      background: var(--primary);
+      color: var(--on-primary);
+      display: grid; place-items: center;
+      font: 700 11px var(--font-mono);
     }
     .breadcrumb {
-      color: var(--text-3);
-      font-size: 13px;
-      margin-left: 16px;
-    }
-    .breadcrumb-current { color: var(--text); font-weight: 500; }
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      color: var(--text-2);
-    }
-    .user-avatar {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
-      color: white;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 600;
+      color: var(--text-muted);
       font-size: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .breadcrumb-sep { color: var(--text-muted); opacity: 0.5; }
+    .breadcrumb-current { color: var(--on-surface); font-weight: 500; }
+
+    .header-right {
+      display: flex; align-items: center; gap: 16px;
+      font-size: 12px;
+      color: var(--on-surface-variant);
+    }
+    .header-meta { display: flex; align-items: center; gap: 12px; }
+    .header-meta-item { display: flex; align-items: center; gap: 6px; }
+    .header-meta-label { color: var(--text-muted); font-size: 11px; }
+    .header-meta-value { color: var(--on-surface); font-weight: 500; }
+
+    .topbar-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--c-B), var(--c-A));
+      color: #fff;
+      font: 700 10px 'Inter', sans-serif;
+      display: grid; place-items: center;
+      letter-spacing: -0.02em;
+      cursor: pointer;
     }
 
     /* ============ LAYOUT ============ */
     .app-main {
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 56px);
-    }
-    .upload-bar {
+      height: calc(100vh - 48px);
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
+    }
+
+    /* ============ UPLOAD BAR ============ */
+    .upload-bar {
+      background: var(--surface-lowest);
+      padding: 12px 20px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -115,299 +199,376 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 14px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-      transition: all 0.15s;
-      min-width: 200px;
+      padding: 8px 12px;
+      background: var(--surface-low);
+      border-radius: var(--r);
+      font-size: 12px;
+      transition: background var(--dur-base);
+      min-width: 220px;
+      cursor: pointer;
     }
-    .upload-card:hover {
-      border-color: var(--primary);
-      background: var(--primary-soft);
-    }
+    .upload-card:hover { background: var(--surface-high); }
     .upload-icon {
       width: 32px; height: 32px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
+      background: var(--surface-lowest);
+      border-radius: var(--r-sm);
+      display: grid; place-items: center;
+      color: var(--primary);
+      flex-shrink: 0;
     }
     .upload-info {
       display: flex; flex-direction: column;
       flex: 1;
       min-width: 0;
+      gap: 1px;
     }
     .upload-label {
-      font-size: 11px;
-      color: var(--text-3);
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      color: var(--text-muted);
     }
     .upload-filename {
+      font-size: 12px;
       font-weight: 500;
-      color: var(--text);
+      color: var(--on-surface);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .upload-card.empty .upload-filename { color: var(--text-3); }
-    .btn-analyze {
-      padding: 8px 16px;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s;
+
+    /* Button — Primary */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px;
+      border-radius: var(--r);
+      font: 600 13px/1.4 'Inter', 'Noto Sans JP', sans-serif;
+      letter-spacing: 0.01em;
+      transition: background var(--dur-base);
     }
-    .btn-analyze:hover { background: var(--primary-hover); }
-    .btn-analyze:disabled {
-      background: var(--surface-2);
-      color: var(--text-3);
-      cursor: not-allowed;
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+    .btn-primary { background: var(--primary); color: var(--on-primary); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline {
+      background: var(--surface-lowest);
+      color: var(--on-surface-variant);
+      border: 1px solid var(--outline-variant);
     }
+    .btn-outline:hover { background: var(--surface-high); border-color: var(--outline); }
+    .btn-sm { padding: 5px 12px; font-size: 11px; }
+
     .meta-info {
       margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 12px;
-      color: var(--text-3);
+      display: flex; align-items: center;
+      gap: 20px;
     }
-    .meta-info strong { color: var(--text-2); font-weight: 600; }
+    .meta-info-block { display: flex; flex-direction: column; gap: 1px; }
 
     /* ============ THUMBNAIL STRIP ============ */
     .thumbnail-strip {
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
+      padding: 8px 20px 12px;
       display: flex;
-      gap: 12px;
+      gap: 8px;
       overflow-x: auto;
       flex-shrink: 0;
     }
     .thumbnail {
       flex-shrink: 0;
-      width: 130px;
-      aspect-ratio: 16 / 9;
-      background: var(--surface-2);
-      border: 2px solid var(--border);
-      border-radius: 6px;
+      width: 168px;
+      min-height: 72px;
+      background: var(--surface-lowest);
+      border-radius: var(--r-lg);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background var(--dur-base);
       overflow: hidden;
       position: relative;
-      font-size: 9px;
-      padding: 8px;
+      padding: 10px 12px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 4px;
     }
-    .thumbnail:hover { border-color: var(--border-strong); }
+    .thumbnail:hover { background: var(--surface-high); }
     .thumbnail.active {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-soft);
+      background: var(--surface-lowest);
+      box-shadow: inset 0 0 0 2px var(--primary);
     }
-    .thumbnail-num {
-      position: absolute;
-      top: 4px; right: 6px;
-      font-size: 10px;
-      color: var(--text-3);
-      font-weight: 600;
+    .thumb-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .thumbnail-title {
-      font-size: 10px;
+    .thumb-num {
+      width: 22px; height: 22px;
+      background: var(--surface-low);
+      color: var(--on-surface-variant);
+      border-radius: var(--r-sm);
+      display: grid; place-items: center;
+      font: 700 11px/1 var(--font-mono);
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+    .thumbnail.active .thumb-num {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+    .thumb-dur {
+      font: 500 10px/1 var(--font-mono);
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+    }
+    .thumb-title {
+      font-size: 11.5px;
       font-weight: 600;
-      color: var(--text);
-      line-height: 1.3;
+      color: var(--on-surface);
+      line-height: 1.35;
       overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
-    }
-    .thumbnail-preview {
-      flex: 1;
-      margin-top: 4px;
-      font-size: 8px;
-      color: var(--text-3);
-      line-height: 1.4;
-      overflow: hidden;
     }
 
     /* ============ WORKSPACE ============ */
     .workspace {
       flex: 1;
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 3fr 2fr;
+      gap: 12px;
+      padding: 0 20px 20px;
       overflow: hidden;
       min-height: 0;
     }
+    @media (max-width: 1100px) {
+      .workspace { grid-template-columns: 1fr; }
+    }
 
-    /* ----- Slide pane ----- */
+    /* ----- Slide pane (the panel that hosts the slide viewer) ----- */
     .slide-pane {
-      background: var(--slide-bg);
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
+      overflow: hidden;
       min-height: 0;
     }
-    .slide-viewport {
+    .slide-pane-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px 10px;
+      gap: 12px;
+      min-height: 56px;
+    }
+    .slide-pane-hd-left { display: flex; flex-direction: column; gap: 2px; }
+    .slide-pane-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--on-surface);
+      letter-spacing: -0.01em;
+    }
+    .slide-stage {
       flex: 1;
+      background: var(--slide-stage);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 32px;
+      padding: 24px;
       min-height: 0;
+      overflow: hidden;
     }
     .slide {
       width: 100%;
-      max-width: 720px;
+      max-width: 760px;
       aspect-ratio: 16 / 9;
-      background: white;
-      border-radius: 8px;
-      box-shadow: var(--shadow-lg);
-      padding: 40px 48px;
+      background: var(--surface-lowest);
+      border-radius: var(--r-lg);
+      padding: 32px 40px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      animation: slideIn 0.3s ease;
+      animation: slideIn var(--dur-slow) ease;
     }
     @keyframes slideIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .slide-header {
-      border-bottom: 3px solid var(--primary);
-      padding-bottom: 12px;
-      margin-bottom: 24px;
+    .slide-head { margin-bottom: 22px; }
+    .slide-head-eyebrow {
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 8px;
     }
     .slide-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
-      color: var(--text);
+      color: var(--on-surface);
+      letter-spacing: -0.015em;
+      line-height: 1.25;
     }
     .slide-subtitle {
-      font-size: 13px;
-      color: var(--text-3);
+      font-size: 12px;
+      color: var(--on-surface-variant);
       margin-top: 4px;
     }
     .slide-body { flex: 1; overflow: hidden; }
 
-    /* Slide content variants */
-    .agenda-list { display: flex; flex-direction: column; gap: 12px; }
+    /* Slide content variants — all use Tonal Layering, no shadows */
+    .agenda-list { display: flex; flex-direction: column; gap: 8px; }
     .agenda-item {
-      display: flex; align-items: center; gap: 16px;
-      padding: 12px 16px;
-      background: var(--surface-2);
-      border-radius: 6px;
-      font-size: 16px;
+      display: flex; align-items: center; gap: 14px;
+      padding: 11px 14px;
+      background: var(--surface-low);
+      border-radius: var(--r);
+      font-size: 14px;
     }
     .agenda-num {
-      width: 28px; height: 28px;
+      width: 24px; height: 24px;
       background: var(--primary);
-      color: white;
+      color: var(--on-primary);
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
+      display: grid; place-items: center;
+      font: 700 11px var(--font-mono);
       flex-shrink: 0;
     }
 
-    .issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .issue-card {
-      padding: 16px;
-      background: var(--surface-2);
-      border-left: 4px solid var(--warning);
-      border-radius: 4px;
+      padding: 12px 14px;
+      background: var(--surface-low);
+      border-radius: var(--r);
+      position: relative;
+      padding-left: 16px;
     }
-    .issue-icon { font-size: 20px; margin-bottom: 6px; }
-    .issue-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-    .issue-desc { font-size: 12px; color: var(--text-3); }
+    .issue-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 14px; bottom: 14px;
+      width: 3px;
+      background: var(--warning-border);
+      border-radius: 2px;
+    }
+    .issue-icon { color: var(--warning-border); margin-bottom: 6px; }
+    .issue-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+    .issue-desc { font-size: 11px; color: var(--on-surface-variant); }
 
-    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .feature-card {
-      padding: 16px;
-      background: var(--primary-soft);
-      border-radius: 6px;
+      padding: 14px;
+      background: var(--primary-light);
+      border-radius: var(--r-lg);
       text-align: center;
     }
-    .feature-icon { font-size: 28px; margin-bottom: 8px; }
-    .feature-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-    .feature-desc { font-size: 11px; color: var(--text-3); line-height: 1.4; }
+    .feature-icon {
+      color: var(--primary-dark);
+      margin: 0 auto 8px;
+      display: grid; place-items: center;
+    }
+    .feature-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: var(--on-surface); }
+    .feature-desc { font-size: 10.5px; color: var(--on-surface-variant); line-height: 1.5; }
 
-    .case-content { display: flex; gap: 24px; align-items: center; }
+    .case-content { display: flex; gap: 20px; align-items: center; }
     .case-logo {
-      width: 100px; height: 100px;
-      background: var(--surface-2);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
+      width: 84px; height: 84px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      display: grid; place-items: center;
+      color: var(--on-surface-variant);
       flex-shrink: 0;
     }
-    .case-stats { display: flex; gap: 12px; flex: 1; flex-wrap: wrap; }
+    .case-stats { display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
     .stat-card {
-      padding: 16px;
-      background: var(--success-soft);
-      border-radius: 6px;
+      padding: 16px 12px;
+      background: var(--done-bg);
+      border-radius: var(--r-lg);
       flex: 1;
-      min-width: 120px;
+      min-width: 110px;
       text-align: center;
     }
-    .stat-value { font-size: 26px; font-weight: 700; color: var(--success); }
-    .stat-label { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+    .stat-value {
+      font: 700 26px/1 'Inter', sans-serif;
+      color: var(--primary-dark);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-label { font-size: 11px; color: var(--on-surface-variant); margin-top: 6px; }
 
-    .pricing-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+    .pricing-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
     .price-main {
-      padding: 20px;
-      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
-      color: white;
-      border-radius: 8px;
+      padding: 22px;
+      background: var(--primary);
+      color: var(--on-primary);
+      border-radius: var(--r-lg);
     }
-    .price-amount { font-size: 36px; font-weight: 700; line-height: 1; }
-    .price-unit { font-size: 13px; opacity: 0.85; margin-top: 4px; }
-    .price-side {
-      display: flex; flex-direction: column; gap: 8px;
+    .price-eyebrow {
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--on-primary-container);
+      margin-bottom: 8px;
     }
+    .price-amount {
+      font: 700 32px/1 'Inter', sans-serif;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .price-unit { font-size: 12px; opacity: 0.85; margin-top: 6px; }
+    .price-side { display: flex; flex-direction: column; gap: 6px; }
     .price-row {
-      padding: 12px;
-      background: var(--surface-2);
-      border-radius: 6px;
+      padding: 10px 12px;
+      background: var(--surface-low);
+      border-radius: var(--r);
     }
-    .price-row-label { font-size: 11px; color: var(--text-3); }
-    .price-row-value { font-size: 15px; font-weight: 600; margin-top: 2px; }
+    .price-row-label {
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .price-row-value {
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
 
     /* Slide nav */
     .slide-nav {
-      padding: 12px 24px;
-      background: rgba(0,0,0,0.2);
+      padding: 10px 16px;
+      background: var(--surface-lowest);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      color: rgba(255,255,255,0.7);
+      gap: 14px;
       flex-shrink: 0;
     }
     .nav-btn {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
+      width: 28px; height: 28px;
+      border-radius: var(--r);
+      background: var(--surface-low);
+      color: var(--on-surface-variant);
+      display: grid; place-items: center;
+      transition: background var(--dur-base);
     }
-    .nav-btn:hover { background: rgba(255,255,255,0.2); }
-    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .slide-counter { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .nav-btn:hover { background: var(--surface-high); color: var(--on-surface); }
+    .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .slide-counter {
+      font: 600 12px var(--font-mono);
+      color: var(--on-surface-variant);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      min-width: 64px;
+      text-align: center;
+    }
 
     /* ----- Content pane ----- */
     .content-pane {
-      background: var(--surface);
-      border-left: 1px solid var(--border);
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -415,176 +576,205 @@
     }
     .pane-tabs {
       display: flex;
-      border-bottom: 1px solid var(--border);
+      align-items: center;
       padding: 0 16px;
+      height: 44px;
       flex-shrink: 0;
+      position: relative;
+    }
+    .pane-tabs::after {
+      content: '';
+      position: absolute;
+      left: 16px; right: 16px; bottom: 0;
+      height: 1px;
+      background: var(--ghost-border);
     }
     .tab-btn {
-      padding: 12px 16px;
-      font-size: 13px;
+      height: 44px;
+      padding: 0 12px;
+      font-size: 12.5px;
       font-weight: 500;
-      color: var(--text-3);
-      border-bottom: 2px solid transparent;
-      transition: all 0.15s;
+      color: var(--on-surface-variant);
+      position: relative;
       display: flex;
       align-items: center;
       gap: 6px;
+      transition: color var(--dur-base);
     }
-    .tab-btn:hover { color: var(--text-2); }
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
+    .tab-btn:hover { color: var(--on-surface); }
+    .tab-btn.active { color: var(--on-surface); font-weight: 600; }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      left: 8px; right: 8px; bottom: -1px;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 2px 2px 0 0;
+      z-index: 1;
     }
     .tab-badge {
-      background: var(--surface-2);
-      color: var(--text-3);
       padding: 1px 6px;
-      border-radius: 8px;
-      font-size: 10px;
-      font-weight: 600;
+      border-radius: var(--r-sm);
+      background: var(--surface-low);
+      color: var(--text-muted);
+      font: 600 10px/1.4 var(--font-mono);
+      font-variant-numeric: tabular-nums;
     }
     .tab-btn.active .tab-badge {
-      background: var(--primary-soft);
-      color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
     }
+    .tab-btn svg { color: currentColor; }
 
     .pane-content {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 20px;
+      padding: 16px 20px 24px;
       min-height: 0;
     }
     .pane-section { display: none; }
     .pane-section.active { display: block; }
 
     /* Transcript */
-    .transcript-list {
-      display: flex; flex-direction: column; gap: 12px;
-    }
+    .transcript-list { display: flex; flex-direction: column; gap: 4px; }
     .utterance {
       display: flex;
-      gap: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      transition: background 0.15s;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--r);
+      transition: background var(--dur-fast);
+      cursor: pointer;
     }
-    .utterance:hover { background: var(--surface-2); }
-    .utterance.highlighted {
-      background: var(--primary-soft);
-      box-shadow: inset 0 0 0 1px var(--primary);
-    }
+    .utterance:hover { background: var(--primary-light); }
     .speaker-badge {
       flex-shrink: 0;
-      width: 36px; height: 36px;
+      width: 30px; height: 30px;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: white;
+      display: grid; place-items: center;
+      font: 700 10px 'Inter', sans-serif;
+      letter-spacing: -0.02em;
+      color: #fff;
     }
-    .speaker-badge.sales { background: linear-gradient(135deg, #2563eb, #7c3aed); }
-    .speaker-badge.customer { background: linear-gradient(135deg, #6b7280, #4b5563); }
+    .speaker-badge.sales { background: linear-gradient(135deg, var(--primary-fixed), var(--primary-dark)); }
+    .speaker-badge.customer { background: linear-gradient(135deg, #9aa39d, #5a6660); }
     .utterance-body { flex: 1; min-width: 0; }
     .utterance-meta {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 8px;
-      font-size: 11px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
-    .speaker-name { font-weight: 600; color: var(--text-2); }
-    .utterance-time { color: var(--text-3); font-variant-numeric: tabular-nums; }
-    .utterance-text { font-size: 13.5px; color: var(--text); line-height: 1.6; }
-    .utterance.has-feedback .utterance-text::after {
-      content: '💬';
+    .speaker-name { font-weight: 600; color: var(--on-surface); font-size: 12px; }
+    .utterance-time {
+      color: var(--text-muted);
+      font: 500 10.5px var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
+    }
+    .utterance-text {
+      font-size: 13px;
+      color: var(--on-surface);
+      line-height: 1.65;
+    }
+    .utterance.has-feedback .utterance-body {
+      position: relative;
+    }
+    .utterance.has-feedback .utterance-body::after {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
       margin-left: 6px;
+      vertical-align: middle;
       opacity: 0.6;
     }
 
-    /* AI Feedback */
-    .feedback-block {
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
-    }
-    .feedback-block.good {
-      background: var(--success-soft);
-      border-color: rgba(16, 185, 129, 0.2);
-    }
-    .feedback-block.improve {
-      background: var(--warning-soft);
-      border-color: rgba(245, 158, 11, 0.2);
-    }
-    .feedback-block.suggest {
-      background: var(--info-soft);
-      border-color: rgba(59, 130, 246, 0.2);
-    }
-    .feedback-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      font-size: 13px;
+    /* AI Feedback panels */
+    .fb-section { margin-bottom: 16px; }
+    .fb-section:last-child { margin-bottom: 0; }
+    .fb-eyebrow {
+      display: flex; align-items: center; gap: 8px;
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       margin-bottom: 8px;
     }
-    .feedback-header.good { color: #065f46; }
-    .feedback-header.improve { color: #92400e; }
-    .feedback-header.suggest { color: #1e40af; }
-    .feedback-list { list-style: none; padding: 0; }
-    .feedback-list li {
-      font-size: 13px;
-      color: var(--text);
-      padding: 4px 0 4px 16px;
+    .fb-eyebrow.good { color: var(--done-text); }
+    .fb-eyebrow.improve { color: var(--warning-border); }
+    .fb-eyebrow.suggest { color: var(--primary-dark); }
+
+    .fb-block {
+      padding: 12px 14px;
+      border-radius: var(--r-lg);
+    }
+    .fb-block.good { background: var(--done-bg); }
+    .fb-block.improve { background: var(--warning-bg); }
+
+    .fb-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .fb-list li {
+      font-size: 12.5px;
+      color: var(--on-surface);
+      padding-left: 14px;
       position: relative;
       line-height: 1.6;
     }
-    .feedback-list li::before {
+    .fb-list li::before {
       content: '';
       position: absolute;
-      left: 4px; top: 11px;
+      left: 2px; top: 9px;
       width: 4px; height: 4px;
       background: currentColor;
       border-radius: 50%;
-      opacity: 0.4;
+      opacity: 0.5;
     }
-    .script-quote {
-      background: white;
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--text);
-      border-left: 3px solid var(--primary);
-      margin-top: 4px;
+    .fb-list li.urgent {
+      padding-left: 22px;
     }
-    .script-quote .quote-label {
-      display: block;
-      font-size: 10px;
-      color: var(--text-3);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-      font-weight: 600;
+    .fb-list li.urgent::before {
+      content: '!';
+      left: 2px; top: 0;
+      width: 14px; height: 14px;
+      background: var(--warning-accent);
+      color: #fff;
+      border-radius: var(--r-sm);
+      display: grid; place-items: center;
+      font: 700 10px var(--font-mono);
+      opacity: 1;
     }
 
-    /* Summary tab */
-    .summary-section {
-      margin-bottom: 24px;
+    .script-quote {
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      padding: 12px 14px;
+      font-size: 12.5px;
+      line-height: 1.7;
+      color: var(--on-surface);
+      position: relative;
+      padding-left: 18px;
     }
-    .summary-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-3);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .script-quote::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 12px; bottom: 12px;
+      width: 3px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    /* Summary */
+    .summary-section { margin-bottom: 24px; }
+    .summary-section:last-child { margin-bottom: 0; }
+    .summary-header {
+      display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 10px;
     }
+
     .score-card {
-      display: flex; align-items: center; gap: 16px;
+      display: flex; align-items: center; gap: 18px;
       padding: 16px;
-      background: linear-gradient(135deg, var(--primary-soft) 0%, #ede9fe 100%);
-      border-radius: 10px;
+      background: var(--primary-light);
+      border-radius: var(--r-xl);
       margin-bottom: 20px;
     }
     .score-ring {
@@ -595,140 +785,297 @@
     .score-value {
       position: absolute;
       inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary);
+      display: grid; place-items: center;
+      font: 700 20px var(--font-mono);
+      color: var(--primary-dark);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
     }
     .score-text { flex: 1; }
     .score-text strong {
       display: block;
-      font-size: 15px;
-      margin-bottom: 2px;
+      font-size: 14px;
+      color: var(--on-surface);
+      margin-bottom: 4px;
     }
     .score-text span {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--on-surface-variant);
+      line-height: 1.55;
     }
+
     .phase-bar {
       display: flex;
       gap: 4px;
-      margin-top: 8px;
     }
     .phase-step {
       flex: 1;
-      padding: 8px;
-      background: var(--surface-2);
-      border-radius: 4px;
+      padding: 8px 6px;
+      background: var(--surface-low);
+      border-radius: var(--r);
       font-size: 11px;
       font-weight: 500;
       text-align: center;
-      color: var(--text-3);
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
     }
     .phase-step.done {
-      background: var(--success);
-      color: white;
+      background: var(--done-bg);
+      color: var(--done-text);
     }
     .phase-step.current {
       background: var(--primary);
-      color: white;
-    }
-    .action-list { display: flex; flex-direction: column; gap: 8px; }
-    .action-item {
-      display: flex;
-      gap: 10px;
-      padding: 12px;
-      background: var(--surface-2);
-      border-radius: 6px;
-      font-size: 13px;
-    }
-    .action-checkbox {
-      width: 18px; height: 18px;
-      border: 2px solid var(--border-strong);
-      border-radius: 4px;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .action-content { flex: 1; }
-    .action-title { font-weight: 500; margin-bottom: 2px; }
-    .action-meta {
-      font-size: 11px;
-      color: var(--text-3);
-      display: flex;
-      gap: 8px;
-    }
-    .priority-tag {
-      padding: 1px 6px;
-      border-radius: 3px;
-      font-size: 10px;
+      color: var(--on-primary);
       font-weight: 600;
     }
-    .priority-tag.high { background: #fee2e2; color: #991b1b; }
-    .priority-tag.mid { background: #fef3c7; color: #92400e; }
-    .priority-tag.low { background: #e0e7ff; color: #3730a3; }
+
+    .action-list { display: flex; flex-direction: column; gap: 6px; }
+    .action-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      transition: background var(--dur-base);
+    }
+    .action-item:hover { background: var(--surface-high); }
+    .action-check {
+      width: 16px; height: 16px;
+      border: 1.5px solid var(--outline-variant);
+      border-radius: var(--r-sm);
+      flex-shrink: 0;
+      margin-top: 2px;
+      cursor: pointer;
+      transition: border-color var(--dur-base);
+    }
+    .action-check:hover { border-color: var(--primary); }
+    .action-content { flex: 1; min-width: 0; }
+    .action-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--on-surface);
+      margin-bottom: 4px;
+    }
+    .action-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--on-surface-variant);
+    }
+    .action-due {
+      display: inline-flex; align-items: center; gap: 4px;
+      font: 500 11px var(--font-mono);
+      color: var(--on-surface-variant);
+      font-variant-numeric: tabular-nums;
+    }
+    .action-note { color: var(--text-muted); font-size: 11px; }
+
+    .chip {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: var(--r-sm);
+      font: 700 10px var(--font-mono);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .chip-high { background: var(--danger-weak); color: var(--danger); }
+    .chip-mid  { background: var(--warning-bg); color: var(--warning-text); }
+    .chip-low  { background: var(--done-bg); color: var(--done-text); }
+    .chip-info { background: var(--primary-light); color: var(--primary-dark); }
+
+    .bant-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bant-row {
+      padding: 10px 12px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .bant-row-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+    }
+    .bant-key {
+      font: 700 11px var(--font-mono);
+      color: var(--on-surface);
+      letter-spacing: 0.04em;
+    }
+    .bant-key-sub {
+      font: 500 10px var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .bant-note { font-size: 11.5px; color: var(--on-surface-variant); line-height: 1.55; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-strong);
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+    ::-webkit-scrollbar-thumb { background: var(--surface-highest); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--surface-bright); }
 
-    /* Empty / loading states */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-3);
-    }
-    .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
-
-    @media (max-width: 1024px) {
-      .workspace { grid-template-columns: 1fr; }
-      .content-pane { border-left: none; border-top: 1px solid var(--border); }
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .slide { animation: none !important; }
     }
   </style>
 </head>
 <body>
+  <!-- Inline SVG icon symbols, used via <use href="#icon-name"> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-doc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 2.5h7l3 3v12h-10z"/>
+        <path d="M12 2.5v3h3"/>
+        <path d="M7.5 10h5M7.5 13h5M7.5 7h2"/>
+      </symbol>
+      <symbol id="i-mic" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="8" y="2.5" width="4" height="9" rx="2"/>
+        <path d="M5.5 9.5a4.5 4.5 0 0 0 9 0"/>
+        <path d="M10 14v3M7.5 17h5"/>
+      </symbol>
+      <symbol id="i-sparkle" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 3v3M10 14v3M3 10h3M14 10h3M5 5l2 2M13 13l2 2M5 15l2-2M13 7l2-2"/>
+      </symbol>
+      <symbol id="i-transcript" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 4.5h14v9H8l-3 3v-3H3z"/>
+        <path d="M6 8h8M6 11h5"/>
+      </symbol>
+      <symbol id="i-chart" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 16h14"/>
+        <rect x="5" y="9" width="2.5" height="6"/>
+        <rect x="9" y="5" width="2.5" height="10"/>
+        <rect x="13" y="11" width="2.5" height="4"/>
+      </symbol>
+      <symbol id="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 10.5l4 4 8-8"/>
+      </symbol>
+      <symbol id="i-alert" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 3 L18 16 L2 16 Z"/>
+        <path d="M10 8v4"/>
+        <circle cx="10" cy="14" r="0.6" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="i-bulb" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 13a4.5 4.5 0 1 1 6 0c-.6.5-1 1.3-1 2v.5h-4V15c0-.7-.4-1.5-1-2z"/>
+        <path d="M8.5 18h3"/>
+      </symbol>
+      <symbol id="i-checklist" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3.5" width="14" height="13" rx="1.5"/>
+        <path d="M6 7.5l1.5 1.5L10 6.5M6 12.5l1.5 1.5L10 11.5"/>
+        <path d="M12 8h3M12 13h3"/>
+      </symbol>
+      <symbol id="i-calendar" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="14" height="13" rx="1.5"/>
+        <path d="M3 8h14M7 2.5v3M13 2.5v3"/>
+      </symbol>
+      <symbol id="i-arrow-l" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 4l-6 6 6 6"/>
+      </symbol>
+      <symbol id="i-arrow-r" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 4l6 6-6 6"/>
+      </symbol>
+      <symbol id="i-factory" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 17V8l4 2V8l4 2V8l4 2v7z"/>
+        <path d="M3 17h14"/>
+        <path d="M11 13h.01M7 13h.01"/>
+      </symbol>
+      <symbol id="i-phone" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="2.5" width="8" height="15" rx="1.5"/>
+        <path d="M9 15h2"/>
+      </symbol>
+      <symbol id="i-bolt" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 2 4 11h5l-1 7 7-9h-5z"/>
+      </symbol>
+      <symbol id="i-cpu" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="5" width="10" height="10" rx="1"/>
+        <rect x="8" y="8" width="4" height="4"/>
+        <path d="M2.5 8h2.5M2.5 12h2.5M15 8h2.5M15 12h2.5M8 2.5v2.5M12 2.5v2.5M8 15v2.5M12 15v2.5"/>
+      </symbol>
+      <symbol id="i-clock" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="10" cy="10" r="7"/>
+        <path d="M10 6v4l2.5 2.5"/>
+      </symbol>
+      <symbol id="i-ban" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="10" cy="10" r="7"/>
+        <path d="M5 5l10 10"/>
+      </symbol>
+      <symbol id="i-home" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l7-6 7 6v8H3z"/>
+        <path d="M8 17v-5h4v5"/>
+      </symbol>
+      <symbol id="i-list" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 4.5h11M5 10h11M5 15.5h11"/>
+        <circle cx="3" cy="4.5" r="0.6" fill="currentColor" stroke="none"/>
+        <circle cx="3" cy="10" r="0.6" fill="currentColor" stroke="none"/>
+        <circle cx="3" cy="15.5" r="0.6" fill="currentColor" stroke="none"/>
+      </symbol>
+    </defs>
+  </svg>
+
   <header class="app-header">
-    <div style="display: flex; align-items: center;">
-      <div class="logo">
-        <div class="logo-icon">SC</div>
+    <div class="brand-cluster">
+      <div class="brand">
+        <div class="brand-mark">SC</div>
         <span>SalesCoach</span>
       </div>
-      <div class="breadcrumb">
-        商談一覧 / <span class="breadcrumb-current" id="meetingTitle">商談を読み込み中...</span>
-      </div>
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <span>商談一覧</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current" id="meetingTitle">商談を読み込み中…</span>
+      </nav>
     </div>
     <div class="header-right">
-      <span id="meetingMeta"></span>
-      <div class="user-avatar">YK</div>
+      <div class="header-meta">
+        <div class="header-meta-item">
+          <span class="header-meta-label">DATE</span>
+          <span class="header-meta-value mono" id="meetingDate">—</span>
+        </div>
+        <div class="header-meta-item">
+          <span class="header-meta-label">CUSTOMER</span>
+          <span class="header-meta-value" id="meetingCustomer">—</span>
+        </div>
+      </div>
+      <div class="topbar-avatar" title="ユーザー">YK</div>
     </div>
   </header>
 
   <div class="app-main">
     <section class="upload-bar">
       <div class="upload-card" id="slideUpload">
-        <div class="upload-icon">📄</div>
+        <div class="upload-icon"><svg width="16" height="16"><use href="#i-doc"/></svg></div>
         <div class="upload-info">
           <span class="upload-label">提案資料</span>
-          <span class="upload-filename">読み込み中...</span>
+          <span class="upload-filename">読み込み中…</span>
         </div>
       </div>
       <div class="upload-card" id="audioUpload">
-        <div class="upload-icon">🎤</div>
+        <div class="upload-icon"><svg width="16" height="16"><use href="#i-mic"/></svg></div>
         <div class="upload-info">
           <span class="upload-label">商談音声</span>
-          <span class="upload-filename">読み込み中...</span>
+          <span class="upload-filename">読み込み中…</span>
         </div>
       </div>
-      <button class="btn-analyze" id="analyzeBtn">
-        <span>✨</span><span>再分析する</span>
+      <button class="btn btn-primary" id="analyzeBtn">
+        <svg width="14" height="14"><use href="#i-sparkle"/></svg>
+        <span>再分析する</span>
       </button>
       <div class="meta-info">
-        <span>分析完了 <strong id="analyzedAt">-</strong></span>
-        <span>所要 <strong id="duration">-</strong></span>
+        <div class="meta-info-block">
+          <span class="upload-label">分析完了</span>
+          <span class="header-meta-value mono" id="analyzedAt">—</span>
+        </div>
+        <div class="meta-info-block">
+          <span class="upload-label">所要</span>
+          <span class="header-meta-value mono" id="duration">—</span>
+        </div>
       </div>
     </section>
 
@@ -736,27 +1083,40 @@
 
     <section class="workspace">
       <div class="slide-pane">
-        <div class="slide-viewport">
-          <div class="slide" id="slideView"></div>
+        <div class="slide-pane-hd">
+          <div class="slide-pane-hd-left">
+            <span class="eyebrow">Proposal Deck</span>
+            <span class="slide-pane-title" id="paneTitle">—</span>
+          </div>
+          <div class="slide-nav">
+            <button class="nav-btn" id="prevBtn" aria-label="前のスライド">
+              <svg width="14" height="14"><use href="#i-arrow-l"/></svg>
+            </button>
+            <span class="slide-counter" id="slideCounter">01 / 05</span>
+            <button class="nav-btn" id="nextBtn" aria-label="次のスライド">
+              <svg width="14" height="14"><use href="#i-arrow-r"/></svg>
+            </button>
+          </div>
         </div>
-        <div class="slide-nav">
-          <button class="nav-btn" id="prevBtn" aria-label="前のスライド">◀</button>
-          <span class="slide-counter" id="slideCounter">1 / 5</span>
-          <button class="nav-btn" id="nextBtn" aria-label="次のスライド">▶</button>
+        <div class="slide-stage">
+          <div class="slide" id="slideView"></div>
         </div>
       </div>
 
       <div class="content-pane">
-        <div class="pane-tabs">
-          <button class="tab-btn active" data-tab="transcript">
-            <span>📝</span><span>文字起こし</span>
+        <div class="pane-tabs" role="tablist">
+          <button class="tab-btn active" data-tab="transcript" role="tab">
+            <svg width="14" height="14"><use href="#i-transcript"/></svg>
+            <span>文字起こし</span>
             <span class="tab-badge" id="transcriptCount">0</span>
           </button>
-          <button class="tab-btn" data-tab="feedback">
-            <span>✨</span><span>AIフィードバック</span>
+          <button class="tab-btn" data-tab="feedback" role="tab">
+            <svg width="14" height="14"><use href="#i-sparkle"/></svg>
+            <span>AIフィードバック</span>
           </button>
-          <button class="tab-btn" data-tab="summary">
-            <span>📊</span><span>商談全体</span>
+          <button class="tab-btn" data-tab="summary" role="tab">
+            <svg width="14" height="14"><use href="#i-chart"/></svg>
+            <span>商談全体</span>
           </button>
         </div>
 
@@ -764,11 +1124,9 @@
           <div class="pane-section active" id="section-transcript">
             <div class="transcript-list" id="transcriptList"></div>
           </div>
-
           <div class="pane-section" id="section-feedback">
             <div id="feedbackContent"></div>
           </div>
-
           <div class="pane-section" id="section-summary">
             <div id="summaryContent"></div>
           </div>
@@ -779,10 +1137,8 @@
 
   <script>
     /* ============================================================
-       Mock data — represents output of:
-       - Whisper-based STT + speaker diarization
-       - Slide-text alignment via embeddings
-       - Claude-generated per-slide and overall feedback
+       Mock session — represents Whisper STT + diarization,
+       slide-text alignment, and Claude-generated feedback.
        ============================================================ */
     const MOCK_DATA = {
       meta: {
@@ -801,14 +1157,13 @@
           id: 1,
           title: "本日のアジェンダ",
           subtitle: "2026年5月15日 / 株式会社B様",
+          duration: "00:00 – 09:00",
           template: "agenda",
-          content: {
-            items: ["会社紹介", "現状ヒアリング", "ソリューション提案", "料金・スケジュール", "質疑応答"]
-          },
+          content: { items: ["会社紹介", "現状ヒアリング", "ソリューション提案", "料金・スケジュール", "質疑応答"] },
           transcript: [
-            { speaker: "sales", name: "営業 田中", time: "00:42", text: "本日はお忙しい中、お時間をいただきありがとうございます。早速ですが本日のアジェンダをご説明させてください。", hasFeedback: false },
+            { speaker: "sales", name: "営業 田中", time: "00:42", text: "本日はお忙しい中、お時間をいただきありがとうございます。早速ですが本日のアジェンダをご説明させてください。" },
             { speaker: "sales", name: "営業 田中", time: "01:02", text: "まず弊社の会社紹介、その後御社の現状をヒアリングさせていただき、ソリューションのご提案、料金のご説明、最後に質疑応答という流れを想定しております。", hasFeedback: true },
-            { speaker: "customer", name: "顧客 鈴木様", time: "01:28", text: "はい、よろしくお願いします。", hasFeedback: false }
+            { speaker: "customer", name: "顧客 鈴木様", time: "01:28", text: "はい、よろしくお願いします。" }
           ],
           feedback: {
             good: [
@@ -816,8 +1171,8 @@
               "アジェンダを口頭で明示し、商談の見通しを共有できている"
             ],
             improve: [
-              "アジェンダ説明が一方通行。顧客側で特に聞きたいトピックがないか確認していない",
-              "顧客の反応「はい、よろしくお願いします」のみ。エンゲージメントが低いまま次に進んでいる"
+              { text: "アジェンダ説明が一方通行。顧客側で特に聞きたいトピックがないか確認していない" },
+              { text: "顧客の反応「はい、よろしくお願いします」のみ。エンゲージメントが低いまま次に進んでいる" }
             ],
             suggestedScript: "本日は60分お時間をいただきありがとうございます。アジェンダはこちらの流れを想定していますが、鈴木様の方で特にお聞きになりたいテーマや、優先的に時間を取るべきトピックはございますか?"
           }
@@ -826,20 +1181,21 @@
           id: 2,
           title: "御社の勤怠管理における課題",
           subtitle: "事前ヒアリングからの仮説",
+          duration: "09:00 – 18:30",
           template: "issues",
           content: {
             items: [
-              { icon: "📋", name: "紙ベース管理", desc: "タイムカード回収・集計に毎月1週間" },
-              { icon: "⏰", name: "集計工数", desc: "人事2名が他業務を圧迫" },
-              { icon: "🚫", name: "不正打刻リスク", desc: "本人確認手段なし" },
-              { icon: "🏠", name: "リモート未対応", desc: "在宅勤務時の打刻ルール曖昧" }
+              { icon: "i-list", name: "紙ベース管理", desc: "タイムカード回収・集計に毎月1週間" },
+              { icon: "i-clock", name: "集計工数", desc: "人事2名が他業務を圧迫" },
+              { icon: "i-ban", name: "不正打刻リスク", desc: "本人確認手段なし" },
+              { icon: "i-home", name: "リモート未対応", desc: "在宅勤務時の打刻ルール曖昧" }
             ]
           },
           transcript: [
             { speaker: "sales", name: "営業 田中", time: "12:18", text: "事前にお伺いした内容ですと、紙の勤怠表で管理されているとのことでしたが、月次の集計でどのくらい工数がかかっていますか?", hasFeedback: true },
-            { speaker: "customer", name: "顧客 鈴木様", time: "12:38", text: "そうですね…人事担当2名で1週間くらいかかっていますね。月末月初は本当に他の業務が止まってしまって。", hasFeedback: false },
+            { speaker: "customer", name: "顧客 鈴木様", time: "12:38", text: "そうですね…人事担当2名で1週間くらいかかっていますね。月末月初は本当に他の業務が止まってしまって。" },
             { speaker: "sales", name: "営業 田中", time: "13:02", text: "1週間ですか…結構な工数ですね。", hasFeedback: true },
-            { speaker: "customer", name: "顧客 鈴木様", time: "13:10", text: "ええ、それで先日も新入社員の人事面談がずれ込んでしまって。", hasFeedback: false },
+            { speaker: "customer", name: "顧客 鈴木様", time: "13:10", text: "ええ、それで先日も新入社員の人事面談がずれ込んでしまって。" },
             { speaker: "sales", name: "営業 田中", time: "13:22", text: "なるほど。では次に弊社のソリューションをご紹介します。", hasFeedback: true }
           ],
           feedback: {
@@ -848,8 +1204,8 @@
               "事前ヒアリング内容をリファレンスしており、顧客に「準備してきている」印象を与えている"
             ],
             improve: [
-              "「結構な工数ですね」で会話が止まってしまった。顧客の痛みを数値で再認識させる絶好の機会を逃している",
-              "「新入社員の面談がずれ込んだ」という具体的な業務インパクトの発話を拾えていない。ここを深掘りすればソリューションの価値訴求が強くなる"
+              { text: "「結構な工数ですね」で会話が止まってしまった。顧客の痛みを数値で再認識させる絶好の機会を逃している" },
+              { text: "「新入社員の面談がずれ込んだ」という具体的な業務インパクトの発話を拾えていない。ここを深掘りすればソリューションの価値訴求が強くなる" }
             ],
             suggestedScript: "1週間ですか。御社規模（500名）で人事2名×1週間というと、人件費換算で月に約40万円、年間では480万円相当のコストになりますね。さらに今お話いただいた新入社員面談のずれ込みのように、本来の人事業務が止まってしまう機会損失も大きいですね。この『本来やるべき人事業務に集中できない』という状態は、他にも具体的にどんなところで影響が出ていますか?"
           }
@@ -858,19 +1214,20 @@
           id: 3,
           title: "ソリューション概要",
           subtitle: "クラウド勤怠管理 + AI労務分析",
+          duration: "18:30 – 32:00",
           template: "features",
           content: {
             items: [
-              { icon: "📱", name: "スマホ打刻", desc: "GPS+顔認証で不正防止。リモートワークにも完全対応" },
-              { icon: "⚡", name: "自動集計", desc: "残業・休暇・有給管理を完全自動化。給与システム連携可" },
-              { icon: "🤖", name: "AI労務分析", desc: "残業傾向・過重労働の予兆をアラート。コンプライアンス対応" }
+              { icon: "i-phone", name: "スマホ打刻", desc: "GPS+顔認証で不正防止。リモートワークにも完全対応" },
+              { icon: "i-bolt",  name: "自動集計", desc: "残業・休暇・有給管理を完全自動化。給与システム連携可" },
+              { icon: "i-cpu",   name: "AI労務分析", desc: "残業傾向・過重労働の予兆をアラート。コンプライアンス対応" }
             ]
           },
           transcript: [
-            { speaker: "sales", name: "営業 田中", time: "22:14", text: "弊社のソリューションをご紹介します。まず打刻はスマホで、GPSと顔認証で本人確認します。", hasFeedback: false },
+            { speaker: "sales", name: "営業 田中", time: "22:14", text: "弊社のソリューションをご紹介します。まず打刻はスマホで、GPSと顔認証で本人確認します。" },
             { speaker: "customer", name: "顧客 鈴木様", time: "22:48", text: "AI労務分析というのは具体的にどういうものですか?", hasFeedback: true },
             { speaker: "sales", name: "営業 田中", time: "23:02", text: "残業時間の傾向を分析して、過重労働の兆候を事前にアラート表示します。", hasFeedback: true },
-            { speaker: "customer", name: "顧客 鈴木様", time: "23:25", text: "なるほど。それはうちの労務管理にも使えそうですね。最近コンプライアンス監査が厳しくなっていて。", hasFeedback: false }
+            { speaker: "customer", name: "顧客 鈴木様", time: "23:25", text: "なるほど。それはうちの労務管理にも使えそうですね。最近コンプライアンス監査が厳しくなっていて。" }
           ],
           feedback: {
             good: [
@@ -878,28 +1235,29 @@
               "AI機能への質問を顧客側から引き出しており、興味喚起に成功"
             ],
             improve: [
-              "機能を機能ベース（What）で説明している。先ほどヒアリングした課題（不正打刻リスク、リモート未対応）に明示的に紐づけられていない",
-              "コンプライアンス監査の話題を深掘りできていない。決裁プロセスや予算化のキッカケになる可能性があった"
+              { text: "機能を機能ベース（What）で説明している。先ほどヒアリングした課題（不正打刻リスク、リモート未対応）に明示的に紐づけられていない" },
+              { text: "コンプライアンス監査の話題を深掘りできていない。決裁プロセスや予算化のキッカケになる可能性があった" }
             ],
             suggestedScript: "ありがとうございます。先ほど鈴木様にお伺いした『不正打刻リスク』『リモート対応』の2点に対して、このGPS+顔認証はそのまま解決策になります。さらに労務分析については、コンプライアンス監査のお話、もう少し詳しく伺ってもよろしいですか? 監査で指摘されたポイントや、社内で対応を急がれている領域があれば、そこに合わせてご提案を調整できます。"
           }
         },
         {
           id: 4,
-          title: "導入事例:製造業A社様",
+          title: "導入事例: 製造業A社様",
           subtitle: "従業員規模・業種が御社と類似",
+          duration: "32:00 – 43:00",
           template: "case",
           content: {
-            company: "🏭",
+            company: "i-factory",
             stats: [
               { value: "80%", label: "勤怠集計工数を削減" },
-              { value: "4ヶ月", label: "投資回収（ROI）" },
+              { value: "4ヶ月", label: "投資回収 (ROI)" },
               { value: "500名", label: "従業員規模" }
             ]
           },
           transcript: [
-            { speaker: "sales", name: "営業 田中", time: "35:08", text: "事例として、こちらの製造業A社様、御社と同規模ですが、勤怠集計の工数を80%削減できています。投資回収もわずか4ヶ月でした。", hasFeedback: false },
-            { speaker: "customer", name: "顧客 鈴木様", time: "35:35", text: "...", hasFeedback: true },
+            { speaker: "sales", name: "営業 田中", time: "35:08", text: "事例として、こちらの製造業A社様、御社と同規模ですが、勤怠集計の工数を80%削減できています。投資回収もわずか4ヶ月でした。" },
+            { speaker: "customer", name: "顧客 鈴木様", time: "35:35", text: "…", hasFeedback: true },
             { speaker: "customer", name: "顧客 鈴木様", time: "35:48", text: "（沈黙、6秒）", hasFeedback: true },
             { speaker: "sales", name: "営業 田中", time: "35:56", text: "では次に料金についてですが、こちらのスライドをご覧ください。", hasFeedback: true }
           ],
@@ -909,9 +1267,9 @@
               "数値（80%、4ヶ月）でインパクトを明確化"
             ],
             improve: [
-              "🚨 顧客の6秒の沈黙にもかかわらず話題を切り替えてしまった。沈黙は『考えている』『懸念がある』『驚いている』いずれも重要なシグナル",
-              "事例を提示しただけで、顧客に「この事例から何を読み取って欲しいか」を伝えていない",
-              "事例が抽象的（『製造業A社様』）。可能であれば社名公開許可を取り、より具体性を出すべき"
+              { text: "顧客の6秒の沈黙にもかかわらず話題を切り替えてしまった。沈黙は『考えている』『懸念がある』『驚いている』いずれも重要なシグナル", urgent: true },
+              { text: "事例を提示しただけで、顧客に「この事例から何を読み取って欲しいか」を伝えていない" },
+              { text: "事例が抽象的（『製造業A社様』）。可能であれば社名公開許可を取り、より具体性を出すべき" }
             ],
             suggestedScript: "（沈黙の後）鈴木様、いかがでしょうか。少し気になるところや、御社で同じように実現できるか不安に感じられた点があれば率直にお聞かせください。A社様の場合、ご導入前は『現場の高齢ベテラン社員がスマホ打刻に抵抗するのでは』という懸念が最大でしたが、〇〇という導入支援でクリアできました。御社で気になる懸念はどのあたりでしょうか?"
           }
@@ -920,6 +1278,7 @@
           id: 5,
           title: "料金プラン & 導入スケジュール",
           subtitle: "御社規模（500名）でのお見積もり",
+          duration: "43:00 – 58:34",
           template: "pricing",
           content: {
             amount: "¥600,000",
@@ -931,19 +1290,17 @@
             ]
           },
           transcript: [
-            { speaker: "sales", name: "営業 田中", time: "45:12", text: "料金は1名月額1,200円で、御社の500名規模ですと月60万円となります。初期費用は50万円、導入期間は約3ヶ月を想定しています。", hasFeedback: false },
+            { speaker: "sales", name: "営業 田中", time: "45:12", text: "料金は1名月額1,200円で、御社の500名規模ですと月60万円となります。初期費用は50万円、導入期間は約3ヶ月を想定しています。" },
             { speaker: "customer", name: "顧客 鈴木様", time: "45:48", text: "うちは500名なので、月60万円ですか…思ったより高いですね。", hasFeedback: true },
             { speaker: "sales", name: "営業 田中", time: "46:02", text: "そうですね、ただ先ほどの工数削減で十分にペイできる金額かと…", hasFeedback: true },
             { speaker: "customer", name: "顧客 鈴木様", time: "46:18", text: "そうですね…一旦持ち帰って検討します。", hasFeedback: true }
           ],
           feedback: {
-            good: [
-              "価格について顧客から率直な反応（『思ったより高い』）を引き出せた。これ自体は前向きシグナル"
-            ],
+            good: ["価格について顧客から率直な反応（『思ったより高い』）を引き出せた。これ自体は前向きシグナル"],
             improve: [
-              "🚨 『思ったより高い』への返しが、感情への共感ゼロでいきなりROI論理に走った。顧客は「気持ちを汲んでもらえなかった」と感じやすい",
-              "🚨 『持ち帰り検討』というクロージング失敗。次のアポイントメント取得・決裁者の把握・懸念の言語化ができていない",
-              "予算感の事前確認を商談前にしておくべきだった（次回は事前にBANT-Bを確認）"
+              { text: "『思ったより高い』への返しが、感情への共感ゼロでいきなりROI論理に走った。顧客は「気持ちを汲んでもらえなかった」と感じやすい", urgent: true },
+              { text: "『持ち帰り検討』というクロージング失敗。次のアポイントメント取得・決裁者の把握・懸念の言語化ができていない", urgent: true },
+              { text: "予算感の事前確認を商談前にしておくべきだった（次回は事前にBANT-Bを確認）" }
             ],
             suggestedScript: "そうですよね、月60万円というのは、即決できる金額ではないですよね。私もそう思います。ただ、先ほどお伺いした年480万円の人件費削減効果に加えて、機会損失（人事業務停滞）を考えると年間でプラスになる試算もできます。鈴木様、よろしければ次回、社長様や経理ご担当者様にもご同席いただいて、ROIシートを正式にお持ちしてご説明する場を設けさせていただけないでしょうか? 現時点で気になっている懸念点を教えていただければ、それも次回までに整理してお持ちします。"
           }
@@ -971,10 +1328,10 @@
           { title: "コンプライアンス監査の指摘事項を共有依頼", priority: "low", due: "次回商談時", note: "提案調整のための情報収集" }
         ],
         bant: {
-          B: { value: "未確認", note: "持ち帰り検討の理由として予算感の可能性大" },
-          A: { value: "確認済", note: "鈴木様は人事部長、最終決裁は社長" },
-          N: { value: "明確", note: "工数削減・コンプラ対応の必要性は強い" },
-          T: { value: "未確認", note: "コンプライアンス監査の時期次第" }
+          B: { label: "Budget", value: "未確認", note: "持ち帰り検討の理由として予算感の可能性大", tone: "high" },
+          A: { label: "Authority", value: "確認済", note: "鈴木様は人事部長、最終決裁は社長", tone: "low" },
+          N: { label: "Need", value: "明確", note: "工数削減・コンプラ対応の必要性は強い", tone: "low" },
+          T: { label: "Timeline", value: "未確認", note: "コンプライアンス監査の時期次第", tone: "high" }
         },
         phase: { current: 1, steps: ["Discovery", "Solution Fit", "Proposal", "Negotiation", "Closing"] }
       }
@@ -989,19 +1346,32 @@
     };
 
     /* ============================================================
-       Rendering
+       Helpers
+       ============================================================ */
+    function svgIcon(id, size = 14) {
+      return `<svg width="${size}" height="${size}"><use href="#${id}"/></svg>`;
+    }
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* ============================================================
+       Render
        ============================================================ */
     function renderHeader() {
       document.getElementById('meetingTitle').textContent = MOCK_DATA.meta.title;
-      document.getElementById('meetingMeta').textContent =
-        `${MOCK_DATA.meta.meetingDate} · ${MOCK_DATA.meta.customerCompany}`;
+      document.getElementById('meetingDate').textContent = MOCK_DATA.meta.meetingDate;
+      document.getElementById('meetingCustomer').textContent = MOCK_DATA.meta.customerCompany;
       document.getElementById('analyzedAt').textContent = MOCK_DATA.meta.analyzedAt;
       document.getElementById('duration').textContent = MOCK_DATA.meta.duration;
-
-      const slideCard = document.getElementById('slideUpload');
-      slideCard.querySelector('.upload-filename').textContent = MOCK_DATA.meta.files.slides;
-      const audioCard = document.getElementById('audioUpload');
-      audioCard.querySelector('.upload-filename').textContent = MOCK_DATA.meta.files.audio;
+      document.querySelector('#slideUpload .upload-filename').textContent = MOCK_DATA.meta.files.slides;
+      document.querySelector('#audioUpload .upload-filename').textContent = MOCK_DATA.meta.files.audio;
     }
 
     function renderThumbnails() {
@@ -1011,9 +1381,11 @@
         const thumb = document.createElement('div');
         thumb.className = 'thumbnail' + (idx === state.currentSlideIdx ? ' active' : '');
         thumb.innerHTML = `
-          <span class="thumbnail-num">${idx + 1}</span>
-          <div class="thumbnail-title">${escapeHtml(slide.title)}</div>
-          <div class="thumbnail-preview">${escapeHtml(slide.subtitle || '')}</div>
+          <div class="thumb-meta">
+            <span class="thumb-num">${String(idx + 1).padStart(2, '0')}</span>
+            <span class="thumb-dur">${escapeHtml(slide.duration || '')}</span>
+          </div>
+          <div class="thumb-title">${escapeHtml(slide.title)}</div>
         `;
         thumb.addEventListener('click', () => goToSlide(idx));
         strip.appendChild(thumb);
@@ -1022,17 +1394,21 @@
 
     function renderSlide() {
       const slide = MOCK_DATA.slides[state.currentSlideIdx];
+      const total = MOCK_DATA.slides.length;
+      document.getElementById('paneTitle').textContent = MOCK_DATA.meta.files.slides;
+      document.getElementById('slideCounter').textContent = `${String(state.currentSlideIdx + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+      document.getElementById('prevBtn').disabled = state.currentSlideIdx === 0;
+      document.getElementById('nextBtn').disabled = state.currentSlideIdx === total - 1;
+
       const view = document.getElementById('slideView');
       view.innerHTML = `
-        <div class="slide-header">
+        <div class="slide-head">
+          <div class="slide-head-eyebrow">${escapeHtml(slide.duration || '')}</div>
           <div class="slide-title">${escapeHtml(slide.title)}</div>
           <div class="slide-subtitle">${escapeHtml(slide.subtitle || '')}</div>
         </div>
         <div class="slide-body">${renderSlideBody(slide)}</div>
       `;
-      document.getElementById('slideCounter').textContent = `${state.currentSlideIdx + 1} / ${MOCK_DATA.slides.length}`;
-      document.getElementById('prevBtn').disabled = state.currentSlideIdx === 0;
-      document.getElementById('nextBtn').disabled = state.currentSlideIdx === MOCK_DATA.slides.length - 1;
     }
 
     function renderSlideBody(slide) {
@@ -1042,7 +1418,7 @@
           return `<div class="agenda-list">${
             c.items.map((it, i) => `
               <div class="agenda-item">
-                <div class="agenda-num">${i + 1}</div>
+                <div class="agenda-num">${String(i + 1).padStart(2, '0')}</div>
                 <div>${escapeHtml(it)}</div>
               </div>
             `).join('')
@@ -1051,7 +1427,7 @@
           return `<div class="issue-grid">${
             c.items.map(it => `
               <div class="issue-card">
-                <div class="issue-icon">${it.icon}</div>
+                <div class="issue-icon">${svgIcon(it.icon, 16)}</div>
                 <div class="issue-name">${escapeHtml(it.name)}</div>
                 <div class="issue-desc">${escapeHtml(it.desc)}</div>
               </div>
@@ -1061,7 +1437,7 @@
           return `<div class="feature-grid">${
             c.items.map(it => `
               <div class="feature-card">
-                <div class="feature-icon">${it.icon}</div>
+                <div class="feature-icon">${svgIcon(it.icon, 22)}</div>
                 <div class="feature-name">${escapeHtml(it.name)}</div>
                 <div class="feature-desc">${escapeHtml(it.desc)}</div>
               </div>
@@ -1070,7 +1446,7 @@
         case 'case':
           return `
             <div class="case-content">
-              <div class="case-logo">${c.company}</div>
+              <div class="case-logo">${svgIcon(c.company, 36)}</div>
               <div class="case-stats">${
                 c.stats.map(s => `
                   <div class="stat-card">
@@ -1085,6 +1461,7 @@
           return `
             <div class="pricing-grid">
               <div class="price-main">
+                <div class="price-eyebrow">Estimated</div>
                 <div class="price-amount">${escapeHtml(c.amount)}</div>
                 <div class="price-unit">${escapeHtml(c.unit)}</div>
               </div>
@@ -1125,27 +1502,27 @@
     function renderFeedback() {
       const slide = MOCK_DATA.slides[state.currentSlideIdx];
       const fb = slide.feedback;
+      const improveList = fb.improve.map(i => {
+        const t = typeof i === 'string' ? { text: i } : i;
+        return `<li${t.urgent ? ' class="urgent"' : ''}>${escapeHtml(t.text)}</li>`;
+      }).join('');
+
       document.getElementById('feedbackContent').innerHTML = `
-        <div class="feedback-block good">
-          <div class="feedback-header good">
-            <span>✅</span><span>良かった点</span>
+        <div class="fb-section">
+          <div class="fb-eyebrow good">${svgIcon('i-check', 12)}<span>Strengths</span></div>
+          <div class="fb-block good">
+            <ul class="fb-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
           </div>
-          <ul class="feedback-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
         </div>
-        <div class="feedback-block improve">
-          <div class="feedback-header improve">
-            <span>⚠️</span><span>改善ポイント</span>
+        <div class="fb-section">
+          <div class="fb-eyebrow improve">${svgIcon('i-alert', 12)}<span>Opportunities</span></div>
+          <div class="fb-block improve">
+            <ul class="fb-list">${improveList}</ul>
           </div>
-          <ul class="feedback-list">${fb.improve.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
         </div>
-        <div class="feedback-block suggest">
-          <div class="feedback-header suggest">
-            <span>💡</span><span>改善トーク案</span>
-          </div>
-          <div class="script-quote">
-            <span class="quote-label">推奨トーク</span>
-            ${escapeHtml(fb.suggestedScript)}
-          </div>
+        <div class="fb-section">
+          <div class="fb-eyebrow suggest">${svgIcon('i-bulb', 12)}<span>Suggested Script</span></div>
+          <div class="script-quote">${escapeHtml(fb.suggestedScript)}</div>
         </div>
       `;
     }
@@ -1153,6 +1530,7 @@
     function renderSummary() {
       const o = MOCK_DATA.overall;
       const scorePct = (o.score / 10) * 100;
+      const dasharray = (scorePct / 100) * 175.93;
       const phaseSteps = o.phase.steps.map((step, i) => {
         let cls = '';
         if (i < o.phase.current) cls = 'done';
@@ -1162,30 +1540,31 @@
 
       const actionList = o.nextActions.map(a => `
         <div class="action-item">
-          <div class="action-checkbox"></div>
+          <div class="action-check"></div>
           <div class="action-content">
             <div class="action-title">${escapeHtml(a.title)}</div>
             <div class="action-meta">
-              <span class="priority-tag ${a.priority}">${a.priority === 'high' ? '優先度: 高' : a.priority === 'mid' ? '優先度: 中' : '優先度: 低'}</span>
-              <span>📅 ${escapeHtml(a.due)}</span>
-              <span>${escapeHtml(a.note)}</span>
+              <span class="chip chip-${a.priority}">${a.priority === 'high' ? 'P1' : a.priority === 'mid' ? 'P2' : 'P3'}</span>
+              <span class="action-due">${svgIcon('i-calendar', 11)} ${escapeHtml(a.due)}</span>
+              <span class="action-note">· ${escapeHtml(a.note)}</span>
             </div>
           </div>
         </div>
       `).join('');
 
-      const bantRows = Object.entries(o.bant).map(([k, v]) => {
-        const labels = { B: 'Budget (予算)', A: 'Authority (決裁権)', N: 'Need (必要性)', T: 'Timeline (期限)' };
-        const tagClass = v.value === '確認済' || v.value === '明確' ? 'low' : 'high';
+      const bantOrder = ['B', 'A', 'N', 'T'];
+      const bantRows = bantOrder.map(k => {
+        const v = o.bant[k];
         return `
-          <div class="action-item">
-            <div class="action-content">
-              <div class="action-title">${labels[k]}</div>
-              <div class="action-meta">
-                <span class="priority-tag ${tagClass}">${escapeHtml(v.value)}</span>
-                <span>${escapeHtml(v.note)}</span>
+          <div class="bant-row">
+            <div class="bant-row-head">
+              <div>
+                <span class="bant-key">${k}</span>
+                <span class="bant-key-sub">${escapeHtml(v.label).toUpperCase()}</span>
               </div>
+              <span class="chip chip-${v.tone}">${escapeHtml(v.value)}</span>
             </div>
+            <div class="bant-note">${escapeHtml(v.note)}</div>
           </div>
         `;
       }).join('');
@@ -1193,54 +1572,65 @@
       document.getElementById('summaryContent').innerHTML = `
         <div class="score-card">
           <div class="score-ring">
-            <svg viewBox="0 0 64 64" width="64" height="64">
-              <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e7eb" stroke-width="6"/>
-              <circle cx="32" cy="32" r="28" fill="none" stroke="#2563eb" stroke-width="6"
-                stroke-dasharray="${(scorePct / 100) * 175.93} 175.93"
+            <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+              <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(189,202,189,0.4)" stroke-width="5"/>
+              <circle cx="32" cy="32" r="28" fill="none" stroke="#36A191" stroke-width="5"
+                stroke-dasharray="${dasharray} 175.93"
                 stroke-linecap="round"
                 transform="rotate(-90 32 32)"/>
             </svg>
             <div class="score-value">${o.score}</div>
           </div>
           <div class="score-text">
-            <strong>商談スコア: ${o.scoreLabel}</strong>
+            <strong>商談スコア: ${escapeHtml(o.scoreLabel)}</strong>
             <span>${escapeHtml(o.summary)}</span>
           </div>
         </div>
 
         <div class="summary-section">
-          <div class="summary-title">商談フェーズ</div>
+          <div class="summary-header">
+            <span class="eyebrow">Deal Phase</span>
+          </div>
           <div class="phase-bar">${phaseSteps}</div>
         </div>
 
         <div class="summary-section">
-          <div class="summary-title">✅ 強み</div>
-          <div class="feedback-block good">
-            <ul class="feedback-list">${o.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
+          <div class="summary-header">
+            <span class="eyebrow">Strengths</span>
+          </div>
+          <div class="fb-block good">
+            <ul class="fb-list">${o.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
           </div>
         </div>
 
         <div class="summary-section">
-          <div class="summary-title">⚠️ 改善点</div>
-          <div class="feedback-block improve">
-            <ul class="feedback-list">${o.improvements.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
+          <div class="summary-header">
+            <span class="eyebrow">Opportunities</span>
+          </div>
+          <div class="fb-block improve">
+            <ul class="fb-list">${o.improvements.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
           </div>
         </div>
 
         <div class="summary-section">
-          <div class="summary-title">📋 次回までのアクション</div>
+          <div class="summary-header">
+            <span class="eyebrow">Next Actions</span>
+            <span class="chip chip-info">${o.nextActions.length}</span>
+          </div>
           <div class="action-list">${actionList}</div>
         </div>
 
         <div class="summary-section">
-          <div class="summary-title">📊 BANT判定</div>
-          <div class="action-list">${bantRows}</div>
+          <div class="summary-header">
+            <span class="eyebrow">BANT Status</span>
+          </div>
+          <div class="bant-grid">${bantRows}</div>
         </div>
       `;
     }
 
     /* ============================================================
-       Interactivity
+       Interactions
        ============================================================ */
     function goToSlide(idx) {
       if (idx < 0 || idx >= MOCK_DATA.slides.length) return;
@@ -1261,19 +1651,6 @@
       });
     }
 
-    function escapeHtml(str) {
-      if (str == null) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    /* ============================================================
-       Init
-       ============================================================ */
     document.addEventListener('DOMContentLoaded', () => {
       renderHeader();
       renderThumbnails();
