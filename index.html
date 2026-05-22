@@ -1,41 +1,1309 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-    <link href="https://keiichi3205.github.io/task_test/style.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-</head> 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SalesCoach | 商談分析ツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #f1f3f6;
+      --border: #e5e7eb;
+      --border-strong: #d1d5db;
+      --text: #1a1a1a;
+      --text-2: #4b5563;
+      --text-3: #6b7280;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #10b981;
+      --success-soft: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-soft: #fffbeb;
+      --info: #3b82f6;
+      --info-soft: #eff6ff;
+      --slide-bg: #1e293b;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04);
+    }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* ============ HEADER ============ */
+    .app-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+    }
+    .breadcrumb {
+      color: var(--text-3);
+      font-size: 13px;
+      margin-left: 16px;
+    }
+    .breadcrumb-current { color: var(--text); font-weight: 500; }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    /* ============ LAYOUT ============ */
+    .app-main {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 56px);
+    }
+    .upload-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .upload-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      transition: all 0.15s;
+      min-width: 200px;
+    }
+    .upload-card:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .upload-icon {
+      width: 32px; height: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .upload-info {
+      display: flex; flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+    .upload-label {
+      font-size: 11px;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .upload-filename {
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .upload-card.empty .upload-filename { color: var(--text-3); }
+    .btn-analyze {
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .btn-analyze:hover { background: var(--primary-hover); }
+    .btn-analyze:disabled {
+      background: var(--surface-2);
+      color: var(--text-3);
+      cursor: not-allowed;
+    }
+    .meta-info {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-3);
+    }
+    .meta-info strong { color: var(--text-2); font-weight: 600; }
+
+    /* ============ THUMBNAIL STRIP ============ */
+    .thumbnail-strip {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+    .thumbnail {
+      flex-shrink: 0;
+      width: 130px;
+      aspect-ratio: 16 / 9;
+      background: var(--surface-2);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      overflow: hidden;
+      position: relative;
+      font-size: 9px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .thumbnail:hover { border-color: var(--border-strong); }
+    .thumbnail.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+    .thumbnail-num {
+      position: absolute;
+      top: 4px; right: 6px;
+      font-size: 10px;
+      color: var(--text-3);
+      font-weight: 600;
+    }
+    .thumbnail-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .thumbnail-preview {
+      flex: 1;
+      margin-top: 4px;
+      font-size: 8px;
+      color: var(--text-3);
+      line-height: 1.4;
+      overflow: hidden;
+    }
+
+    /* ============ WORKSPACE ============ */
+    .workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ----- Slide pane ----- */
+    .slide-pane {
+      background: var(--slide-bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .slide-viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      min-height: 0;
+    }
+    .slide {
+      width: 100%;
+      max-width: 720px;
+      aspect-ratio: 16 / 9;
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      padding: 40px 48px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-header {
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+    .slide-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .slide-subtitle {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-top: 4px;
+    }
+    .slide-body { flex: 1; overflow: hidden; }
+
+    /* Slide content variants */
+    .agenda-list { display: flex; flex-direction: column; gap: 12px; }
+    .agenda-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 12px 16px;
+      background: var(--surface-2);
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .agenda-num {
+      width: 28px; height: 28px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .issue-card {
+      padding: 16px;
+      background: var(--surface-2);
+      border-left: 4px solid var(--warning);
+      border-radius: 4px;
+    }
+    .issue-icon { font-size: 20px; margin-bottom: 6px; }
+    .issue-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .issue-desc { font-size: 12px; color: var(--text-3); }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .feature-card {
+      padding: 16px;
+      background: var(--primary-soft);
+      border-radius: 6px;
+      text-align: center;
+    }
+    .feature-icon { font-size: 28px; margin-bottom: 8px; }
+    .feature-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .feature-desc { font-size: 11px; color: var(--text-3); line-height: 1.4; }
+
+    .case-content { display: flex; gap: 24px; align-items: center; }
+    .case-logo {
+      width: 100px; height: 100px;
+      background: var(--surface-2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+    .case-stats { display: flex; gap: 12px; flex: 1; flex-wrap: wrap; }
+    .stat-card {
+      padding: 16px;
+      background: var(--success-soft);
+      border-radius: 6px;
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+    }
+    .stat-value { font-size: 26px; font-weight: 700; color: var(--success); }
+    .stat-label { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+
+    .pricing-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+    .price-main {
+      padding: 20px;
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      color: white;
+      border-radius: 8px;
+    }
+    .price-amount { font-size: 36px; font-weight: 700; line-height: 1; }
+    .price-unit { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+    .price-side {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .price-row {
+      padding: 12px;
+      background: var(--surface-2);
+      border-radius: 6px;
+    }
+    .price-row-label { font-size: 11px; color: var(--text-3); }
+    .price-row-value { font-size: 15px; font-weight: 600; margin-top: 2px; }
+
+    /* Slide nav */
+    .slide-nav {
+      padding: 12px 24px;
+      background: rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: rgba(255,255,255,0.7);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.2); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .slide-counter { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+    /* ----- Content pane ----- */
+    .content-pane {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .pane-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn:hover { color: var(--text-2); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-badge {
+      background: var(--surface-2);
+      color: var(--text-3);
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .tab-btn.active .tab-badge {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .pane-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      min-height: 0;
+    }
+    .pane-section { display: none; }
+    .pane-section.active { display: block; }
+
+    /* Transcript */
+    .transcript-list {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .utterance {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .utterance:hover { background: var(--surface-2); }
+    .utterance.highlighted {
+      background: var(--primary-soft);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+    .speaker-badge {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+    }
+    .speaker-badge.sales { background: linear-gradient(135deg, #2563eb, #7c3aed); }
+    .speaker-badge.customer { background: linear-gradient(135deg, #6b7280, #4b5563); }
+    .utterance-body { flex: 1; min-width: 0; }
+    .utterance-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+    .speaker-name { font-weight: 600; color: var(--text-2); }
+    .utterance-time { color: var(--text-3); font-variant-numeric: tabular-nums; }
+    .utterance-text { font-size: 13.5px; color: var(--text); line-height: 1.6; }
+    .utterance.has-feedback .utterance-text::after {
+      content: '💬';
+      margin-left: 6px;
+      opacity: 0.6;
+    }
+
+    /* AI Feedback */
+    .feedback-block {
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
+    .feedback-block.good {
+      background: var(--success-soft);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .feedback-block.improve {
+      background: var(--warning-soft);
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+    .feedback-block.suggest {
+      background: var(--info-soft);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .feedback-header.good { color: #065f46; }
+    .feedback-header.improve { color: #92400e; }
+    .feedback-header.suggest { color: #1e40af; }
+    .feedback-list { list-style: none; padding: 0; }
+    .feedback-list li {
+      font-size: 13px;
+      color: var(--text);
+      padding: 4px 0 4px 16px;
+      position: relative;
+      line-height: 1.6;
+    }
+    .feedback-list li::before {
+      content: '';
+      position: absolute;
+      left: 4px; top: 11px;
+      width: 4px; height: 4px;
+      background: currentColor;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+    .script-quote {
+      background: white;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text);
+      border-left: 3px solid var(--primary);
+      margin-top: 4px;
+    }
+    .script-quote .quote-label {
+      display: block;
+      font-size: 10px;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    /* Summary tab */
+    .summary-section {
+      margin-bottom: 24px;
+    }
+    .summary-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .score-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary-soft) 0%, #ede9fe 100%);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .score-ring {
+      width: 64px; height: 64px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .score-value {
+      position: absolute;
+      inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .score-text { flex: 1; }
+    .score-text strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .score-text span {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+    .phase-bar {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .phase-step {
+      flex: 1;
+      padding: 8px;
+      background: var(--surface-2);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-align: center;
+      color: var(--text-3);
+    }
+    .phase-step.done {
+      background: var(--success);
+      color: white;
+    }
+    .phase-step.current {
+      background: var(--primary);
+      color: white;
+    }
+    .action-list { display: flex; flex-direction: column; gap: 8px; }
+    .action-item {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      background: var(--surface-2);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .action-checkbox {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border-strong);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .action-content { flex: 1; }
+    .action-title { font-weight: 500; margin-bottom: 2px; }
+    .action-meta {
+      font-size: 11px;
+      color: var(--text-3);
+      display: flex;
+      gap: 8px;
+    }
+    .priority-tag {
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .priority-tag.high { background: #fee2e2; color: #991b1b; }
+    .priority-tag.mid { background: #fef3c7; color: #92400e; }
+    .priority-tag.low { background: #e0e7ff; color: #3730a3; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+    /* Empty / loading states */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-3);
+    }
+    .empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+
+    @media (max-width: 1024px) {
+      .workspace { grid-template-columns: 1fr; }
+      .content-pane { border-left: none; border-top: 1px solid var(--border); }
+    }
+  </style>
+</head>
 <body>
-<div id="app">
-  <ul>
-    <li v-for="todoList in todoLists">
-      <input type="checkbox" v-model="todoList.checkToggle">
-      <label v-bind:class={doneTask:todoList.checkToggle}>
-        {{ todoList.title }}
-      </label>
-    </li>
-  </ul>
-  <hr>
-  <input type="text"
-    class="taskInput"
-    placeholder="新しいタスクを追加する" 
-    v-model="newTitle"
-    v-on:change="checkEnteredValue()"
-  >
-  <button id="addBtn"
-    v-on:click="addToDoList()" 
-    v-bind:class={noclick:!newTitleToggle}
-  >
-    タスクを追加
-  </button>
-  <br>
-  <button id="deleteBtn"
-    v-on:click="deleteToDoList()"
-  >
-    タスクを削除
-  </button>
-</div>
+  <header class="app-header">
+    <div style="display: flex; align-items: center;">
+      <div class="logo">
+        <div class="logo-icon">SC</div>
+        <span>SalesCoach</span>
+      </div>
+      <div class="breadcrumb">
+        商談一覧 / <span class="breadcrumb-current" id="meetingTitle">商談を読み込み中...</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span id="meetingMeta"></span>
+      <div class="user-avatar">YK</div>
+    </div>
+  </header>
 
-    <script type="text/javascript" src="https://keiichi3205.github.io/task_test/style.js"></script>
+  <div class="app-main">
+    <section class="upload-bar">
+      <div class="upload-card" id="slideUpload">
+        <div class="upload-icon">📄</div>
+        <div class="upload-info">
+          <span class="upload-label">提案資料</span>
+          <span class="upload-filename">読み込み中...</span>
+        </div>
+      </div>
+      <div class="upload-card" id="audioUpload">
+        <div class="upload-icon">🎤</div>
+        <div class="upload-info">
+          <span class="upload-label">商談音声</span>
+          <span class="upload-filename">読み込み中...</span>
+        </div>
+      </div>
+      <button class="btn-analyze" id="analyzeBtn">
+        <span>✨</span><span>再分析する</span>
+      </button>
+      <div class="meta-info">
+        <span>分析完了 <strong id="analyzedAt">-</strong></span>
+        <span>所要 <strong id="duration">-</strong></span>
+      </div>
+    </section>
+
+    <section class="thumbnail-strip" id="thumbnailStrip"></section>
+
+    <section class="workspace">
+      <div class="slide-pane">
+        <div class="slide-viewport">
+          <div class="slide" id="slideView"></div>
+        </div>
+        <div class="slide-nav">
+          <button class="nav-btn" id="prevBtn" aria-label="前のスライド">◀</button>
+          <span class="slide-counter" id="slideCounter">1 / 5</span>
+          <button class="nav-btn" id="nextBtn" aria-label="次のスライド">▶</button>
+        </div>
+      </div>
+
+      <div class="content-pane">
+        <div class="pane-tabs">
+          <button class="tab-btn active" data-tab="transcript">
+            <span>📝</span><span>文字起こし</span>
+            <span class="tab-badge" id="transcriptCount">0</span>
+          </button>
+          <button class="tab-btn" data-tab="feedback">
+            <span>✨</span><span>AIフィードバック</span>
+          </button>
+          <button class="tab-btn" data-tab="summary">
+            <span>📊</span><span>商談全体</span>
+          </button>
+        </div>
+
+        <div class="pane-content">
+          <div class="pane-section active" id="section-transcript">
+            <div class="transcript-list" id="transcriptList"></div>
+          </div>
+
+          <div class="pane-section" id="section-feedback">
+            <div id="feedbackContent"></div>
+          </div>
+
+          <div class="pane-section" id="section-summary">
+            <div id="summaryContent"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* ============================================================
+       Mock data — represents output of:
+       - Whisper-based STT + speaker diarization
+       - Slide-text alignment via embeddings
+       - Claude-generated per-slide and overall feedback
+       ============================================================ */
+    const MOCK_DATA = {
+      meta: {
+        title: "株式会社B様 クラウド勤怠管理 提案商談",
+        customerCompany: "株式会社B（精密機械製造業 / 従業員500名）",
+        meetingDate: "2026-05-15",
+        duration: "58:34",
+        analyzedAt: "2026-05-22 09:14",
+        files: {
+          slides: "勤怠提案_v3.pptx",
+          audio: "meeting_20260515.mp3"
+        }
+      },
+      slides: [
+        {
+          id: 1,
+          title: "本日のアジェンダ",
+          subtitle: "2026年5月15日 / 株式会社B様",
+          template: "agenda",
+          content: {
+            items: ["会社紹介", "現状ヒアリング", "ソリューション提案", "料金・スケジュール", "質疑応答"]
+          },
+          transcript: [
+            { speaker: "sales", name: "営業 田中", time: "00:42", text: "本日はお忙しい中、お時間をいただきありがとうございます。早速ですが本日のアジェンダをご説明させてください。", hasFeedback: false },
+            { speaker: "sales", name: "営業 田中", time: "01:02", text: "まず弊社の会社紹介、その後御社の現状をヒアリングさせていただき、ソリューションのご提案、料金のご説明、最後に質疑応答という流れを想定しております。", hasFeedback: true },
+            { speaker: "customer", name: "顧客 鈴木様", time: "01:28", text: "はい、よろしくお願いします。", hasFeedback: false }
+          ],
+          feedback: {
+            good: [
+              "冒頭で顧客の時間に配慮する挨拶ができている",
+              "アジェンダを口頭で明示し、商談の見通しを共有できている"
+            ],
+            improve: [
+              "アジェンダ説明が一方通行。顧客側で特に聞きたいトピックがないか確認していない",
+              "顧客の反応「はい、よろしくお願いします」のみ。エンゲージメントが低いまま次に進んでいる"
+            ],
+            suggestedScript: "本日は60分お時間をいただきありがとうございます。アジェンダはこちらの流れを想定していますが、鈴木様の方で特にお聞きになりたいテーマや、優先的に時間を取るべきトピックはございますか?"
+          }
+        },
+        {
+          id: 2,
+          title: "御社の勤怠管理における課題",
+          subtitle: "事前ヒアリングからの仮説",
+          template: "issues",
+          content: {
+            items: [
+              { icon: "📋", name: "紙ベース管理", desc: "タイムカード回収・集計に毎月1週間" },
+              { icon: "⏰", name: "集計工数", desc: "人事2名が他業務を圧迫" },
+              { icon: "🚫", name: "不正打刻リスク", desc: "本人確認手段なし" },
+              { icon: "🏠", name: "リモート未対応", desc: "在宅勤務時の打刻ルール曖昧" }
+            ]
+          },
+          transcript: [
+            { speaker: "sales", name: "営業 田中", time: "12:18", text: "事前にお伺いした内容ですと、紙の勤怠表で管理されているとのことでしたが、月次の集計でどのくらい工数がかかっていますか?", hasFeedback: true },
+            { speaker: "customer", name: "顧客 鈴木様", time: "12:38", text: "そうですね…人事担当2名で1週間くらいかかっていますね。月末月初は本当に他の業務が止まってしまって。", hasFeedback: false },
+            { speaker: "sales", name: "営業 田中", time: "13:02", text: "1週間ですか…結構な工数ですね。", hasFeedback: true },
+            { speaker: "customer", name: "顧客 鈴木様", time: "13:10", text: "ええ、それで先日も新入社員の人事面談がずれ込んでしまって。", hasFeedback: false },
+            { speaker: "sales", name: "営業 田中", time: "13:22", text: "なるほど。では次に弊社のソリューションをご紹介します。", hasFeedback: true }
+          ],
+          feedback: {
+            good: [
+              "オープン質問で具体的な数字（2名×1週間）を引き出せている",
+              "事前ヒアリング内容をリファレンスしており、顧客に「準備してきている」印象を与えている"
+            ],
+            improve: [
+              "「結構な工数ですね」で会話が止まってしまった。顧客の痛みを数値で再認識させる絶好の機会を逃している",
+              "「新入社員の面談がずれ込んだ」という具体的な業務インパクトの発話を拾えていない。ここを深掘りすればソリューションの価値訴求が強くなる"
+            ],
+            suggestedScript: "1週間ですか。御社規模（500名）で人事2名×1週間というと、人件費換算で月に約40万円、年間では480万円相当のコストになりますね。さらに今お話いただいた新入社員面談のずれ込みのように、本来の人事業務が止まってしまう機会損失も大きいですね。この『本来やるべき人事業務に集中できない』という状態は、他にも具体的にどんなところで影響が出ていますか?"
+          }
+        },
+        {
+          id: 3,
+          title: "ソリューション概要",
+          subtitle: "クラウド勤怠管理 + AI労務分析",
+          template: "features",
+          content: {
+            items: [
+              { icon: "📱", name: "スマホ打刻", desc: "GPS+顔認証で不正防止。リモートワークにも完全対応" },
+              { icon: "⚡", name: "自動集計", desc: "残業・休暇・有給管理を完全自動化。給与システム連携可" },
+              { icon: "🤖", name: "AI労務分析", desc: "残業傾向・過重労働の予兆をアラート。コンプライアンス対応" }
+            ]
+          },
+          transcript: [
+            { speaker: "sales", name: "営業 田中", time: "22:14", text: "弊社のソリューションをご紹介します。まず打刻はスマホで、GPSと顔認証で本人確認します。", hasFeedback: false },
+            { speaker: "customer", name: "顧客 鈴木様", time: "22:48", text: "AI労務分析というのは具体的にどういうものですか?", hasFeedback: true },
+            { speaker: "sales", name: "営業 田中", time: "23:02", text: "残業時間の傾向を分析して、過重労働の兆候を事前にアラート表示します。", hasFeedback: true },
+            { speaker: "customer", name: "顧客 鈴木様", time: "23:25", text: "なるほど。それはうちの労務管理にも使えそうですね。最近コンプライアンス監査が厳しくなっていて。", hasFeedback: false }
+          ],
+          feedback: {
+            good: [
+              "顧客から「うちにも使えそう」「コンプライアンス監査」という購買シグナルを引き出せている",
+              "AI機能への質問を顧客側から引き出しており、興味喚起に成功"
+            ],
+            improve: [
+              "機能を機能ベース（What）で説明している。先ほどヒアリングした課題（不正打刻リスク、リモート未対応）に明示的に紐づけられていない",
+              "コンプライアンス監査の話題を深掘りできていない。決裁プロセスや予算化のキッカケになる可能性があった"
+            ],
+            suggestedScript: "ありがとうございます。先ほど鈴木様にお伺いした『不正打刻リスク』『リモート対応』の2点に対して、このGPS+顔認証はそのまま解決策になります。さらに労務分析については、コンプライアンス監査のお話、もう少し詳しく伺ってもよろしいですか? 監査で指摘されたポイントや、社内で対応を急がれている領域があれば、そこに合わせてご提案を調整できます。"
+          }
+        },
+        {
+          id: 4,
+          title: "導入事例:製造業A社様",
+          subtitle: "従業員規模・業種が御社と類似",
+          template: "case",
+          content: {
+            company: "🏭",
+            stats: [
+              { value: "80%", label: "勤怠集計工数を削減" },
+              { value: "4ヶ月", label: "投資回収（ROI）" },
+              { value: "500名", label: "従業員規模" }
+            ]
+          },
+          transcript: [
+            { speaker: "sales", name: "営業 田中", time: "35:08", text: "事例として、こちらの製造業A社様、御社と同規模ですが、勤怠集計の工数を80%削減できています。投資回収もわずか4ヶ月でした。", hasFeedback: false },
+            { speaker: "customer", name: "顧客 鈴木様", time: "35:35", text: "...", hasFeedback: true },
+            { speaker: "customer", name: "顧客 鈴木様", time: "35:48", text: "（沈黙、6秒）", hasFeedback: true },
+            { speaker: "sales", name: "営業 田中", time: "35:56", text: "では次に料金についてですが、こちらのスライドをご覧ください。", hasFeedback: true }
+          ],
+          feedback: {
+            good: [
+              "同業種・同規模の事例を提示できており、顧客の検討材料として有効",
+              "数値（80%、4ヶ月）でインパクトを明確化"
+            ],
+            improve: [
+              "🚨 顧客の6秒の沈黙にもかかわらず話題を切り替えてしまった。沈黙は『考えている』『懸念がある』『驚いている』いずれも重要なシグナル",
+              "事例を提示しただけで、顧客に「この事例から何を読み取って欲しいか」を伝えていない",
+              "事例が抽象的（『製造業A社様』）。可能であれば社名公開許可を取り、より具体性を出すべき"
+            ],
+            suggestedScript: "（沈黙の後）鈴木様、いかがでしょうか。少し気になるところや、御社で同じように実現できるか不安に感じられた点があれば率直にお聞かせください。A社様の場合、ご導入前は『現場の高齢ベテラン社員がスマホ打刻に抵抗するのでは』という懸念が最大でしたが、〇〇という導入支援でクリアできました。御社で気になる懸念はどのあたりでしょうか?"
+          }
+        },
+        {
+          id: 5,
+          title: "料金プラン & 導入スケジュール",
+          subtitle: "御社規模（500名）でのお見積もり",
+          template: "pricing",
+          content: {
+            amount: "¥600,000",
+            unit: "月額 / 500名（@¥1,200/人）",
+            sideItems: [
+              { label: "初期費用", value: "¥500,000" },
+              { label: "導入期間", value: "約3ヶ月" },
+              { label: "サポート", value: "24h / 365日" }
+            ]
+          },
+          transcript: [
+            { speaker: "sales", name: "営業 田中", time: "45:12", text: "料金は1名月額1,200円で、御社の500名規模ですと月60万円となります。初期費用は50万円、導入期間は約3ヶ月を想定しています。", hasFeedback: false },
+            { speaker: "customer", name: "顧客 鈴木様", time: "45:48", text: "うちは500名なので、月60万円ですか…思ったより高いですね。", hasFeedback: true },
+            { speaker: "sales", name: "営業 田中", time: "46:02", text: "そうですね、ただ先ほどの工数削減で十分にペイできる金額かと…", hasFeedback: true },
+            { speaker: "customer", name: "顧客 鈴木様", time: "46:18", text: "そうですね…一旦持ち帰って検討します。", hasFeedback: true }
+          ],
+          feedback: {
+            good: [
+              "価格について顧客から率直な反応（『思ったより高い』）を引き出せた。これ自体は前向きシグナル"
+            ],
+            improve: [
+              "🚨 『思ったより高い』への返しが、感情への共感ゼロでいきなりROI論理に走った。顧客は「気持ちを汲んでもらえなかった」と感じやすい",
+              "🚨 『持ち帰り検討』というクロージング失敗。次のアポイントメント取得・決裁者の把握・懸念の言語化ができていない",
+              "予算感の事前確認を商談前にしておくべきだった（次回は事前にBANT-Bを確認）"
+            ],
+            suggestedScript: "そうですよね、月60万円というのは、即決できる金額ではないですよね。私もそう思います。ただ、先ほどお伺いした年480万円の人件費削減効果に加えて、機会損失（人事業務停滞）を考えると年間でプラスになる試算もできます。鈴木様、よろしければ次回、社長様や経理ご担当者様にもご同席いただいて、ROIシートを正式にお持ちしてご説明する場を設けさせていただけないでしょうか? 現時点で気になっている懸念点を教えていただければ、それも次回までに整理してお持ちします。"
+          }
+        }
+      ],
+      overall: {
+        score: 6.5,
+        scoreLabel: "改善余地あり",
+        summary: "ヒアリングと事例提示は基礎ができている一方、顧客の感情シグナル（沈黙、価格反応）への対応とクロージング設計に明確な改善余地があります。次回はBANT情報の補完と決裁者同席が成約への鍵です。",
+        strengths: [
+          "事前ヒアリング情報を活用した質問設計",
+          "課題を数値で具体化する質問テクニック",
+          "同業種・同規模の事例を準備"
+        ],
+        improvements: [
+          "顧客の沈黙・価格抵抗等の『感情シグナル』への共感的応答が不足",
+          "機能説明が課題と紐づいておらず、What中心になりがち",
+          "クロージング設計（次回約束・決裁者同席）ができていない"
+        ],
+        nextActions: [
+          { title: "ROIシートを作成し再提示", priority: "high", due: "5月29日まで", note: "年間人件費削減480万円+機会損失を含めた試算" },
+          { title: "決裁者（社長 or 経理担当）の同席アポ依頼", priority: "high", due: "5月26日まで", note: "鈴木様経由でセッティング依頼メール送付" },
+          { title: "現場担当者向け簡易デモを提案", priority: "mid", due: "次回商談時", note: "『現場の抵抗感』への先回り対策" },
+          { title: "競合製品比較表を準備", priority: "mid", due: "次回商談時", note: "鈴木様が他社比較を気にしている可能性" },
+          { title: "コンプライアンス監査の指摘事項を共有依頼", priority: "low", due: "次回商談時", note: "提案調整のための情報収集" }
+        ],
+        bant: {
+          B: { value: "未確認", note: "持ち帰り検討の理由として予算感の可能性大" },
+          A: { value: "確認済", note: "鈴木様は人事部長、最終決裁は社長" },
+          N: { value: "明確", note: "工数削減・コンプラ対応の必要性は強い" },
+          T: { value: "未確認", note: "コンプライアンス監査の時期次第" }
+        },
+        phase: { current: 1, steps: ["Discovery", "Solution Fit", "Proposal", "Negotiation", "Closing"] }
+      }
+    };
+
+    /* ============================================================
+       App state
+       ============================================================ */
+    const state = {
+      currentSlideIdx: 0,
+      currentTab: 'transcript'
+    };
+
+    /* ============================================================
+       Rendering
+       ============================================================ */
+    function renderHeader() {
+      document.getElementById('meetingTitle').textContent = MOCK_DATA.meta.title;
+      document.getElementById('meetingMeta').textContent =
+        `${MOCK_DATA.meta.meetingDate} · ${MOCK_DATA.meta.customerCompany}`;
+      document.getElementById('analyzedAt').textContent = MOCK_DATA.meta.analyzedAt;
+      document.getElementById('duration').textContent = MOCK_DATA.meta.duration;
+
+      const slideCard = document.getElementById('slideUpload');
+      slideCard.querySelector('.upload-filename').textContent = MOCK_DATA.meta.files.slides;
+      const audioCard = document.getElementById('audioUpload');
+      audioCard.querySelector('.upload-filename').textContent = MOCK_DATA.meta.files.audio;
+    }
+
+    function renderThumbnails() {
+      const strip = document.getElementById('thumbnailStrip');
+      strip.innerHTML = '';
+      MOCK_DATA.slides.forEach((slide, idx) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'thumbnail' + (idx === state.currentSlideIdx ? ' active' : '');
+        thumb.innerHTML = `
+          <span class="thumbnail-num">${idx + 1}</span>
+          <div class="thumbnail-title">${escapeHtml(slide.title)}</div>
+          <div class="thumbnail-preview">${escapeHtml(slide.subtitle || '')}</div>
+        `;
+        thumb.addEventListener('click', () => goToSlide(idx));
+        strip.appendChild(thumb);
+      });
+    }
+
+    function renderSlide() {
+      const slide = MOCK_DATA.slides[state.currentSlideIdx];
+      const view = document.getElementById('slideView');
+      view.innerHTML = `
+        <div class="slide-header">
+          <div class="slide-title">${escapeHtml(slide.title)}</div>
+          <div class="slide-subtitle">${escapeHtml(slide.subtitle || '')}</div>
+        </div>
+        <div class="slide-body">${renderSlideBody(slide)}</div>
+      `;
+      document.getElementById('slideCounter').textContent = `${state.currentSlideIdx + 1} / ${MOCK_DATA.slides.length}`;
+      document.getElementById('prevBtn').disabled = state.currentSlideIdx === 0;
+      document.getElementById('nextBtn').disabled = state.currentSlideIdx === MOCK_DATA.slides.length - 1;
+    }
+
+    function renderSlideBody(slide) {
+      const c = slide.content;
+      switch (slide.template) {
+        case 'agenda':
+          return `<div class="agenda-list">${
+            c.items.map((it, i) => `
+              <div class="agenda-item">
+                <div class="agenda-num">${i + 1}</div>
+                <div>${escapeHtml(it)}</div>
+              </div>
+            `).join('')
+          }</div>`;
+        case 'issues':
+          return `<div class="issue-grid">${
+            c.items.map(it => `
+              <div class="issue-card">
+                <div class="issue-icon">${it.icon}</div>
+                <div class="issue-name">${escapeHtml(it.name)}</div>
+                <div class="issue-desc">${escapeHtml(it.desc)}</div>
+              </div>
+            `).join('')
+          }</div>`;
+        case 'features':
+          return `<div class="feature-grid">${
+            c.items.map(it => `
+              <div class="feature-card">
+                <div class="feature-icon">${it.icon}</div>
+                <div class="feature-name">${escapeHtml(it.name)}</div>
+                <div class="feature-desc">${escapeHtml(it.desc)}</div>
+              </div>
+            `).join('')
+          }</div>`;
+        case 'case':
+          return `
+            <div class="case-content">
+              <div class="case-logo">${c.company}</div>
+              <div class="case-stats">${
+                c.stats.map(s => `
+                  <div class="stat-card">
+                    <div class="stat-value">${escapeHtml(s.value)}</div>
+                    <div class="stat-label">${escapeHtml(s.label)}</div>
+                  </div>
+                `).join('')
+              }</div>
+            </div>
+          `;
+        case 'pricing':
+          return `
+            <div class="pricing-grid">
+              <div class="price-main">
+                <div class="price-amount">${escapeHtml(c.amount)}</div>
+                <div class="price-unit">${escapeHtml(c.unit)}</div>
+              </div>
+              <div class="price-side">${
+                c.sideItems.map(it => `
+                  <div class="price-row">
+                    <div class="price-row-label">${escapeHtml(it.label)}</div>
+                    <div class="price-row-value">${escapeHtml(it.value)}</div>
+                  </div>
+                `).join('')
+              }</div>
+            </div>
+          `;
+        default: return '';
+      }
+    }
+
+    function renderTranscript() {
+      const slide = MOCK_DATA.slides[state.currentSlideIdx];
+      const list = document.getElementById('transcriptList');
+      list.innerHTML = slide.transcript.map((u, i) => `
+        <div class="utterance ${u.hasFeedback ? 'has-feedback' : ''}" data-idx="${i}">
+          <div class="speaker-badge ${u.speaker}">
+            ${u.speaker === 'sales' ? '営業' : '顧客'}
+          </div>
+          <div class="utterance-body">
+            <div class="utterance-meta">
+              <span class="speaker-name">${escapeHtml(u.name)}</span>
+              <span class="utterance-time">${escapeHtml(u.time)}</span>
+            </div>
+            <div class="utterance-text">${escapeHtml(u.text)}</div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('transcriptCount').textContent = slide.transcript.length;
+    }
+
+    function renderFeedback() {
+      const slide = MOCK_DATA.slides[state.currentSlideIdx];
+      const fb = slide.feedback;
+      document.getElementById('feedbackContent').innerHTML = `
+        <div class="feedback-block good">
+          <div class="feedback-header good">
+            <span>✅</span><span>良かった点</span>
+          </div>
+          <ul class="feedback-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
+        </div>
+        <div class="feedback-block improve">
+          <div class="feedback-header improve">
+            <span>⚠️</span><span>改善ポイント</span>
+          </div>
+          <ul class="feedback-list">${fb.improve.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
+        </div>
+        <div class="feedback-block suggest">
+          <div class="feedback-header suggest">
+            <span>💡</span><span>改善トーク案</span>
+          </div>
+          <div class="script-quote">
+            <span class="quote-label">推奨トーク</span>
+            ${escapeHtml(fb.suggestedScript)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSummary() {
+      const o = MOCK_DATA.overall;
+      const scorePct = (o.score / 10) * 100;
+      const phaseSteps = o.phase.steps.map((step, i) => {
+        let cls = '';
+        if (i < o.phase.current) cls = 'done';
+        else if (i === o.phase.current) cls = 'current';
+        return `<div class="phase-step ${cls}">${escapeHtml(step)}</div>`;
+      }).join('');
+
+      const actionList = o.nextActions.map(a => `
+        <div class="action-item">
+          <div class="action-checkbox"></div>
+          <div class="action-content">
+            <div class="action-title">${escapeHtml(a.title)}</div>
+            <div class="action-meta">
+              <span class="priority-tag ${a.priority}">${a.priority === 'high' ? '優先度: 高' : a.priority === 'mid' ? '優先度: 中' : '優先度: 低'}</span>
+              <span>📅 ${escapeHtml(a.due)}</span>
+              <span>${escapeHtml(a.note)}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      const bantRows = Object.entries(o.bant).map(([k, v]) => {
+        const labels = { B: 'Budget (予算)', A: 'Authority (決裁権)', N: 'Need (必要性)', T: 'Timeline (期限)' };
+        const tagClass = v.value === '確認済' || v.value === '明確' ? 'low' : 'high';
+        return `
+          <div class="action-item">
+            <div class="action-content">
+              <div class="action-title">${labels[k]}</div>
+              <div class="action-meta">
+                <span class="priority-tag ${tagClass}">${escapeHtml(v.value)}</span>
+                <span>${escapeHtml(v.note)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('summaryContent').innerHTML = `
+        <div class="score-card">
+          <div class="score-ring">
+            <svg viewBox="0 0 64 64" width="64" height="64">
+              <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e7eb" stroke-width="6"/>
+              <circle cx="32" cy="32" r="28" fill="none" stroke="#2563eb" stroke-width="6"
+                stroke-dasharray="${(scorePct / 100) * 175.93} 175.93"
+                stroke-linecap="round"
+                transform="rotate(-90 32 32)"/>
+            </svg>
+            <div class="score-value">${o.score}</div>
+          </div>
+          <div class="score-text">
+            <strong>商談スコア: ${o.scoreLabel}</strong>
+            <span>${escapeHtml(o.summary)}</span>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-title">商談フェーズ</div>
+          <div class="phase-bar">${phaseSteps}</div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-title">✅ 強み</div>
+          <div class="feedback-block good">
+            <ul class="feedback-list">${o.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-title">⚠️ 改善点</div>
+          <div class="feedback-block improve">
+            <ul class="feedback-list">${o.improvements.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
+          </div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-title">📋 次回までのアクション</div>
+          <div class="action-list">${actionList}</div>
+        </div>
+
+        <div class="summary-section">
+          <div class="summary-title">📊 BANT判定</div>
+          <div class="action-list">${bantRows}</div>
+        </div>
+      `;
+    }
+
+    /* ============================================================
+       Interactivity
+       ============================================================ */
+    function goToSlide(idx) {
+      if (idx < 0 || idx >= MOCK_DATA.slides.length) return;
+      state.currentSlideIdx = idx;
+      renderThumbnails();
+      renderSlide();
+      renderTranscript();
+      renderFeedback();
+    }
+
+    function switchTab(tab) {
+      state.currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+      });
+      document.querySelectorAll('.pane-section').forEach(s => {
+        s.classList.toggle('active', s.id === `section-${tab}`);
+      });
+    }
+
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* ============================================================
+       Init
+       ============================================================ */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHeader();
+      renderThumbnails();
+      renderSlide();
+      renderTranscript();
+      renderFeedback();
+      renderSummary();
+
+      document.getElementById('prevBtn').addEventListener('click', () => goToSlide(state.currentSlideIdx - 1));
+      document.getElementById('nextBtn').addEventListener('click', () => goToSlide(state.currentSlideIdx + 1));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.addEventListener('click', () => switchTab(b.dataset.tab));
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'ArrowLeft') goToSlide(state.currentSlideIdx - 1);
+        if (e.key === 'ArrowRight') goToSlide(state.currentSlideIdx + 1);
+      });
+
+      document.getElementById('analyzeBtn').addEventListener('click', () => {
+        alert('（モック）分析処理を開始します。本番ではWhisperによる文字起こし → 話者分離 → スライド-音声マッピング → Claude APIによるフィードバック生成が実行されます。');
+      });
+
+      ['slideUpload', 'audioUpload'].forEach(id => {
+        document.getElementById(id).addEventListener('click', () => {
+          alert('（モック）ファイル選択ダイアログを表示。本番ではGoogle Driveへのアップロード or Apps ScriptのDriveApp連携が動作します。');
+        });
+      });
+    });
+  </script>
 </body>
 </html>
-
