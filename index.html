@@ -941,6 +941,222 @@
     ::-webkit-scrollbar-thumb { background: var(--surface-highest); border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--surface-bright); }
 
+    /* ============ DEMO BADGE ============ */
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 6px;
+      padding: 2px 6px;
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      font: 700 9px/1.4 var(--font-mono);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      border-radius: var(--r-sm);
+    }
+
+    /* ============ MODAL ============ */
+    .modal {
+      position: fixed; inset: 0; z-index: 1000;
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 24px;
+      animation: fadeIn var(--dur-base) ease;
+    }
+    .modal.open { display: flex; }
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: -1;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-content {
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-float);
+      width: 100%;
+      max-width: 520px;
+      max-height: 80vh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 14px 20px;
+      background: var(--surface-high);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-header-title { display: flex; flex-direction: column; gap: 2px; }
+    .modal-title { font-size: 14px; font-weight: 600; color: var(--on-surface); }
+    .modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+    .modal-close {
+      width: 28px; height: 28px;
+      border-radius: var(--r);
+      display: grid; place-items: center;
+      color: var(--on-surface-variant);
+      transition: background var(--dur-fast);
+    }
+    .modal-close:hover { background: var(--surface-lowest); color: var(--on-surface); }
+
+    /* Sample list */
+    .sample-list { display: flex; flex-direction: column; gap: 6px; }
+    .sample-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      transition: background var(--dur-base);
+      text-align: left;
+      width: 100%;
+    }
+    .sample-item:hover { background: var(--primary-light); }
+    .sample-icon {
+      width: 36px; height: 36px;
+      background: var(--surface-lowest);
+      border-radius: var(--r);
+      display: grid; place-items: center;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .sample-info { flex: 1; min-width: 0; }
+    .sample-name {
+      font-size: 13px; font-weight: 500;
+      color: var(--on-surface);
+    }
+    .sample-meta {
+      font: 500 11px var(--font-mono);
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+    .sample-desc {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      margin-top: 2px;
+    }
+
+    /* ============ PROGRESS OVERLAY ============ */
+    .progress-overlay {
+      position: fixed; inset: 0; z-index: 1100;
+      display: none;
+      align-items: center; justify-content: center;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: fadeIn var(--dur-base) ease;
+    }
+    .progress-overlay.open { display: flex; }
+    .progress-card {
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-float);
+      width: 100%;
+      max-width: 440px;
+      padding: 24px 26px;
+    }
+    .progress-title-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 4px;
+    }
+    .progress-title { font-size: 14px; font-weight: 600; color: var(--on-surface); }
+    .progress-sub {
+      font-size: 12px; color: var(--on-surface-variant);
+      margin-bottom: 18px;
+      line-height: 1.55;
+    }
+    .progress-bar {
+      height: 6px;
+      background: var(--surface-low);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.4s linear;
+    }
+    .progress-stages { display: flex; flex-direction: column; gap: 4px; }
+    .progress-stage {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--r);
+      font-size: 12.5px;
+      color: var(--text-muted);
+      transition: background var(--dur-base), color var(--dur-base);
+    }
+    .progress-stage.active {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+    .progress-stage.done { color: var(--on-surface); }
+    .stage-marker {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--outline-variant);
+      flex-shrink: 0;
+      display: grid; place-items: center;
+      color: #fff;
+    }
+    .progress-stage.active .stage-marker {
+      border-color: var(--primary);
+      border-top-color: transparent;
+      animation: spin 0.7s linear infinite;
+    }
+    .progress-stage.done .stage-marker {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .stage-time {
+      margin-left: auto;
+      font: 500 10.5px var(--font-mono);
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .progress-stage.done .stage-time { color: var(--on-surface-variant); }
+
+    /* ============ SLIDE TEMPLATES: pdf-page & text ============ */
+    .pdf-page {
+      width: 100%; height: 100%;
+      display: grid; place-items: center;
+    }
+    .pdf-page img {
+      max-width: 100%; max-height: 100%;
+      object-fit: contain;
+      border-radius: var(--r);
+      box-shadow: 0 0 0 1px var(--ghost-border);
+    }
+    .text-slide-body {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .text-slide-body p {
+      font-size: 13.5px;
+      color: var(--on-surface);
+      line-height: 1.7;
+      padding: 8px 12px;
+      background: var(--surface-low);
+      border-radius: var(--r);
+    }
+    .text-slide-body p:first-child {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    .speaker-badge.system {
+      background: linear-gradient(135deg, #c5c4c5, #8a968a);
+      font-size: 8.5px;
+    }
+
+    /* When showing a PDF image, the slide-head can be more compact */
+    .slide.template-image { padding: 18px 22px; }
+    .slide.template-image .slide-head { margin-bottom: 12px; }
+    .slide.template-image .slide-title { font-size: 16px; }
+
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -1049,6 +1265,7 @@
       <div class="brand">
         <div class="brand-mark">SC</div>
         <span>SalesCoach</span>
+        <span class="demo-badge" title="API無し環境のデモモード">Demo</span>
       </div>
       <nav class="breadcrumb" aria-label="breadcrumb">
         <span>商談一覧</span>
@@ -1157,6 +1374,40 @@
         </div>
       </div>
     </section>
+  </div>
+
+  <!-- Audio sample selector (demo) -->
+  <div class="modal" id="audioSampleModal" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="eyebrow">Demo Audio Library</span>
+          <span class="modal-title">サンプル商談音声を選択</span>
+        </div>
+        <button class="modal-close" id="audioModalClose" aria-label="閉じる">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M3 3 L11 11 M11 3 L3 11"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="sample-list" id="audioSampleList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis progress overlay -->
+  <div class="progress-overlay" id="progressOverlay" role="dialog" aria-modal="true">
+    <div class="progress-card">
+      <div class="progress-title-row">
+        <svg width="16" height="16" style="color: var(--primary);"><use href="#i-sparkle"/></svg>
+        <span class="progress-title">商談分析を実行中</span>
+      </div>
+      <div class="progress-sub">音声を文字起こしし、スライドと照合してAIフィードバックを生成しています。</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-stages" id="progressStages"></div>
+    </div>
   </div>
 
   <script>
@@ -1497,6 +1748,274 @@
       return { inGas, loadConfig, pick, callServer };
     })();
 
+    /* ============================================================
+       Demo: real slide ingest (PDF / PPTX) + audio sample library
+       Used when not running against a real STT/LLM backend.
+       ============================================================ */
+
+    // Lazy-load PDF.js
+    let _pdfjsReady = null;
+    function ensurePdfJs() {
+      if (_pdfjsReady) return _pdfjsReady;
+      _pdfjsReady = new Promise((resolve, reject) => {
+        if (typeof pdfjsLib !== 'undefined') return resolve();
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        s.onload = () => {
+          pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          resolve();
+        };
+        s.onerror = () => reject(new Error('PDF.jsの読み込みに失敗しました'));
+        document.head.appendChild(s);
+      });
+      return _pdfjsReady;
+    }
+
+    // Lazy-load JSZip (for PPTX text extraction)
+    let _jsZipReady = null;
+    function ensureJsZip() {
+      if (_jsZipReady) return _jsZipReady;
+      _jsZipReady = new Promise((resolve, reject) => {
+        if (typeof JSZip !== 'undefined') return resolve();
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('JSZipの読み込みに失敗しました'));
+        document.head.appendChild(s);
+      });
+      return _jsZipReady;
+    }
+
+    async function renderPdfToSlides(file) {
+      await ensurePdfJs();
+      const data = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data }).promise;
+      const slides = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.8 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+        slides.push({
+          title: `ページ ${i}`,
+          subtitle: file.name,
+          template: 'image',
+          content: { imageUrl: canvas.toDataURL('image/jpeg', 0.86) }
+        });
+      }
+      return slides;
+    }
+
+    async function extractPptxSlides(file) {
+      await ensureJsZip();
+      const zip = await JSZip.loadAsync(file);
+      const slidePaths = Object.keys(zip.files)
+        .filter(p => /^ppt\/slides\/slide\d+\.xml$/.test(p))
+        .sort((a, b) => {
+          const na = parseInt(a.match(/slide(\d+)\.xml/)[1], 10);
+          const nb = parseInt(b.match(/slide(\d+)\.xml/)[1], 10);
+          return na - nb;
+        });
+      const slides = [];
+      const parser = new DOMParser();
+      for (let i = 0; i < slidePaths.length; i++) {
+        const xml = await zip.file(slidePaths[i]).async('text');
+        const doc = parser.parseFromString(xml, 'text/xml');
+        // <a:t> nodes hold text runs in PPTX slide XML
+        const tNodes = doc.getElementsByTagName('a:t');
+        const texts = [];
+        for (let j = 0; j < tNodes.length; j++) {
+          const t = (tNodes[j].textContent || '').trim();
+          if (t) texts.push(t);
+        }
+        slides.push({
+          title: texts[0] || `スライド ${i + 1}`,
+          subtitle: file.name,
+          template: 'text',
+          content: { paragraphs: texts.slice(1) }
+        });
+      }
+      return slides;
+    }
+
+    function pickLocalFile(accept) {
+      return new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = accept;
+        input.style.display = 'none';
+        input.addEventListener('change', () => {
+          const file = input.files && input.files[0] ? input.files[0] : null;
+          input.remove();
+          resolve(file);
+        });
+        // Cancel detection: focus returns without selection
+        document.body.appendChild(input);
+        input.click();
+      });
+    }
+
+    // ── Audio sample library (canned) ──────────────────────────────
+    const AUDIO_SAMPLES = [
+      {
+        id: 'sample-b',
+        name: 'meeting_20260515_株式会社B.m4a',
+        duration: '58:34',
+        sizeMb: 36.5,
+        speakers: '営業1名 / 顧客1名',
+        desc: 'クラウド勤怠管理 提案商談（中堅製造業 500名規模）'
+      },
+      {
+        id: 'sample-c',
+        name: 'meeting_20260418_株式会社C.m4a',
+        duration: '42:17',
+        sizeMb: 24.1,
+        speakers: '営業1名 / 顧客2名',
+        desc: 'CRM 第二回提案（小売チェーン / 決裁者同席）'
+      },
+      {
+        id: 'sample-d',
+        name: 'meeting_20260322_株式会社D.mp3',
+        duration: '31:08',
+        sizeMb: 18.3,
+        speakers: '営業2名 / 顧客1名',
+        desc: 'MAツール 初回ヒアリング（SaaSスタートアップ）'
+      }
+    ];
+
+    function showAudioSampleModal() {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('audioSampleModal');
+        const list = document.getElementById('audioSampleList');
+        const closeBtn = document.getElementById('audioModalClose');
+        const overlay = modal.querySelector('.modal-overlay');
+
+        list.innerHTML = AUDIO_SAMPLES.map(s => `
+          <button class="sample-item" data-sample-id="${escapeHtml(s.id)}">
+            <div class="sample-icon">${svgIcon('i-mic', 18)}</div>
+            <div class="sample-info">
+              <div class="sample-name">${escapeHtml(s.name)}</div>
+              <div class="sample-meta">${escapeHtml(s.duration)} · ${s.sizeMb} MB · ${escapeHtml(s.speakers)}</div>
+              <div class="sample-desc">${escapeHtml(s.desc)}</div>
+            </div>
+          </button>
+        `).join('');
+
+        function cleanup() {
+          modal.classList.remove('open');
+          closeBtn.onclick = null;
+          overlay.onclick = null;
+          document.removeEventListener('keydown', onKey);
+        }
+        function onKey(e) {
+          if (e.key === 'Escape') { cleanup(); resolve(null); }
+        }
+        closeBtn.onclick = () => { cleanup(); resolve(null); };
+        overlay.onclick  = () => { cleanup(); resolve(null); };
+        document.addEventListener('keydown', onKey);
+
+        list.querySelectorAll('.sample-item').forEach(item => {
+          item.onclick = () => {
+            const id = item.dataset.sampleId;
+            cleanup();
+            resolve(AUDIO_SAMPLES.find(s => s.id === id) || null);
+          };
+        });
+
+        modal.classList.add('open');
+      });
+    }
+
+    // ── Multi-stage analysis progress ──────────────────────────────
+    const ANALYSIS_STAGES = [
+      { key: 'upload',   label: 'ファイルをサーバーへ転送',           ms: 700  },
+      { key: 'stt',      label: '音声を文字起こし (Whisper)',         ms: 2600 },
+      { key: 'diarize',  label: '話者分離 (営業 / 顧客)',             ms: 1100 },
+      { key: 'slides',   label: 'スライドのテキスト抽出',             ms: 900  },
+      { key: 'map',      label: 'スライドと音声をマッピング',         ms: 1500 },
+      { key: 'feedback', label: 'AIフィードバック生成 (Claude)',      ms: 2200 }
+    ];
+
+    function runAnalysisProgress() {
+      const overlay  = document.getElementById('progressOverlay');
+      const fill     = document.getElementById('progressFill');
+      const stagesEl = document.getElementById('progressStages');
+
+      stagesEl.innerHTML = ANALYSIS_STAGES.map(s => `
+        <div class="progress-stage" data-key="${s.key}">
+          <div class="stage-marker"></div>
+          <span class="stage-label">${escapeHtml(s.label)}</span>
+          <span class="stage-time">—</span>
+        </div>
+      `).join('');
+
+      overlay.classList.add('open');
+      fill.style.width = '0%';
+
+      const totalMs = ANALYSIS_STAGES.reduce((sum, s) => sum + s.ms, 0);
+      let elapsed = 0;
+
+      return (async () => {
+        for (const stage of ANALYSIS_STAGES) {
+          const el = stagesEl.querySelector(`[data-key="${stage.key}"]`);
+          el.classList.add('active');
+          const start = performance.now();
+          await new Promise(resolve => {
+            const tick = () => {
+              const stageElapsed = performance.now() - start;
+              const total = elapsed + Math.min(stageElapsed, stage.ms);
+              fill.style.width = Math.min((total / totalMs) * 100, 100) + '%';
+              if (stageElapsed >= stage.ms) resolve();
+              else requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+          });
+          elapsed += stage.ms;
+          el.classList.remove('active');
+          el.classList.add('done');
+          el.querySelector('.stage-marker').innerHTML = svgIcon('i-check', 10);
+          el.querySelector('.stage-time').textContent = (stage.ms / 1000).toFixed(1) + 's';
+        }
+        fill.style.width = '100%';
+        await new Promise(r => setTimeout(r, 700));
+        overlay.classList.remove('open');
+      })();
+    }
+
+    // ── Replace slide visuals while preserving transcript/feedback ─
+    function replaceSlides(newSlides) {
+      const merged = newSlides.map((ns, i) => {
+        const existing = MOCK_DATA.slides[i];
+        if (existing) {
+          return {
+            ...existing,
+            title:    ns.title,
+            subtitle: ns.subtitle || existing.subtitle || '',
+            template: ns.template,
+            content:  ns.content
+          };
+        }
+        return {
+          id: i + 1,
+          title:    ns.title,
+          subtitle: ns.subtitle || '',
+          duration: '—',
+          template: ns.template,
+          content:  ns.content,
+          transcript: [{
+            speaker: 'system', name: 'AI', time: '—',
+            text: '本スライドの音声マッピングはデモ範囲外です（実環境では Whisper の文字起こし結果がここに表示されます）。'
+          }],
+          feedback: { good: [], improve: [], suggestedScript: '—' }
+        };
+      });
+      MOCK_DATA.slides.length = 0;
+      MOCK_DATA.slides.push(...merged);
+    }
+
     function updateUploadCard(kind, file) {
       const cardId = kind === 'slides' ? 'slideUpload' : 'audioUpload';
       const card = document.getElementById(cardId);
@@ -1508,76 +2027,111 @@
       card.classList.add('swapped');
     }
 
+    // Try the configured Drive Picker first; if it isn't usable
+    // (not in GAS, no API key, user cancelled), fall through silently.
+    async function tryDrivePicker(kind) {
+      if (!drive.inGas()) return null;
+      await drive.loadConfig();
+      if (!CONFIG.apiKey || !CONFIG.appId) return null;
+      const picked = await drive.pick(kind);
+      if (!picked) return null;
+      let meta = {
+        id: picked.id, name: picked.name,
+        mimeType: picked.mimeType, sizeBytes: picked.sizeBytes
+      };
+      try {
+        const serverMeta = await drive.callServer('getFileMetadata', picked.id);
+        if (serverMeta && serverMeta.ok) meta = serverMeta;
+      } catch (_) { /* keep picker-only metadata */ }
+      return meta;
+    }
+
     async function handleUploadClick(kind) {
       try {
-        const picked = await drive.pick(kind);
-        if (!picked) return;
-        let meta = {
-          id: picked.id, name: picked.name,
-          mimeType: picked.mimeType, sizeBytes: picked.sizeBytes
-        };
-        try {
-          const serverMeta = await drive.callServer('getFileMetadata', picked.id);
-          if (serverMeta && serverMeta.ok) meta = serverMeta;
-        } catch (_) { /* fall back to picker-only metadata */ }
-        pickedFiles[kind] = meta;
-        updateUploadCard(kind, meta);
-      } catch (e) {
-        if (e && e.message === 'not_in_gas') {
-          alert(
-            'Google Drive Picker は Google Apps Script 上で動作します。\n\n' +
-            '現在はローカル/プレビュー環境のため、Drive 連携は無効です。\n' +
-            'Code.gs と appsscript.json と一緒に GAS にデプロイしてください。'
-          );
-        } else if (e && e.message === 'not_configured') {
-          alert(
-            'Google Drive Picker の API 設定が未完了です。\n\n' +
-            'Code.gs 上部のコメントに従って:\n' +
-            '  • Cloud Console で Google Picker API を有効化\n' +
-            '  • API キー (HTTPリファラ制限) を作成\n' +
-            '  • GCP プロジェクト番号を確認\n' +
-            '  • setDriveConfig() で Script Properties に保存\n' +
-            '  • Web アプリを再デプロイ'
-          );
-        } else if (e && e.message === 'picker_load_failed') {
-          alert('Google Picker ライブラリの読み込みに失敗しました。ネットワーク接続を確認してください。');
-        } else {
-          alert('Picker 起動エラー: ' + (e && e.message ? e.message : e));
+        // 1) Production path: Drive Picker if configured
+        const driveMeta = await tryDrivePicker(kind);
+        if (driveMeta) {
+          pickedFiles[kind] = driveMeta;
+          updateUploadCard(kind, driveMeta);
+          return;
         }
+      } catch (e) {
+        console.warn('Drive Picker fell through:', e);
+        // continue to demo path
+      }
+
+      // 2) Demo path
+      if (kind === 'slides') {
+        const file = await pickLocalFile('.pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation');
+        if (!file) return;
+        const name = file.name.toLowerCase();
+        const btn = document.getElementById('analyzeBtn');
+        const originalLabel = btn.innerHTML;
+        btn.disabled = true;
+        try {
+          let slides;
+          if (name.endsWith('.pdf') || file.type === 'application/pdf') {
+            slides = await renderPdfToSlides(file);
+          } else if (name.endsWith('.pptx')) {
+            slides = await extractPptxSlides(file);
+          } else {
+            alert('PDF または PPTX を選択してください。');
+            return;
+          }
+          if (!slides.length) {
+            alert('スライドを読み取れませんでした。');
+            return;
+          }
+          pickedFiles.slides = {
+            id: 'local-' + Date.now(),
+            name: file.name,
+            sizeBytes: file.size
+          };
+          updateUploadCard('slides', pickedFiles.slides);
+          replaceSlides(slides);
+          state.currentSlideIdx = 0;
+          renderThumbnails();
+          renderSlide();
+          renderTranscript();
+          renderFeedback();
+        } catch (e) {
+          alert('ファイル読み込みエラー: ' + (e && e.message ? e.message : e));
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = originalLabel;
+        }
+      } else {
+        const sample = await showAudioSampleModal();
+        if (!sample) return;
+        pickedFiles.audio = {
+          id: sample.id,
+          name: sample.name,
+          sizeBytes: Math.round(sample.sizeMb * 1024 * 1024)
+        };
+        updateUploadCard('audio', pickedFiles.audio);
       }
     }
 
     async function handleAnalyzeClick() {
-      const btn = document.getElementById('analyzeBtn');
-      if (!drive.inGas()) {
-        alert('（プレビュー）GAS 上で実行すると、選択した Drive ファイルが Whisper + Claude 分析パイプラインに渡されます。');
-        return;
+      // Always run the staged progress — it's the centerpiece of the demo.
+      await runAnalysisProgress();
+
+      // If we're in real GAS context with both files picked, also hit the server.
+      if (drive.inGas() && pickedFiles.slides && pickedFiles.audio &&
+          !String(pickedFiles.slides.id).startsWith('local-') &&
+          !String(pickedFiles.audio.id).startsWith('sample-')) {
+        try {
+          await drive.callServer('processSession', {
+            slideFileId: pickedFiles.slides.id,
+            audioFileId: pickedFiles.audio.id
+          });
+        } catch (e) { console.warn('processSession failed:', e); }
       }
-      if (!pickedFiles.slides || !pickedFiles.audio) {
-        alert('提案資料と商談音声の両方を選択してください。');
-        return;
-      }
-      const originalHtml = btn.innerHTML;
-      btn.classList.add('is-loading');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="btn-spinner"></span><span>分析中…</span>';
-      try {
-        const result = await drive.callServer('processSession', {
-          slideFileId: pickedFiles.slides.id,
-          audioFileId: pickedFiles.audio.id
-        });
-        if (result.ok) {
-          alert('✓ ' + result.message + '\n\nスライド: ' + result.slide.name + '\n音声: ' + result.audio.name);
-        } else {
-          alert('分析エラー: ' + result.error);
-        }
-      } catch (e) {
-        alert('サーバー呼び出しエラー: ' + (e && e.message ? e.message : e));
-      } finally {
-        btn.classList.remove('is-loading');
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-      }
+
+      // Refresh transcript/feedback so any preserved AI output shows for the active slide.
+      renderTranscript();
+      renderFeedback();
+      switchTab('feedback');
     }
 
     /* ============================================================
@@ -1620,6 +2174,7 @@
       document.getElementById('nextBtn').disabled = state.currentSlideIdx === total - 1;
 
       const view = document.getElementById('slideView');
+      view.className = 'slide template-' + slide.template;
       view.innerHTML = `
         <div class="slide-head">
           <div class="slide-head-eyebrow">${escapeHtml(slide.duration || '')}</div>
@@ -1633,6 +2188,10 @@
     function renderSlideBody(slide) {
       const c = slide.content;
       switch (slide.template) {
+        case 'image':
+          return `<div class="pdf-page"><img src="${c.imageUrl}" alt="${escapeHtml(slide.title)}"/></div>`;
+        case 'text':
+          return `<div class="text-slide-body">${(c.paragraphs || []).map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>`;
         case 'agenda':
           return `<div class="agenda-list">${
             c.items.map((it, i) => `
@@ -1704,7 +2263,7 @@
       list.innerHTML = slide.transcript.map((u, i) => `
         <div class="utterance ${u.hasFeedback ? 'has-feedback' : ''}" data-idx="${i}">
           <div class="speaker-badge ${u.speaker}">
-            ${u.speaker === 'sales' ? '営業' : '顧客'}
+            ${u.speaker === 'sales' ? '営業' : u.speaker === 'customer' ? '顧客' : 'sys'}
           </div>
           <div class="utterance-body">
             <div class="utterance-meta">
