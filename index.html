@@ -251,6 +251,22 @@
       color: var(--warning-text);
       vertical-align: 1px;
     }
+    .upload-status.loading {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+    .upload-status.loading::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border: 1.2px solid var(--primary-fixed-dim);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 4px;
+      vertical-align: -1px;
+    }
+    .upload-card.is-loading { pointer-events: none; }
 
     /* Button — Primary */
     .btn {
@@ -2016,25 +2032,82 @@
       MOCK_DATA.slides.push(...merged);
     }
 
-    function updateUploadCard(kind, file) {
+    function updateUploadCard(kind, file, opts) {
+      opts = opts || {};
       const cardId = kind === 'slides' ? 'slideUpload' : 'audioUpload';
       const card = document.getElementById(cardId);
       const baseLabel = kind === 'slides' ? '提案資料' : '商談音声';
       const sizeStr = file.sizeBytes ? formatBytes(file.sizeBytes) : '';
       card.querySelector('.upload-label').textContent = baseLabel + (sizeStr ? ' · ' + sizeStr : '');
-      card.querySelector('.upload-filename').innerHTML =
-        escapeHtml(file.name) + ' <span class="upload-status">未分析</span>';
+      const chip = opts.loading
+        ? `<span class="upload-status loading">${escapeHtml(opts.loadingLabel || '読み込み中')}</span>`
+        : '<span class="upload-status">未分析</span>';
+      card.querySelector('.upload-filename').innerHTML = escapeHtml(file.name) + ' ' + chip;
       card.classList.add('swapped');
+      card.classList.toggle('is-loading', !!opts.loading);
     }
 
-    // Try the configured Drive Picker first; if it isn't usable
-    // (not in GAS, no API key, user cancelled), fall through silently.
-    async function tryDrivePicker(kind) {
+    /* ──────────────────────────────────────────────────────────────
+       Slide ingest pipeline — shared between Drive Picker and the
+       local file fallback. Takes a Blob/File and routes it to the
+       right parser based on mimeType / filename.
+       ────────────────────────────────────────────────────────────── */
+    async function applySlideBlob(source, displayName, mimeType) {
+      const lowerName = (displayName || '').toLowerCase();
+      const isGoogleSlides = mimeType === 'application/vnd.google-apps.presentation';
+      const isPdf = isGoogleSlides
+        || mimeType === 'application/pdf'
+        || lowerName.endsWith('.pdf');
+      const isPptx = (mimeType && mimeType.indexOf('presentationml') !== -1)
+        || lowerName.endsWith('.pptx');
+
+      let slides;
+      if (isPdf) {
+        slides = await renderPdfToSlides(source);
+      } else if (isPptx) {
+        slides = await extractPptxSlides(source);
+      } else {
+        throw new Error('対応形式は PDF / PPTX / Google Slides です。');
+      }
+      if (!slides.length) throw new Error('スライドが読み取れませんでした。');
+
+      replaceSlides(slides);
+      state.currentSlideIdx = 0;
+      renderThumbnails();
+      renderSlide();
+      renderTranscript();
+      renderFeedback();
+      return slides.length;
+    }
+
+    /* Download a file picked via Drive Picker, using the user's
+       OAuth token directly against the Drive REST API. Google Slides
+       are exported to PDF on the fly. */
+    async function fetchDriveFileBlob(fileId, oauthToken, mimeType) {
+      const isGoogleSlides = mimeType === 'application/vnd.google-apps.presentation';
+      const baseUrl = 'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(fileId);
+      const url = isGoogleSlides
+        ? baseUrl + '/export?mimeType=' + encodeURIComponent('application/pdf')
+        : baseUrl + '?alt=media';
+      const resp = await fetch(url, { headers: { Authorization: 'Bearer ' + oauthToken } });
+      if (!resp.ok) {
+        const t = await resp.text().catch(() => '');
+        throw new Error('Driveダウンロード失敗 (HTTP ' + resp.status + ') ' + t.substring(0, 200));
+      }
+      return await resp.blob();
+    }
+
+    /* Drive Picker path (production):
+         pick → fetch metadata → for slides, download bytes & render
+         Returns the metadata on success, or null if not applicable
+         (not in GAS, no config, user cancelled). Throws on real errors. */
+    async function tryDriveLoad(kind) {
       if (!drive.inGas()) return null;
       await drive.loadConfig();
       if (!CONFIG.apiKey || !CONFIG.appId) return null;
       const picked = await drive.pick(kind);
       if (!picked) return null;
+
       let meta = {
         id: picked.id, name: picked.name,
         mimeType: picked.mimeType, sizeBytes: picked.sizeBytes
@@ -2043,20 +2116,35 @@
         const serverMeta = await drive.callServer('getFileMetadata', picked.id);
         if (serverMeta && serverMeta.ok) meta = serverMeta;
       } catch (_) { /* keep picker-only metadata */ }
+
+      pickedFiles[kind] = meta;
+      updateUploadCard(kind, meta, { loading: kind === 'slides', loadingLabel: 'Driveから取得中' });
+
+      if (kind === 'slides') {
+        try {
+          const token = await drive.callServer('getOAuthToken');
+          const blob = await fetchDriveFileBlob(picked.id, token, picked.mimeType);
+          updateUploadCard('slides', meta, { loading: true, loadingLabel: 'スライド解析中' });
+          await applySlideBlob(blob, meta.name, picked.mimeType);
+          updateUploadCard('slides', meta);
+        } catch (e) {
+          updateUploadCard('slides', meta);
+          throw e;
+        }
+      }
       return meta;
     }
 
     async function handleUploadClick(kind) {
+      // 1) Production: Drive Picker → fetch → render
       try {
-        // 1) Production path: Drive Picker if configured
-        const driveMeta = await tryDrivePicker(kind);
-        if (driveMeta) {
-          pickedFiles[kind] = driveMeta;
-          updateUploadCard(kind, driveMeta);
-          return;
-        }
+        const driveMeta = await tryDriveLoad(kind);
+        if (driveMeta) return;
       } catch (e) {
-        console.warn('Drive Picker fell through:', e);
+        console.warn('Drive load failed:', e);
+        alert('Drive からの読み込みでエラーが発生しました:\n  ' +
+              (e && e.message ? e.message : e) +
+              '\n\nローカルファイル選択にフォールバックします。');
         // continue to demo path
       }
 
@@ -2064,41 +2152,20 @@
       if (kind === 'slides') {
         const file = await pickLocalFile('.pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation');
         if (!file) return;
-        const name = file.name.toLowerCase();
-        const btn = document.getElementById('analyzeBtn');
-        const originalLabel = btn.innerHTML;
-        btn.disabled = true;
+        const meta = {
+          id: 'local-' + Date.now(),
+          name: file.name,
+          sizeBytes: file.size,
+          mimeType: file.type
+        };
+        pickedFiles.slides = meta;
+        updateUploadCard('slides', meta, { loading: true, loadingLabel: 'スライド解析中' });
         try {
-          let slides;
-          if (name.endsWith('.pdf') || file.type === 'application/pdf') {
-            slides = await renderPdfToSlides(file);
-          } else if (name.endsWith('.pptx')) {
-            slides = await extractPptxSlides(file);
-          } else {
-            alert('PDF または PPTX を選択してください。');
-            return;
-          }
-          if (!slides.length) {
-            alert('スライドを読み取れませんでした。');
-            return;
-          }
-          pickedFiles.slides = {
-            id: 'local-' + Date.now(),
-            name: file.name,
-            sizeBytes: file.size
-          };
-          updateUploadCard('slides', pickedFiles.slides);
-          replaceSlides(slides);
-          state.currentSlideIdx = 0;
-          renderThumbnails();
-          renderSlide();
-          renderTranscript();
-          renderFeedback();
+          await applySlideBlob(file, file.name, file.type);
+          updateUploadCard('slides', meta);
         } catch (e) {
+          updateUploadCard('slides', meta);
           alert('ファイル読み込みエラー: ' + (e && e.message ? e.message : e));
-        } finally {
-          btn.disabled = false;
-          btn.innerHTML = originalLabel;
         }
       } else {
         const sample = await showAudioSampleModal();
