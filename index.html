@@ -514,6 +514,87 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
     }
+    .thumb-confidence {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--surface-low);
+    }
+    .thumb-confidence-fill {
+      height: 100%;
+      transition: width var(--dur-slow);
+    }
+    .conf-high .thumb-confidence-fill { background: var(--primary); }
+    .conf-mid  .thumb-confidence-fill { background: var(--warning-accent); }
+    .conf-low  .thumb-confidence-fill { background: var(--danger); }
+
+    /* Confidence chip — used in slide pane header */
+    .conf-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: var(--r-sm);
+      font: 600 11px var(--font-mono);
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .conf-chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .conf-chip.high { background: var(--done-bg); color: var(--done-text); }
+    .conf-chip.high .conf-chip-dot { background: var(--primary); }
+    .conf-chip.mid  { background: var(--warning-bg); color: var(--warning-text); }
+    .conf-chip.mid  .conf-chip-dot { background: var(--warning-accent); }
+    .conf-chip.low  { background: var(--danger-weak); color: var(--danger); }
+    .conf-chip.low  .conf-chip-dot { background: var(--danger); }
+
+    /* Low-confidence warning banner — shown above transcript */
+    .conf-warning {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: var(--warning-bg);
+      border-radius: var(--r-lg);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 12px;
+      color: var(--warning-text);
+      line-height: 1.6;
+    }
+    .conf-warning.severe { background: var(--danger-weak); color: var(--danger); }
+    .conf-warning-icon {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .conf-warning strong { font-weight: 600; }
+    .conf-warning-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+    }
+    .conf-action-pill {
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.6);
+      border-radius: var(--r-sm);
+      font: 600 10px var(--font-mono);
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background var(--dur-fast);
+      color: inherit;
+    }
+    .conf-action-pill:hover { background: rgba(255,255,255,0.9); }
+
+    /* Title row in slide-pane-hd to accommodate the conf chip */
+    .slide-pane-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
     /* ============ WORKSPACE ============ */
     .workspace {
@@ -1489,7 +1570,14 @@
         <div class="slide-pane-hd">
           <div class="slide-pane-hd-left">
             <span class="eyebrow">Proposal Deck</span>
-            <span class="slide-pane-title" id="paneTitle">—</span>
+            <div class="slide-pane-title-row">
+              <span class="slide-pane-title" id="paneTitle">—</span>
+              <span class="conf-chip" id="slideConfChip" style="display:none">
+                <span class="conf-chip-dot"></span>
+                <span>信頼度</span>
+                <span id="confChipValue">—</span>
+              </span>
+            </div>
           </div>
           <div class="slide-nav">
             <button class="nav-btn" id="prevBtn" aria-label="前のスライド">
@@ -1596,6 +1684,7 @@
           subtitle: "2026年5月15日 / 株式会社B様",
           duration: "00:00 – 09:00",
           template: "agenda",
+          mappingConfidence: 0.94,
           content: { items: ["会社紹介", "現状ヒアリング", "ソリューション提案", "料金・スケジュール", "質疑応答"] },
           transcript: [
             { speaker: "sales", name: "営業 田中", time: "00:42", text: "本日はお忙しい中、お時間をいただきありがとうございます。早速ですが本日のアジェンダをご説明させてください。" },
@@ -1620,6 +1709,7 @@
           subtitle: "事前ヒアリングからの仮説",
           duration: "09:00 – 18:30",
           template: "issues",
+          mappingConfidence: 0.91,
           content: {
             items: [
               { icon: "i-list", name: "紙ベース管理", desc: "タイムカード回収・集計に毎月1週間" },
@@ -1653,6 +1743,7 @@
           subtitle: "クラウド勤怠管理 + AI労務分析",
           duration: "18:30 – 32:00",
           template: "features",
+          mappingConfidence: 0.88,
           content: {
             items: [
               { icon: "i-phone", name: "スマホ打刻", desc: "GPS+顔認証で不正防止。リモートワークにも完全対応" },
@@ -1684,6 +1775,8 @@
           subtitle: "従業員規模・業種が御社と類似",
           duration: "32:00 – 43:00",
           template: "case",
+          mappingConfidence: 0.72,
+          mappingNote: "事例提示直後に6秒の沈黙があり、対応する音声が短いため信頼度が中程度です。",
           content: {
             company: "i-factory",
             stats: [
@@ -1717,6 +1810,8 @@
           subtitle: "御社規模（500名）でのお見積もり",
           duration: "43:00 – 58:34",
           template: "pricing",
+          mappingConfidence: 0.45,
+          mappingNote: "価格論点で会話が前後に行き来しており、Slide 5 と Off-deck Q&A の境界が曖昧です。表示中の発話一部は別文脈の可能性があります。",
           content: {
             amount: "¥600,000",
             unit: "月額 / 500名（@¥1,200/人）",
@@ -2395,18 +2490,34 @@
       document.querySelector('#audioUpload .upload-filename').textContent = MOCK_DATA.meta.files.audio;
     }
 
+    function confidenceLevel(c) {
+      if (c == null) return null;
+      if (c >= 0.85) return 'high';
+      if (c >= 0.60) return 'mid';
+      return 'low';
+    }
+
     function renderThumbnails() {
       const strip = document.getElementById('thumbnailStrip');
       strip.innerHTML = '';
       MOCK_DATA.slides.forEach((slide, idx) => {
         const thumb = document.createElement('div');
-        thumb.className = 'thumbnail' + (idx === state.currentSlideIdx ? ' active' : '');
+        const level = confidenceLevel(slide.mappingConfidence);
+        const classes = ['thumbnail'];
+        if (idx === state.currentSlideIdx) classes.push('active');
+        if (level) classes.push('conf-' + level);
+        thumb.className = classes.join(' ');
+        const confBar = (slide.mappingConfidence != null) ? `
+          <div class="thumb-confidence" title="信頼度 ${slide.mappingConfidence.toFixed(2)}">
+            <div class="thumb-confidence-fill" style="width: ${slide.mappingConfidence * 100}%"></div>
+          </div>` : '';
         thumb.innerHTML = `
           <div class="thumb-meta">
             <span class="thumb-num">${String(idx + 1).padStart(2, '0')}</span>
             <span class="thumb-dur">${escapeHtml(slide.duration || '')}</span>
           </div>
           <div class="thumb-title">${escapeHtml(slide.title)}</div>
+          ${confBar}
         `;
         thumb.addEventListener('click', () => goToSlide(idx));
         strip.appendChild(thumb);
@@ -2420,6 +2531,18 @@
       document.getElementById('slideCounter').textContent = `${String(state.currentSlideIdx + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
       document.getElementById('prevBtn').disabled = state.currentSlideIdx === 0;
       document.getElementById('nextBtn').disabled = state.currentSlideIdx === total - 1;
+
+      // Confidence chip in pane header
+      const chip = document.getElementById('slideConfChip');
+      const level = confidenceLevel(slide.mappingConfidence);
+      if (level) {
+        chip.style.display = '';
+        chip.className = 'conf-chip ' + level;
+        document.getElementById('confChipValue').textContent =
+          slide.mappingConfidence.toFixed(2);
+      } else {
+        chip.style.display = 'none';
+      }
 
       const view = document.getElementById('slideView');
       view.className = 'slide template-' + slide.template;
@@ -2508,7 +2631,27 @@
     function renderTranscript() {
       const slide = MOCK_DATA.slides[state.currentSlideIdx];
       const list = document.getElementById('transcriptList');
-      list.innerHTML = slide.transcript.map((u, i) => `
+      const conf = slide.mappingConfidence;
+      const level = confidenceLevel(conf);
+      let warningHtml = '';
+      if (level === 'low' || level === 'mid') {
+        const isSevere = level === 'low';
+        warningHtml = `
+          <div class="conf-warning${isSevere ? ' severe' : ''}">
+            <div class="conf-warning-icon">${svgIcon('i-alert', 16)}</div>
+            <div>
+              <strong>このスライドと音声の対応推定は信頼度 ${Math.round(conf * 100)}% です。</strong>
+              ${slide.mappingNote ? '<br>' + escapeHtml(slide.mappingNote) : ''}
+              ${isSevere ? `
+                <div class="conf-warning-actions">
+                  <span class="conf-action-pill">代替候補を表示</span>
+                  <span class="conf-action-pill">手動で再マッピング</span>
+                </div>` : ''}
+            </div>
+          </div>
+        `;
+      }
+      list.innerHTML = warningHtml + slide.transcript.map((u, i) => `
         <div class="utterance ${u.hasFeedback ? 'has-feedback' : ''}" data-idx="${i}">
           <div class="speaker-badge ${u.speaker}">
             ${u.speaker === 'sales' ? '営業' : u.speaker === 'customer' ? '顧客' : 'sys'}
