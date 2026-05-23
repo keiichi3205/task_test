@@ -450,59 +450,47 @@
     }
     .hero-action-source:hover { background: var(--primary-fixed-dim); }
 
-    /* ============ VERDICT BAR (compact top status) ============
-       Slim horizontal bar. Score + title + 1-line state + CTA.
-       Everything fits in one row.
-       ================================================================= */
-    .verdict-bar {
-      margin: 0 20px 10px;
-      padding: 10px 16px;
-      background: var(--surface-lowest);
-      border-radius: var(--r-xl);
-      box-shadow: var(--shadow-sm);
+    /* ============ SCENARIO TAB — top verdict + sections ============
+       Replaces the old top-of-page Verdict Bar + Session Summary.
+       All Scenario state now lives inside the right pane's シナリオ tab.
+       =============================================================== */
+    .scen-verdict {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--surface-lowest) 70%);
+      border-radius: var(--r-lg);
+      margin-bottom: 14px;
     }
-    .vb-score {
+    .scen-verdict-score {
       flex-shrink: 0;
       display: flex;
-      align-items: baseline;
-      gap: 6px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
     }
-    .vb-score-val {
-      font: 800 26px 'Inter', sans-serif;
+    .scen-verdict-val {
+      font: 800 28px 'Inter', sans-serif;
       color: var(--on-surface);
       letter-spacing: -0.02em;
       font-variant-numeric: tabular-nums;
       line-height: 1;
     }
-    .vb-score-pct {
+    .scen-verdict-pct {
       font: 600 13px 'Inter', sans-serif;
       color: var(--on-surface-variant);
     }
-    .vb-score-delta {
-      font: 700 11px var(--font-mono);
+    .scen-verdict-delta {
+      font: 700 10px var(--font-mono);
       color: var(--primary-dark);
-      background: var(--primary-light);
-      padding: 2px 7px;
-      border-radius: 6px;
       letter-spacing: 0.04em;
     }
-    .vb-divider {
-      width: 1px;
-      align-self: stretch;
-      background: var(--outline-faint);
-      margin: 4px 4px;
-    }
-    .vb-title-block {
+    .scen-verdict-titleblock {
       flex: 1;
       min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
     }
-    .vb-title {
+    .scen-verdict-title {
       font-size: 14px;
       font-weight: 700;
       color: var(--on-surface);
@@ -510,144 +498,71 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 3px;
     }
-    .vb-deck-version {
+    .scen-verdict-deck {
       font: 600 10px var(--font-mono);
       color: var(--primary-dark);
-      background: var(--primary-light);
+      background: var(--surface-lowest);
       padding: 1px 6px;
       border-radius: 6px;
       letter-spacing: 0.04em;
     }
-    .vb-state {
+    .scen-verdict-state {
       font-size: 11.5px;
       color: var(--on-surface-variant);
-      line-height: 1.4;
+      line-height: 1.45;
     }
-    .vb-state strong { color: var(--on-surface); font-weight: 600; }
-    .vb-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 14px;
-      background: var(--primary);
-      color: var(--on-primary);
-      border-radius: var(--r);
-      font: 600 12px 'Inter', 'Noto Sans JP', sans-serif;
-      cursor: pointer;
-      transition: background var(--dur-base);
-      white-space: nowrap;
-    }
-    .vb-cta:hover { background: var(--primary-dark); }
+    .scen-verdict-state strong { color: var(--on-surface); font-weight: 600; }
 
-    /* ============ SESSION SUMMARY (2-col: what changed | next moves) ============
-       Single consolidated panel. Left = diagnostic, right = action.
-       No tabs, no separate sections — just two columns of bullets.
-       ============================================================================ */
-    .session-summary {
-      margin: 0 20px 14px;
-      padding: 14px 18px;
-      background: var(--surface-lowest);
-      border-radius: var(--r-xl);
-      box-shadow: var(--shadow-sm);
-      display: grid;
-      grid-template-columns: 1.1fr 1px 1fr;
-      gap: 18px;
-      align-items: stretch;
+    /* Compact section inside シナリオ tab */
+    .scen-section {
+      margin-bottom: 16px;
     }
-    .ss-divider {
-      background: var(--outline-faint);
-      width: 1px;
-    }
-    .ss-col { min-width: 0; }
-    .ss-col-head {
+    .scen-section:last-child { margin-bottom: 0; }
+    .scen-section-head {
       display: flex;
       align-items: baseline;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
-    .ss-col-eyebrow {
-      font: 700 10px var(--font-mono);
+    .scen-section-eyebrow {
+      font: 700 9.5px var(--font-mono);
       letter-spacing: 0.1em;
       color: var(--text-muted);
       text-transform: uppercase;
     }
-    .ss-col-title {
+    .scen-section-title {
       font-size: 13px;
       font-weight: 600;
       color: var(--on-surface);
     }
-
-    /* What Changed list */
-    .ss-changes-group {
-      margin-bottom: 8px;
-    }
-    .ss-changes-group:last-child { margin-bottom: 0; }
-    .ss-changes-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
-    }
-    .ss-changes-icon {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      display: inline-grid;
-      place-items: center;
-      flex-shrink: 0;
-      font: 700 10px var(--font-mono);
-    }
-    .ss-changes-icon.up   { background: var(--done-bg);    color: var(--done-text); }
-    .ss-changes-icon.down { background: var(--danger-weak); color: var(--danger); }
-    .ss-changes-icon.new  { background: #FFF1CD;           color: #8A6014; }
-    .ss-changes-label {
-      font: 700 10.5px var(--font-mono);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--on-surface);
-    }
-    .ss-changes-count {
+    .scen-section-count {
+      margin-left: auto;
       font: 600 10px var(--font-mono);
       color: var(--text-muted);
-      margin-left: 4px;
+      padding: 1px 7px;
+      background: var(--surface-low);
+      border-radius: 8px;
     }
-    .ss-changes-items {
-      padding-left: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .ss-changes-item {
-      font-size: 12px;
-      color: var(--on-surface-variant);
-      line-height: 1.5;
-      cursor: pointer;
-      transition: color var(--dur-fast);
-    }
-    .ss-changes-item:hover { color: var(--on-surface); }
-    .ss-changes-item strong { color: var(--on-surface); font-weight: 600; }
 
-    /* Next Moves list */
-    .ss-moves-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .ss-move {
+    /* Next Moves (inside scenario tab) */
+    .scen-moves-list { display: flex; flex-direction: column; gap: 6px; }
+    .scen-move {
       display: flex;
       align-items: flex-start;
       gap: 9px;
-      padding: 7px 10px;
+      padding: 8px 11px;
       background: var(--surface-low);
       border-radius: var(--r);
       border-left: 3px solid transparent;
       transition: background var(--dur-fast);
     }
-    .ss-move:hover { background: var(--primary-light); }
-    .ss-move.high { border-left-color: var(--danger); }
-    .ss-move.mid  { border-left-color: var(--warning-text); }
-    .ss-move-prio {
+    .scen-move:hover { background: var(--primary-light); }
+    .scen-move.high { border-left-color: var(--danger); }
+    .scen-move.mid  { border-left-color: var(--warning-text); }
+    .scen-move-prio {
       flex-shrink: 0;
       font: 700 9.5px var(--font-mono);
       padding: 1px 6px;
@@ -655,38 +570,66 @@
       letter-spacing: 0.05em;
       margin-top: 1px;
     }
-    .ss-move-prio.high { background: var(--danger-weak); color: var(--danger); }
-    .ss-move-prio.mid  { background: var(--warning-bg);  color: var(--warning-text); }
-    .ss-move-body {
-      flex: 1;
-      min-width: 0;
-    }
-    .ss-move-title {
+    .scen-move-prio.high { background: var(--danger-weak); color: var(--danger); }
+    .scen-move-prio.mid  { background: var(--warning-bg);  color: var(--warning-text); }
+    .scen-move-body { flex: 1; min-width: 0; }
+    .scen-move-title {
       font-size: 12.5px;
       font-weight: 600;
       color: var(--on-surface);
       line-height: 1.4;
     }
-    .ss-move-target {
+    .scen-move-target {
       font: 600 10px var(--font-mono);
       color: var(--primary-dark);
       letter-spacing: 0.04em;
       margin-left: 5px;
+      background: var(--primary-light);
+      padding: 1px 6px;
+      border-radius: 6px;
     }
-    .ss-move-reason {
+    .scen-move-reason {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    /* What Changed (inside scenario tab) */
+    .scen-change-list { display: flex; flex-direction: column; gap: 6px; }
+    .scen-change-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 6px 10px;
+      border-radius: var(--r);
+      cursor: pointer;
+      transition: background var(--dur-fast);
+    }
+    .scen-change-item:hover { background: var(--surface-low); }
+    .scen-change-marker {
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      font: 700 11px var(--font-mono);
+      margin-top: 1px;
+    }
+    .scen-change-marker.up   { background: var(--done-bg);    color: var(--done-text); }
+    .scen-change-marker.down { background: var(--danger-weak); color: var(--danger); }
+    .scen-change-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--on-surface);
+      line-height: 1.35;
+    }
+    .scen-change-sub {
       font-size: 11px;
       color: var(--on-surface-variant);
       margin-top: 2px;
       line-height: 1.45;
     }
-    .ss-moves-more {
-      font: 500 11px 'Inter', sans-serif;
-      color: var(--primary-dark);
-      padding: 6px 10px;
-      cursor: pointer;
-      text-align: center;
-    }
-    .ss-moves-more:hover { color: var(--primary); }
 
     /* ============ SCENARIO UPDATE HERO (replaces Next Actions) ============
        Shows the diff this Session made to the Scenario:
@@ -2451,10 +2394,6 @@
       </div>
     </section>
 
-    <section class="verdict-bar" id="verdictBar" aria-label="シナリオ状況"></section>
-
-    <section class="session-summary" id="sessionSummary" aria-label="今回Sessionまとめ"></section>
-
     <section class="thumbnail-strip" id="thumbnailStrip"></section>
 
     <section class="workspace">
@@ -2488,7 +2427,11 @@
 
       <div class="content-pane">
         <div class="pane-tabs" role="tablist">
-          <button class="tab-btn active" data-tab="feedback" role="tab">
+          <button class="tab-btn active" data-tab="summary" role="tab">
+            <svg width="14" height="14"><use href="#i-chart"/></svg>
+            <span>シナリオ</span>
+          </button>
+          <button class="tab-btn" data-tab="feedback" role="tab">
             <svg width="14" height="14"><use href="#i-sparkle"/></svg>
             <span>スライド別反応</span>
           </button>
@@ -2497,20 +2440,16 @@
             <span>文字起こし</span>
             <span class="tab-badge" id="transcriptCount">0</span>
           </button>
-          <button class="tab-btn" data-tab="summary" role="tab">
-            <svg width="14" height="14"><use href="#i-chart"/></svg>
-            <span>シナリオ全体</span>
-          </button>
         </div>
 
         <div class="pane-content">
           <div class="pane-section" id="section-transcript">
             <div class="transcript-list" id="transcriptList"></div>
           </div>
-          <div class="pane-section active" id="section-feedback">
+          <div class="pane-section" id="section-feedback">
             <div id="feedbackContent"></div>
           </div>
-          <div class="pane-section" id="section-summary">
+          <div class="pane-section active" id="section-summary">
             <div id="summaryContent"></div>
           </div>
         </div>
@@ -3116,7 +3055,7 @@
        ============================================================ */
     const state = {
       currentSlideIdx: 0,
-      currentTab: 'feedback'
+      currentTab: 'summary'
     };
 
     const pendingNewSession = {
@@ -3870,7 +3809,7 @@
       });
 
       // Land on the feedback tab so the user sees the deliverable
-      switchTab('feedback');
+      switchTab('summary');
     }
 
     function avgConfidence() {
@@ -3898,7 +3837,7 @@
       // Refresh transcript/feedback so any preserved AI output shows for the active slide.
       renderTranscript();
       renderFeedback();
-      switchTab('feedback');
+      switchTab('summary');
     }
 
     /* ============================================================
@@ -4160,38 +4099,80 @@
     function renderScenario() {
       const S = SCENARIO_DATA;
       const stakes = S.stakeholders;
-      const metCount = stakes.filter(s => s.lastContact).length;
+      const su = S.sessionUpdate;
+      const pct = Math.round(S.agreementScore * 100);
+      const delta = S.agreementDelta;
 
-      const headerHtml = `
-        <div class="scen-dash-header">
-          <div class="scen-dash-header-top">
-            <span class="scen-dash-title">${escapeHtml(S.title)}</span>
-            <span class="scen-dash-version">DECK v${S.currentDeckVersion}</span>
+      // 1-line state composed from the Scenario state — surgical
+      const champ = stakes.find(s => s.role === 'Champion');
+      const eb = stakes.find(s => s.role === 'Economic Buyer');
+      const regIssue = su.regressed[0] ? findIssue(su.regressed[0].issueId) : null;
+      const stateParts = [];
+      if (champ) stateParts.push(`<strong>${escapeHtml(champ.shortName || champ.name)}</strong>と論点合意中`);
+      if (eb && !eb.lastContact) stateParts.push(`<strong>${escapeHtml(eb.shortName || 'EB')}未接触</strong>`);
+      if (regIssue) stateParts.push(`<strong>${escapeHtml(regIssue.title)}</strong>で停滞`);
+
+      // === 1. Compact verdict ===
+      const verdictHtml = `
+        <div class="scen-verdict">
+          <div class="scen-verdict-score">
+            <span class="scen-verdict-val">${pct}<span class="scen-verdict-pct">%</span></span>
+            <span class="scen-verdict-delta">${delta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(delta) * 100)}pt</span>
           </div>
-          <div class="scen-dash-account">${escapeHtml(S.accountName)} · ${escapeHtml(S.accountMeta)}</div>
-          <div class="scen-dash-metrics">
-            <div class="scen-dash-metric">
-              <div class="scen-dash-metric-label">合意度</div>
-              <div class="scen-dash-metric-val">${Math.round(S.agreementScore * 100)}%
-                <span class="scen-dash-metric-delta">${S.agreementDelta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(S.agreementDelta) * 100)}pt</span>
+          <div class="scen-verdict-titleblock">
+            <div class="scen-verdict-title">
+              ${escapeHtml(S.title)}
+              <span class="scen-verdict-deck">DECK v${S.currentDeckVersion}</span>
+            </div>
+            <div class="scen-verdict-state">${stateParts.join(' · ')}</div>
+          </div>
+        </div>
+      `;
+
+      // === 2. Next Moves (all proposals, P1 highlighted) ===
+      const typeLabel = (t) => t === 'deck_add' ? 'デッキ追加' : t === 'meeting' ? 'Session方針' : 'デッキ修正';
+      const movesHtml = `
+        <div class="scen-section">
+          <div class="scen-section-head">
+            <span class="scen-section-eyebrow">Next Moves</span>
+            <span class="scen-section-title">次の打ち手</span>
+            <span class="scen-section-count">${S.updateProposals.length}</span>
+          </div>
+          <div class="scen-moves-list">
+            ${S.updateProposals.map(p => `
+              <div class="scen-move ${p.priority}">
+                <span class="scen-move-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
+                <div class="scen-move-body">
+                  <div class="scen-move-title">${escapeHtml(p.title)}${p.targetVersion ? `<span class="scen-move-target">→ ${escapeHtml(p.targetVersion)}</span>` : `<span class="scen-move-target">${escapeHtml(typeLabel(p.type))}</span>`}</div>
+                  <div class="scen-move-reason">${escapeHtml(p.reason)}</div>
+                </div>
               </div>
-              <div class="scen-dash-metric-sub">前回Session比</div>
-            </div>
-            <div class="scen-dash-metric">
-              <div class="scen-dash-metric-label">論点数 (デッキ抽出)</div>
-              <div class="scen-dash-metric-val">${S.issues.length}</div>
-              <div class="scen-dash-metric-sub">新規論点 ${S.emergedIssues.length} 件浮上</div>
-            </div>
-            <div class="scen-dash-metric">
-              <div class="scen-dash-metric-label">関係者</div>
-              <div class="scen-dash-metric-val">${metCount} / ${stakes.length}</div>
-              <div class="scen-dash-metric-sub">${stakes.length - metCount} 名未接触</div>
-            </div>
-            <div class="scen-dash-metric">
-              <div class="scen-dash-metric-label">Session</div>
-              <div class="scen-dash-metric-val">${S.sessions.length}</div>
-              <div class="scen-dash-metric-sub">Deck v${S.currentDeckVersion} 使用中</div>
-            </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      // === 3. What Changed (progressed / regressed only - emerged is separate) ===
+      const changeLine = (item, kind) => {
+        const issue = findIssue(item.issueId);
+        const title = issue ? issue.title : item.issueId;
+        return `<div class="scen-change-item ${kind}" data-issue="${escapeHtml(item.issueId)}">
+          <span class="scen-change-marker ${kind}">${kind === 'up' ? '↑' : '↓'}</span>
+          <div>
+            <div class="scen-change-title">${escapeHtml(title)}</div>
+            <div class="scen-change-sub">${escapeHtml(item.summary)}</div>
+          </div>
+        </div>`;
+      };
+      const changesHtml = `
+        <div class="scen-section">
+          <div class="scen-section-head">
+            <span class="scen-section-eyebrow">What Changed</span>
+            <span class="scen-section-title">今回Sessionの変化</span>
+          </div>
+          <div class="scen-change-list">
+            ${su.progressed.map(p => changeLine(p, 'up')).join('')}
+            ${su.regressed.map(r => changeLine(r, 'down')).join('')}
           </div>
         </div>
       `;
@@ -4302,38 +4283,26 @@
         </div>
       `;
 
-      // Update proposals
-      const proposalsHtml = `
-        <div class="scen-dash-section">
-          <div class="scen-dash-section-head">
-            <span class="scen-dash-section-title">シナリオ軌道修正 (AI推奨)</span>
-            <span class="scen-dash-section-sub">次版デッキ修正 + 次回Session方針</span>
-            <span class="scen-dash-section-count">${S.updateProposals.length}</span>
-          </div>
-          <div class="scen-prop-list">
-            ${S.updateProposals.map(p => `
-              <div class="scen-prop-item">
-                <span class="scen-prop-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
-                <span class="scen-prop-type">${escapeHtml(p.type === 'deck_add' ? 'デッキ追加' : p.type === 'meeting' ? 'Session方針' : 'デッキ修正')}</span>
-                <div class="scen-prop-body">
-                  <div class="scen-prop-title">${escapeHtml(p.title)}${p.targetVersion ? `<span class="scen-prop-target">→ ${escapeHtml(p.targetVersion)}</span>` : ''}</div>
-                  <div class="scen-prop-reason">${escapeHtml(p.reason)}</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+      document.getElementById('summaryContent').innerHTML = `
+        <div class="scen-dash">
+          ${verdictHtml}
+          ${movesHtml}
+          ${changesHtml}
+          ${emergedHtml}
+          ${stakeHtml}
+          ${matrixHtml}
         </div>
       `;
 
-      document.getElementById('summaryContent').innerHTML = `
-        <div class="scen-dash">
-          ${headerHtml}
-          ${stakeHtml}
-          ${matrixHtml}
-          ${emergedHtml}
-          ${proposalsHtml}
-        </div>
-      `;
+      // Click handlers — change items jump to source slide
+      document.querySelectorAll('.scen-change-item[data-issue]').forEach(el => {
+        el.addEventListener('click', () => {
+          const issue = findIssue(el.dataset.issue);
+          if (!issue || !issue.sourceSlides || !issue.sourceSlides.length) return;
+          goToSlide(issue.sourceSlides[0] - 1);
+          switchTab('feedback');
+        });
+      });
     }
 
     /* ============================================================
@@ -4346,141 +4315,6 @@
     function findIssue(id) {
       return SCENARIO_DATA.issues.find(x => x.id === id)
           || SCENARIO_DATA.emergedIssues.find(x => x.id === id);
-    }
-
-    function renderVerdictBar() {
-      const S = SCENARIO_DATA;
-      const pct = Math.round(S.agreementScore * 100);
-      const delta = S.agreementDelta;
-      const champ = S.stakeholders.find(s => s.role === 'Champion');
-      const eb = S.stakeholders.find(s => s.role === 'Economic Buyer');
-      const regIssue = S.sessionUpdate.regressed[0]
-        ? findIssue(S.sessionUpdate.regressed[0].issueId) : null;
-
-      // One-line state — keep it surgical
-      const stateParts = [];
-      if (champ) stateParts.push(`<strong>${escapeHtml(champ.shortName || champ.name)}</strong>と論点合意中`);
-      if (eb && !eb.lastContact) stateParts.push(`<strong>${escapeHtml(eb.shortName || 'EB')}未接触</strong>`);
-      if (regIssue) stateParts.push(`<strong>${escapeHtml(regIssue.title)}</strong>で停滞`);
-
-      document.getElementById('verdictBar').innerHTML = `
-        <div class="vb-score">
-          <span class="vb-score-val">${pct}<span class="vb-score-pct">%</span></span>
-          <span class="vb-score-delta">${delta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(delta) * 100)}pt</span>
-        </div>
-        <div class="vb-divider"></div>
-        <div class="vb-title-block">
-          <div class="vb-title">
-            ${escapeHtml(S.title)}
-            <span class="vb-deck-version">DECK v${S.currentDeckVersion}</span>
-          </div>
-          <div class="vb-state">${stateParts.join(' · ')}</div>
-        </div>
-        <button class="vb-cta" id="vbCta" type="button">
-          次の打ち手
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 7 L11 7 M7 3 L11 7 L7 11"/>
-          </svg>
-        </button>
-      `;
-
-      document.getElementById('vbCta').addEventListener('click', () => {
-        document.querySelector('.ss-moves-list').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      });
-    }
-
-    function renderSessionSummary() {
-      const S = SCENARIO_DATA;
-      const su = S.sessionUpdate;
-
-      // === LEFT: What Changed (grouped, compact) ===
-      const changesGroup = (label, iconCls, items, isEmerged) => {
-        if (!items.length) return '';
-        const lines = items.map(item => {
-          if (isEmerged) {
-            const e = S.emergedIssues.find(x => x.id === item);
-            if (!e) return '';
-            return `<div class="ss-changes-item" data-emerged="${escapeHtml(e.id)}"><strong>${escapeHtml(e.title)}</strong></div>`;
-          }
-          const issue = findIssue(item.issueId);
-          if (!issue) return '';
-          return `<div class="ss-changes-item" data-issue="${escapeHtml(item.issueId)}"><strong>${escapeHtml(issue.title)}</strong></div>`;
-        }).join('');
-        const glyph = iconCls === 'up' ? '↑' : iconCls === 'down' ? '↓' : '+';
-        return `
-          <div class="ss-changes-group">
-            <div class="ss-changes-header">
-              <span class="ss-changes-icon ${iconCls}">${glyph}</span>
-              <span class="ss-changes-label">${label}</span>
-              <span class="ss-changes-count">${items.length}</span>
-            </div>
-            <div class="ss-changes-items">${lines}</div>
-          </div>
-        `;
-      };
-
-      const changesHtml = [
-        changesGroup('進展', 'up',   su.progressed, false),
-        changesGroup('後退', 'down', su.regressed,  false),
-        changesGroup('新規', 'new',  su.emerged,    true)
-      ].join('');
-
-      // === RIGHT: Next Moves (top P1 only, with "more" link) ===
-      const moves = S.updateProposals;
-      const top = moves.filter(m => m.priority === 'high').slice(0, 3);
-      const remaining = moves.length - top.length;
-
-      const movesHtml = top.map(p => `
-        <div class="ss-move ${p.priority}">
-          <span class="ss-move-prio ${p.priority}">P1</span>
-          <div class="ss-move-body">
-            <div class="ss-move-title">${escapeHtml(p.title)}${p.targetVersion ? `<span class="ss-move-target">→ ${escapeHtml(p.targetVersion)}</span>` : ''}</div>
-            <div class="ss-move-reason">${escapeHtml(p.reason)}</div>
-          </div>
-        </div>
-      `).join('') + (remaining > 0
-        ? `<div class="ss-moves-more" id="ssMovesMore">+ あと ${remaining} 件 (P2 含む) を見る →</div>`
-        : '');
-
-      document.getElementById('sessionSummary').innerHTML = `
-        <div class="ss-col">
-          <div class="ss-col-head">
-            <span class="ss-col-eyebrow">What Changed</span>
-            <span class="ss-col-title">何が変わったか</span>
-          </div>
-          ${changesHtml}
-        </div>
-        <div class="ss-divider"></div>
-        <div class="ss-col">
-          <div class="ss-col-head">
-            <span class="ss-col-eyebrow">Next Moves</span>
-            <span class="ss-col-title">次の打ち手 (P1)</span>
-          </div>
-          <div class="ss-moves-list">${movesHtml}</div>
-        </div>
-      `;
-
-      // Click handlers
-      document.querySelectorAll('.ss-changes-item[data-issue]').forEach(el => {
-        el.addEventListener('click', () => {
-          const issue = findIssue(el.dataset.issue);
-          if (!issue || !issue.sourceSlides || !issue.sourceSlides.length) return;
-          goToSlide(issue.sourceSlides[0] - 1);
-          switchTab('feedback');
-          document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-      document.querySelectorAll('.ss-changes-item[data-emerged]').forEach(el => {
-        el.addEventListener('click', () => {
-          switchTab('summary');
-          document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth' });
-        });
-      });
-      const more = document.getElementById('ssMovesMore');
-      if (more) more.addEventListener('click', () => {
-        switchTab('summary');
-        document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth' });
-      });
     }
 
     /* ============================================================
@@ -4508,8 +4342,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderHeader();
       renderThumbnails();
-      renderVerdictBar();
-      renderSessionSummary();
       renderSlide();
       renderTranscript();
       renderFeedback();
