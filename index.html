@@ -450,6 +450,462 @@
     }
     .hero-action-source:hover { background: var(--primary-fixed-dim); }
 
+    /* ============ SCENARIO UPDATE HERO (replaces Next Actions) ============
+       Shows the diff this Session made to the Scenario:
+       progressed / regressed / emerged / next deck edits.
+       =================================================================== */
+    .scen-hero {
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-sm);
+      margin: 0 20px 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .scen-hero-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 12px 16px 8px;
+    }
+    .scen-hero-head .eyebrow { color: var(--primary-dark); }
+    .scen-hero-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--on-surface);
+      letter-spacing: -0.01em;
+    }
+    .scen-hero-scoreshift {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      background: var(--surface-low);
+      border-radius: 12px;
+      font: 600 11px var(--font-mono);
+    }
+    .scen-hero-scoreshift-label {
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 9px;
+    }
+    .scen-hero-scoreshift-val {
+      color: var(--on-surface);
+      font-variant-numeric: tabular-nums;
+    }
+    .scen-hero-scoreshift-delta {
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+    .scen-hero-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 4px 12px 14px;
+    }
+    .scen-hero-col {
+      padding: 10px 12px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .scen-hero-col-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font: 700 10px var(--font-mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .scen-hero-col-head-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .scen-hero-col.progressed .scen-hero-col-head-dot { background: var(--primary); }
+    .scen-hero-col.regressed .scen-hero-col-head-dot { background: var(--danger); }
+    .scen-hero-col.emerged   .scen-hero-col-head-dot { background: #C18A2A; }
+    .scen-hero-col.proposals .scen-hero-col-head-dot { background: var(--on-surface); }
+    .scen-hero-col-head-label { color: var(--on-surface); }
+    .scen-hero-col-head-count {
+      margin-left: auto;
+      padding: 1px 6px;
+      background: var(--surface-lowest);
+      border-radius: 8px;
+      color: var(--on-surface-variant);
+      font-size: 10px;
+    }
+    .scen-hero-item {
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: var(--on-surface-variant);
+      padding: 4px 0;
+      cursor: pointer;
+      transition: color var(--dur-fast);
+      display: flex;
+      gap: 6px;
+    }
+    .scen-hero-item:hover { color: var(--on-surface); }
+    .scen-hero-item-marker {
+      flex-shrink: 0;
+      width: 14px;
+      text-align: center;
+      font: 700 10px var(--font-mono);
+      color: var(--text-muted);
+    }
+    .scen-hero-item-text {
+      min-width: 0;
+      word-wrap: break-word;
+    }
+    .scen-hero-item-text strong {
+      color: var(--on-surface);
+      font-weight: 600;
+    }
+    .scen-hero-empty {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 0;
+      font-style: italic;
+    }
+
+    /* ============ SCENARIO DASHBOARD (シナリオ tab) ============ */
+    .scen-dash {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .scen-dash-header {
+      padding: 16px 18px;
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--surface-lowest) 100%);
+      border-radius: var(--r-xl);
+    }
+    .scen-dash-header-top {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .scen-dash-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--on-surface);
+      letter-spacing: -0.01em;
+    }
+    .scen-dash-version {
+      font: 600 10px var(--font-mono);
+      color: var(--primary-dark);
+      background: var(--surface-lowest);
+      padding: 2px 8px;
+      border-radius: 8px;
+      letter-spacing: 0.05em;
+    }
+    .scen-dash-account {
+      font-size: 11.5px;
+      color: var(--on-surface-variant);
+      margin-bottom: 12px;
+    }
+    .scen-dash-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .scen-dash-metric {
+      background: var(--surface-lowest);
+      padding: 10px 12px;
+      border-radius: var(--r-lg);
+    }
+    .scen-dash-metric-label {
+      font: 600 9px var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .scen-dash-metric-val {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--on-surface);
+      font-variant-numeric: tabular-nums;
+    }
+    .scen-dash-metric-delta {
+      font: 600 11px var(--font-mono);
+      color: var(--primary-dark);
+      margin-left: 4px;
+    }
+    .scen-dash-metric-sub {
+      font-size: 10.5px;
+      color: var(--on-surface-variant);
+      margin-top: 2px;
+    }
+
+    .scen-dash-section {
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      padding: 14px 16px;
+    }
+    .scen-dash-section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .scen-dash-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .scen-dash-section-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .scen-dash-section-count {
+      margin-left: auto;
+      font: 600 10px var(--font-mono);
+      color: var(--text-muted);
+      padding: 2px 7px;
+      background: var(--surface-low);
+      border-radius: 8px;
+    }
+
+    /* === Matrix: Stakeholder × Issue agreement === */
+    .scen-matrix {
+      overflow-x: auto;
+      border-radius: var(--r);
+    }
+    .scen-matrix-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 11px;
+      min-width: 540px;
+    }
+    .scen-matrix-table th,
+    .scen-matrix-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--outline-faint);
+      text-align: center;
+      vertical-align: middle;
+    }
+    .scen-matrix-table thead th {
+      background: var(--surface-low);
+      font: 600 10px var(--font-mono);
+      color: var(--on-surface-variant);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .scen-matrix-table th.scen-matrix-issue-col {
+      text-align: left;
+      width: 38%;
+      text-transform: none;
+      letter-spacing: 0;
+      font: 600 10.5px 'Inter', 'Noto Sans JP', sans-serif;
+    }
+    .scen-matrix-issue-cell {
+      text-align: left !important;
+      padding-left: 6px !important;
+    }
+    .scen-matrix-issue-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-surface);
+      line-height: 1.4;
+    }
+    .scen-matrix-issue-sub {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+    .scen-matrix-type-chip {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font: 700 9px var(--font-mono);
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .scen-matrix-type-chip.t-as     { background: #FFE9E9; color: #A02020; }
+    .scen-matrix-type-chip.t-to     { background: #DDF4EB; color: #1F7B5E; }
+    .scen-matrix-type-chip.t-sol    { background: #E1ECFF; color: #1F4FA0; }
+    .scen-matrix-type-chip.t-roi    { background: #FFF3D7; color: #8A6014; }
+    .scen-matrix-type-chip.t-sch    { background: #EDE1FB; color: #5F2EA0; }
+    .scen-matrix-type-chip.t-risk   { background: #FFE2D5; color: #A04A14; }
+    .scen-matrix-type-chip.t-comp   { background: #FFD9D9; color: #993333; }
+    .scen-matrix-type-chip.t-other  { background: var(--surface-low); color: var(--on-surface-variant); }
+    .scen-matrix-stake-head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .scen-matrix-stake-name {
+      font: 600 11px 'Inter', 'Noto Sans JP', sans-serif;
+      color: var(--on-surface);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .scen-matrix-stake-role {
+      font: 500 9px var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    .scen-matrix-stake-head.eb .scen-matrix-stake-role { color: #8A6014; }
+    .scen-matrix-stake-head.champion .scen-matrix-stake-role { color: var(--primary-dark); }
+    .scen-matrix-stake-head.blocker .scen-matrix-stake-role { color: var(--danger); }
+    .scen-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .scen-cell.agreed   { background: var(--done-bg);   color: var(--done-text); }
+    .scen-cell.partial  { background: var(--warning-bg);color: var(--warning-text); }
+    .scen-cell.negative { background: var(--danger-weak);color: var(--danger); }
+    .scen-cell.unknown  { background: var(--surface-low);color: var(--text-muted); }
+    .scen-cell.interested { background: var(--primary-light); color: var(--primary-dark); }
+    .scen-cell.concern  { background: #FFD8C0; color: #A04A14; }
+    .scen-matrix-row.has-blocker { background: rgba(192,75,60,0.04); }
+
+    /* === Emerged issues === */
+    .scen-emerged-list { display: flex; flex-direction: column; gap: 8px; }
+    .scen-emerged-item {
+      padding: 10px 12px;
+      background: #FFF8E8;
+      border-radius: var(--r-lg);
+      border-left: 3px solid #C18A2A;
+    }
+    .scen-emerged-head {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .scen-emerged-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .scen-emerged-type {
+      font: 700 9px var(--font-mono);
+      padding: 1px 6px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      background: #F2E0BB;
+      color: #6A4A0B;
+    }
+    .scen-emerged-sev {
+      margin-left: auto;
+      font: 700 9px var(--font-mono);
+      letter-spacing: 0.05em;
+    }
+    .scen-emerged-sev.high { color: var(--danger); }
+    .scen-emerged-sev.mid  { color: var(--warning-text); }
+    .scen-emerged-evidence {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      line-height: 1.55;
+      margin-bottom: 4px;
+    }
+    .scen-emerged-action {
+      font-size: 11px;
+      color: var(--primary-dark);
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+    }
+    .scen-emerged-action-arrow {
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    /* === Update proposals === */
+    .scen-prop-list { display: flex; flex-direction: column; gap: 6px; }
+    .scen-prop-item {
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: 10px;
+      align-items: baseline;
+      padding: 9px 12px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+    }
+    .scen-prop-prio {
+      flex-shrink: 0;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font: 700 9px var(--font-mono);
+      letter-spacing: 0.05em;
+    }
+    .scen-prop-prio.high { background: var(--danger-weak); color: var(--danger); }
+    .scen-prop-prio.mid  { background: var(--warning-bg); color: var(--warning-text); }
+    .scen-prop-type {
+      flex-shrink: 0;
+      font: 600 9.5px var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .scen-prop-body { min-width: 0; }
+    .scen-prop-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--on-surface);
+      line-height: 1.45;
+    }
+    .scen-prop-reason {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+    .scen-prop-target {
+      font: 600 9px var(--font-mono);
+      color: var(--primary-dark);
+      margin-left: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    /* === Stakeholders mini summary === */
+    .scen-stake-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .scen-stake-card {
+      flex: 1;
+      min-width: 140px;
+      padding: 9px 11px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .scen-stake-card.unmet { border: 1px dashed #C04B3C; background: rgba(192,75,60,0.04); }
+    .scen-stake-card-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .scen-stake-card-role {
+      font: 600 9.5px var(--font-mono);
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .scen-stake-card-role.eb { color: #8A6014; }
+    .scen-stake-card-role.champion { color: var(--primary-dark); }
+    .scen-stake-card-meta {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .scen-stake-card-meta.unmet { color: var(--danger); font-weight: 600; }
+
     /* ============ THUMBNAIL STRIP ============ */
     .thumbnail-strip {
       background: var(--surface);
@@ -1393,109 +1849,6 @@
     .btn-new-session:hover { background: var(--primary-dark); }
     .btn-new-session:active { transform: scale(0.97); }
 
-    /* Pipeline sync indicator in header */
-    .sync-chip {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 8px;
-      background: var(--surface-low);
-      color: var(--on-surface-variant);
-      border-radius: var(--r-sm);
-      font: 600 10px/1.4 var(--font-mono);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background var(--dur-fast);
-    }
-    .sync-chip:hover { background: var(--surface-high); }
-    .sync-chip-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--text-muted);
-    }
-    .sync-chip.active .sync-chip-dot { background: var(--primary); }
-    .sync-chip-count {
-      color: var(--on-surface);
-      font-weight: 700;
-    }
-    .sync-popover {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      width: 360px;
-      max-height: 380px;
-      background: var(--surface-lowest);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-float);
-      z-index: 200;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .sync-popover.open { display: flex; }
-    .sync-popover-hd {
-      padding: 12px 14px;
-      background: var(--surface-high);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .sync-popover-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--on-surface);
-    }
-    .sync-popover-sub {
-      font: 500 10px var(--font-mono);
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
-      margin-top: 1px;
-      text-transform: none;
-    }
-    .sync-popover-list {
-      padding: 6px;
-      overflow-y: auto;
-      flex: 1;
-    }
-    .sync-event {
-      padding: 8px 10px;
-      border-radius: var(--r-sm);
-      font-size: 11.5px;
-      color: var(--on-surface-variant);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .sync-event:hover { background: var(--surface-low); }
-    .sync-event-name {
-      font: 700 10.5px var(--font-mono);
-      color: var(--primary-dark);
-      letter-spacing: 0.04em;
-    }
-    .sync-event-time {
-      font: 500 10px var(--font-mono);
-      color: var(--text-muted);
-    }
-    .sync-event-payload {
-      font-size: 10.5px;
-      color: var(--on-surface-variant);
-      margin-top: 2px;
-      max-height: 32px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-    .sync-popover-empty {
-      padding: 24px 20px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 11.5px;
-    }
-
     /* Session goal display in header */
     .header-goal {
       display: flex;
@@ -1807,22 +2160,6 @@
         <span class="header-goal-label">Goal</span>
         <span class="header-goal-text" id="headerGoalText"></span>
       </div>
-      <div class="sync-chip" id="syncChip" title="Pipeline (案件管理ツール) 連携状態">
-        <span class="sync-chip-dot"></span>
-        <span>Pipeline · モック</span>
-        <span class="sync-chip-count" id="syncChipCount">0</span>
-        <div class="sync-popover" id="syncPopover">
-          <div class="sync-popover-hd">
-            <div>
-              <div class="sync-popover-title">Pipeline 連携イベント</div>
-              <div class="sync-popover-sub">現在モックモード · APIに繋ぐと自動送信</div>
-            </div>
-          </div>
-          <div class="sync-popover-list" id="syncPopoverList">
-            <div class="sync-popover-empty">まだイベントはありません</div>
-          </div>
-        </div>
-      </div>
       <button class="btn-new-session" id="newSessionBtn">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M6 1.5v9M1.5 6h9"/>
@@ -1877,7 +2214,7 @@
 
     <section class="thumbnail-strip" id="thumbnailStrip"></section>
 
-    <section class="actions-hero" id="actionsHero" aria-label="次回までのアクション"></section>
+    <section class="scen-hero" id="scenHero" aria-label="シナリオ更新サマリー"></section>
 
     <section class="workspace">
       <div class="slide-pane">
@@ -1921,7 +2258,7 @@
           </button>
           <button class="tab-btn" data-tab="summary" role="tab">
             <svg width="14" height="14"><use href="#i-chart"/></svg>
-            <span>商談全体</span>
+            <span>シナリオ</span>
           </button>
         </div>
 
@@ -2395,6 +2732,143 @@
         }; }
       };
     })();
+
+    /* ============================================================
+       SCENARIO data — extracted from the proposal deck by AI
+       (currently a pre-baked mock; production swaps this for an
+       LLM call against the uploaded PDF).
+
+       Model:
+         Account → Scenario → Issues (from deck)
+                            → EmergedIssues (from session discussion)
+                            → Stakeholders × Issues = agreement matrix
+                            → DeckVersions (history)
+                            → Sessions (history)
+                            → UpdateProposals (AI-suggested deck edits)
+       ============================================================ */
+    const SCENARIO_DATA = {
+      id: 'scenario-b-001',
+      accountId: 'deal-b',
+      accountName: '株式会社B',
+      accountMeta: '精密機械製造業 / 従業員500名',
+      title: '勤怠管理DX 統合構想',
+      currentDeckVersion: 3,
+      agreementScore: 0.42,
+      agreementDelta: 0.18,
+      stakeholders: [
+        { id: 'suzuki', name: '鈴木 人事部長', role: 'Champion',       lastContact: '2026-05-15', strength: 'high',   shortName: '鈴木' },
+        { id: 'shacho', name: '社長 (未接触)',   role: 'Economic Buyer', lastContact: null,         strength: 'none',   shortName: '社長' },
+        { id: 'keiri',  name: '経理担当 (未確認)', role: 'Coach',          lastContact: null,         strength: 'none',   shortName: '経理' },
+        { id: 'genba',  name: '現場責任者 (未接触)', role: 'User',           lastContact: null,         strength: 'none',   shortName: '現場' }
+      ],
+      issues: [
+        // ── AS-IS (Slide 2) ──
+        { id: 'i01', type: 'AS-IS', title: '紙ベースの勤怠管理',
+          summary: 'タイムカード回収・集計に毎月1週間', sourceSlides: [2],
+          positions: { suzuki: { state: 'agreed',  evidence: '「人事担当2名で1週間」と自発的に言及' } } },
+        { id: 'i02', type: 'AS-IS', title: '人事集計工数による業務圧迫',
+          summary: '月末月初の業務停滞 (新入社員面談ずれ込み等)', sourceSlides: [2],
+          positions: { suzuki: { state: 'agreed',  evidence: '「新入社員面談がずれ込んだ」と具体例言及' } } },
+        { id: 'i03', type: 'AS-IS', title: '不正打刻リスク',
+          summary: '本人確認手段なし', sourceSlides: [2],
+          positions: { suzuki: { state: 'unknown', evidence: '議論を深掘りできず、反応未取得' } } },
+        { id: 'i04', type: 'AS-IS', title: 'リモートワーク未対応',
+          summary: '在宅勤務時の打刻ルール曖昧', sourceSlides: [2],
+          positions: { suzuki: { state: 'unknown', evidence: '言及なし' } } },
+        // ── TO-BE ──
+        { id: 'i08', type: 'TO-BE', title: '人事の本来業務 (人材開発・面談) への集中',
+          summary: '勤怠集計から解放され、戦略的人事業務に時間配分', sourceSlides: [3],
+          positions: { suzuki: { state: 'partial', evidence: '示唆はあるが TO-BE像を明示的に共有できていない' } } },
+        { id: 'i09', type: 'TO-BE', title: 'コンプライアンス監査に常時対応可能な状態',
+          summary: '労務データ常時可視化・予兆アラート', sourceSlides: [3],
+          positions: { suzuki: { state: 'agreed',  evidence: '「コンプラ監査が厳しくなって」と関心領域として言及' } } },
+        // ── 解決策 (Slide 3) ──
+        { id: 'i05', type: '解決策', title: 'スマホ打刻 (GPS+顔認証)',
+          summary: '不正防止・リモート対応', sourceSlides: [3],
+          positions: { suzuki: { state: 'unknown', evidence: '機能説明への直接反応なし' } } },
+        { id: 'i06', type: '解決策', title: '勤怠データ自動集計',
+          summary: '残業・休暇・有給管理 / 給与システム連携', sourceSlides: [3],
+          positions: { suzuki: { state: 'unknown', evidence: '直接の言及なし' } } },
+        { id: 'i07', type: '解決策', title: 'AI労務分析 (過重労働予兆検知)',
+          summary: 'コンプライアンス監査対応の主機能', sourceSlides: [3],
+          positions: { suzuki: { state: 'agreed',  evidence: '「うちにも使えそう」と購買シグナル' } } },
+        // ── ROI (Slide 5) ──
+        { id: 'i10', type: 'ROI', title: '料金体系 (¥1,200/人・月 → 月60万)',
+          summary: '500名規模での月額・初期費用', sourceSlides: [5],
+          positions: { suzuki: { state: 'negative', evidence: '「思ったより高い」と即座にネガ反応' } } },
+        { id: 'i11', type: 'ROI', title: '投資回収シナリオ',
+          summary: '工数削減 + 機会損失で年間プラス試算', sourceSlides: [5, 4],
+          positions: { suzuki: { state: 'unknown', evidence: 'AEが「工数削減でペイ」と返しただけで具体試算は未提示' } } },
+        // ── スケジュール (Slide 5) ──
+        { id: 'i12', type: 'スケジュール', title: '導入期間 約3ヶ月',
+          summary: '段階展開可能', sourceSlides: [5],
+          positions: { suzuki: { state: 'unknown', evidence: '直接の反応なし' } } }
+      ],
+      emergedIssues: [
+        { id: 'e01', title: '現場高齢ベテラン社員のスマホ操作抵抗', type: 'リスク',
+          evidence: 'A社事例でも最大懸念点だった旨を AE 自身が認識、しかし顧客に未提示',
+          occurrences: 1, severity: 'high',
+          suggestedAction: '次版デッキで「高齢社員向け導入支援パッケージ」を独立スライドで追加',
+          positions: { genba: { state: 'concern' } } },
+        { id: 'e02', title: 'コンプライアンス監査要件の具体化',
+          type: '機会', evidence: '鈴木様 Slide 3 で監査言及、しかし AE が深掘り失敗',
+          occurrences: 1, severity: 'high',
+          suggestedAction: '次回までに監査指摘事項を共有依頼、デッキにコンプラ対応セクション追加',
+          positions: { suzuki: { state: 'interested' } } },
+        { id: 'e03', title: '競合 (他社製品) との比較検討の存在',
+          type: '競合', evidence: '「一旦持ち帰って検討します」発言、他社比較の可能性大',
+          occurrences: 1, severity: 'mid',
+          suggestedAction: '競合比較表を次回までに用意、自社主導で比較軸を提示',
+          positions: {} },
+        { id: 'e04', title: '決裁者 (社長) との直接対話の不在',
+          type: '権限/プロセス', evidence: '最終決裁は社長との情報、しかし社長同席未実現',
+          occurrences: 1, severity: 'high',
+          suggestedAction: '鈴木様経由で次回 社長 + 経理担当者の同席依頼',
+          positions: {} }
+      ],
+      sessions: [
+        { id: 's-b-1', date: '2026-05-15', deckVersion: 3, attendees: ['suzuki'],
+          duration: '58:34', agreementScore: 0.42, agreementDelta: 0.18, current: true,
+          summary: '初回提案。Champion 候補との論点共有が進んだが、ROI と EB 同席が次回必須' }
+      ],
+      deckVersions: [
+        { version: 3, file: '勤怠提案_v3.pptx', uploadedAt: '2026-05-12', sessionsUsed: 1, current: true,
+          changeNote: '初版提案資料' }
+      ],
+      updateProposals: [
+        { priority: 'high', type: 'deck_add',  title: 'コンプライアンス監査対応スライドを追加',
+          reason: 'Champion の購買シグナル発言が決裁トリガー。具体提案にすると意思決定が動く',
+          targetVersion: 'v4', linkedIssue: 'e02' },
+        { priority: 'high', type: 'deck_add',  title: 'ROI試算シート (年間480万円削減+機会損失) を追加',
+          reason: '「思ったより高い」は反論ではなく ROI が見えていないシグナル。事実認識に置換',
+          targetVersion: 'v4', linkedIssue: 'i11' },
+        { priority: 'high', type: 'meeting',   title: '社長 (EB) + 経理担当 (Coach) 同席アポを依頼',
+          reason: '現状 Champion 1名のみ。EB 直接の論点擦り合わせなしでは合意度上限に達する',
+          targetVersion: null, linkedIssue: 'e04' },
+        { priority: 'mid',  type: 'deck_add',  title: '高齢社員向け導入支援パッケージスライドを追加',
+          reason: 'A社事例で最大懸念だった論点を先回り提示すると、現場リスクへの安心感を提供',
+          targetVersion: 'v4', linkedIssue: 'e01' },
+        { priority: 'mid',  type: 'deck_add',  title: '競合製品比較表を追加',
+          reason: '持ち帰り検討の典型理由は他社比較。自社主導で比較軸を提示する方が優位',
+          targetVersion: 'v4', linkedIssue: 'e03' }
+      ],
+      // What changed in THIS session
+      sessionUpdate: {
+        progressed: [
+          { issueId: 'i02', summary: '人事業務圧迫が具体的数字 (2名×1週間) で合意に至った' },
+          { issueId: 'i07', summary: 'AI労務分析に Champion から強い購買シグナル' },
+          { issueId: 'i09', summary: 'コンプラ監査の懸念が共有され TO-BE像の一角が形成された' }
+        ],
+        regressed: [
+          { issueId: 'i10', summary: '料金体系へ「思ったより高い」とネガ反応、ROI で再構築必要' }
+        ],
+        emerged: ['e02', 'e03', 'e04'],
+        unaddressed: [
+          { issueId: 'i03', reason: '不正打刻リスク論点の深掘り失敗' },
+          { issueId: 'i08', reason: 'TO-BE像 (人事の本来業務集中) を言語化できず' }
+        ]
+      }
+    };
 
     /* ============================================================
        App state
@@ -3414,214 +3888,334 @@
       `;
     }
 
-    function renderSummary() {
-      const o = MOCK_DATA.overall;
-      const scorePct = (o.score / 10) * 100;
-      const dasharray = (scorePct / 100) * 175.93;
-      const phaseSteps = o.phase.steps.map((step, i) => {
-        let cls = '';
-        if (i < o.phase.current) cls = 'done';
-        else if (i === o.phase.current) cls = 'current';
-        return `<div class="phase-step ${cls}">${escapeHtml(step)}</div>`;
-      }).join('');
+    /* ============================================================
+       Scenario dashboard — シナリオ tab
+       Single-screen view of the account-level Scenario state:
+       extracted issue tree × stakeholder agreement matrix,
+       emerged issues, AI-suggested deck updates.
+       ============================================================ */
+    const TYPE_META = {
+      'AS-IS':       { cls: 't-as',    label: 'AS-IS' },
+      'TO-BE':       { cls: 't-to',    label: 'TO-BE' },
+      '解決策':       { cls: 't-sol',   label: '解決策' },
+      'ROI':         { cls: 't-roi',   label: 'ROI'   },
+      'スケジュール':  { cls: 't-sch',   label: 'スケジュール' },
+      'リスク':       { cls: 't-risk',  label: 'リスク' },
+      '競合':         { cls: 't-comp',  label: '競合' },
+      '機会':         { cls: 't-other', label: '機会' },
+      '権限/プロセス':{ cls: 't-other', label: '権限/プロセス' }
+    };
+    const STATE_GLYPH = { agreed: '✓', partial: '△', negative: '✕', unknown: '？', interested: '◎', concern: '!' };
+    const ROLE_CLS = { 'Champion': 'champion', 'Economic Buyer': 'eb', 'User': 'blocker', 'Coach': '' };
 
-      const actionList = o.nextActions.map(a => `
-        <div class="action-item">
-          <div class="action-check"></div>
-          <div class="action-content">
-            <div class="action-title">${escapeHtml(a.title)}</div>
-            <div class="action-meta">
-              <span class="chip chip-${a.priority}">${a.priority === 'high' ? 'P1' : a.priority === 'mid' ? 'P2' : 'P3'}</span>
-              <span class="action-due">${svgIcon('i-calendar', 11)} ${escapeHtml(a.due)}</span>
-              <span class="action-note">· ${escapeHtml(a.note)}</span>
+    function cellFor(pos) {
+      if (!pos) return `<span class="scen-cell unknown" title="未確認">${STATE_GLYPH.unknown}</span>`;
+      const cls = pos.state || 'unknown';
+      const glyph = STATE_GLYPH[cls] || STATE_GLYPH.unknown;
+      const ev = pos.evidence ? ` — ${pos.evidence}` : '';
+      return `<span class="scen-cell ${cls}" title="${escapeHtml(cls)}${escapeHtml(ev)}">${glyph}</span>`;
+    }
+
+    function renderScenario() {
+      const S = SCENARIO_DATA;
+      const stakes = S.stakeholders;
+      const metCount = stakes.filter(s => s.lastContact).length;
+
+      const headerHtml = `
+        <div class="scen-dash-header">
+          <div class="scen-dash-header-top">
+            <span class="scen-dash-title">${escapeHtml(S.title)}</span>
+            <span class="scen-dash-version">DECK v${S.currentDeckVersion}</span>
+          </div>
+          <div class="scen-dash-account">${escapeHtml(S.accountName)} · ${escapeHtml(S.accountMeta)}</div>
+          <div class="scen-dash-metrics">
+            <div class="scen-dash-metric">
+              <div class="scen-dash-metric-label">合意度</div>
+              <div class="scen-dash-metric-val">${Math.round(S.agreementScore * 100)}%
+                <span class="scen-dash-metric-delta">${S.agreementDelta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(S.agreementDelta) * 100)}pt</span>
+              </div>
+              <div class="scen-dash-metric-sub">前回Session比</div>
+            </div>
+            <div class="scen-dash-metric">
+              <div class="scen-dash-metric-label">論点数 (デッキ抽出)</div>
+              <div class="scen-dash-metric-val">${S.issues.length}</div>
+              <div class="scen-dash-metric-sub">新規論点 ${S.emergedIssues.length} 件浮上</div>
+            </div>
+            <div class="scen-dash-metric">
+              <div class="scen-dash-metric-label">関係者</div>
+              <div class="scen-dash-metric-val">${metCount} / ${stakes.length}</div>
+              <div class="scen-dash-metric-sub">${stakes.length - metCount} 名未接触</div>
+            </div>
+            <div class="scen-dash-metric">
+              <div class="scen-dash-metric-label">Session</div>
+              <div class="scen-dash-metric-val">${S.sessions.length}</div>
+              <div class="scen-dash-metric-sub">Deck v${S.currentDeckVersion} 使用中</div>
             </div>
           </div>
         </div>
-      `).join('');
+      `;
 
-      const bantOrder = ['B', 'A', 'N', 'T'];
-      const bantRows = bantOrder.map(k => {
-        const v = o.bant[k];
-        return `
-          <div class="bant-row">
-            <div class="bant-row-head">
-              <div>
-                <span class="bant-key">${k}</span>
-                <span class="bant-key-sub">${escapeHtml(v.label).toUpperCase()}</span>
-              </div>
-              <span class="chip chip-${v.tone}">${escapeHtml(v.value)}</span>
-            </div>
-            <div class="bant-note">${escapeHtml(v.note)}</div>
+      // Stakeholder cards
+      const stakeHtml = `
+        <div class="scen-dash-section">
+          <div class="scen-dash-section-head">
+            <span class="scen-dash-section-title">バイイングセンター</span>
+            <span class="scen-dash-section-sub">未接触の決裁関係者を可視化</span>
+            <span class="scen-dash-section-count">${stakes.length}名</span>
           </div>
-        `;
+          <div class="scen-stake-list">
+            ${stakes.map(s => `
+              <div class="scen-stake-card ${s.lastContact ? '' : 'unmet'}">
+                <div class="scen-stake-card-name">${escapeHtml(s.name)}</div>
+                <div class="scen-stake-card-role ${ROLE_CLS[s.role] || ''}">${escapeHtml(s.role.toUpperCase())}</div>
+                <div class="scen-stake-card-meta ${s.lastContact ? '' : 'unmet'}">${s.lastContact ? '最終接触 ' + escapeHtml(s.lastContact) : '⚠ 一度も接触なし'}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      // Issue × Stakeholder matrix
+      const matrixHeaderCells = stakes.map(s => {
+        const roleCls = ROLE_CLS[s.role] || '';
+        return `<th><div class="scen-matrix-stake-head ${roleCls}">
+          <span class="scen-matrix-stake-name">${escapeHtml(s.shortName)}</span>
+          <span class="scen-matrix-stake-role">${escapeHtml(s.role.toUpperCase())}</span>
+        </div></th>`;
       }).join('');
+
+      // Group issues by type for visual grouping
+      const typeOrder = ['AS-IS', 'TO-BE', '解決策', 'ROI', 'スケジュール'];
+      const groupedRows = typeOrder.flatMap(t => {
+        const items = S.issues.filter(i => i.type === t);
+        return items.map(i => {
+          const tmeta = TYPE_META[i.type] || TYPE_META['AS-IS'];
+          const cells = stakes.map(s => `<td>${cellFor(i.positions[s.id])}</td>`).join('');
+          const negativeOrConcern = stakes.some(s => i.positions[s.id] && (i.positions[s.id].state === 'negative'));
+          return `
+            <tr class="scen-matrix-row ${negativeOrConcern ? 'has-blocker' : ''}">
+              <td class="scen-matrix-issue-cell">
+                <span class="scen-matrix-type-chip ${tmeta.cls}">${escapeHtml(tmeta.label)}</span>
+                <div class="scen-matrix-issue-title">${escapeHtml(i.title)}</div>
+                <div class="scen-matrix-issue-sub">${escapeHtml(i.summary)} · P.${i.sourceSlides.join(', P.')}</div>
+              </td>
+              ${cells}
+            </tr>
+          `;
+        });
+      }).join('');
+
+      const matrixHtml = `
+        <div class="scen-dash-section">
+          <div class="scen-dash-section-head">
+            <span class="scen-dash-section-title">論点 × 関係者 合意度マトリックス</span>
+            <span class="scen-dash-section-sub">デッキから抽出した論点に対する各関係者の反応</span>
+            <span class="scen-dash-section-count">${S.issues.length} 論点</span>
+          </div>
+          <div class="scen-matrix">
+            <table class="scen-matrix-table">
+              <thead>
+                <tr>
+                  <th class="scen-matrix-issue-col">論点 (デッキ抽出)</th>
+                  ${matrixHeaderCells}
+                </tr>
+              </thead>
+              <tbody>
+                ${groupedRows}
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:10px;font-size:10.5px;color:var(--text-muted);flex-wrap:wrap;">
+            <span><span class="scen-cell agreed" style="width:16px;height:16px;font-size:11px;">✓</span> 合意</span>
+            <span><span class="scen-cell partial" style="width:16px;height:16px;font-size:11px;">△</span> 部分合意</span>
+            <span><span class="scen-cell negative" style="width:16px;height:16px;font-size:11px;">✕</span> 反対/ネガ</span>
+            <span><span class="scen-cell unknown" style="width:16px;height:16px;font-size:11px;">？</span> 未確認</span>
+          </div>
+        </div>
+      `;
+
+      // Emerged issues
+      const emergedHtml = `
+        <div class="scen-dash-section">
+          <div class="scen-dash-section-head">
+            <span class="scen-dash-section-title">新規論点 (デッキ外で浮上)</span>
+            <span class="scen-dash-section-sub">商談から検出された、提案資料に未反映の論点</span>
+            <span class="scen-dash-section-count">${S.emergedIssues.length}</span>
+          </div>
+          <div class="scen-emerged-list">
+            ${S.emergedIssues.map(e => `
+              <div class="scen-emerged-item">
+                <div class="scen-emerged-head">
+                  <span class="scen-emerged-type">${escapeHtml(e.type)}</span>
+                  <span class="scen-emerged-title">${escapeHtml(e.title)}</span>
+                  <span class="scen-emerged-sev ${e.severity}">${e.severity === 'high' ? '重要度: 高' : '重要度: 中'}</span>
+                </div>
+                <div class="scen-emerged-evidence">"${escapeHtml(e.evidence)}"</div>
+                <div class="scen-emerged-action">
+                  <span class="scen-emerged-action-arrow">→</span>
+                  <span>${escapeHtml(e.suggestedAction)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      // Update proposals
+      const proposalsHtml = `
+        <div class="scen-dash-section">
+          <div class="scen-dash-section-head">
+            <span class="scen-dash-section-title">シナリオ軌道修正 (AI推奨)</span>
+            <span class="scen-dash-section-sub">次版デッキ修正 + 次回Session方針</span>
+            <span class="scen-dash-section-count">${S.updateProposals.length}</span>
+          </div>
+          <div class="scen-prop-list">
+            ${S.updateProposals.map(p => `
+              <div class="scen-prop-item">
+                <span class="scen-prop-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
+                <span class="scen-prop-type">${escapeHtml(p.type === 'deck_add' ? 'デッキ追加' : p.type === 'meeting' ? 'Session方針' : 'デッキ修正')}</span>
+                <div class="scen-prop-body">
+                  <div class="scen-prop-title">${escapeHtml(p.title)}${p.targetVersion ? `<span class="scen-prop-target">→ ${escapeHtml(p.targetVersion)}</span>` : ''}</div>
+                  <div class="scen-prop-reason">${escapeHtml(p.reason)}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
 
       document.getElementById('summaryContent').innerHTML = `
-        <div class="score-card">
-          <div class="score-ring">
-            <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
-              <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(189,202,189,0.4)" stroke-width="5"/>
-              <circle cx="32" cy="32" r="28" fill="none" stroke="#36A191" stroke-width="5"
-                stroke-dasharray="${dasharray} 175.93"
-                stroke-linecap="round"
-                transform="rotate(-90 32 32)"/>
-            </svg>
-            <div class="score-value">${o.score}</div>
-          </div>
-          <div class="score-text">
-            <strong>商談スコア: ${escapeHtml(o.scoreLabel)}</strong>
-            <span>${escapeHtml(o.summary)}</span>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-header">
-            <span class="eyebrow">Deal Phase</span>
-          </div>
-          <div class="phase-bar">${phaseSteps}</div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-header">
-            <span class="eyebrow">Strengths</span>
-          </div>
-          <div class="fb-block good">
-            <ul class="fb-list">${o.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-header">
-            <span class="eyebrow">Opportunities</span>
-          </div>
-          <div class="fb-block improve">
-            <ul class="fb-list">${o.improvements.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>
-          </div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-header">
-            <span class="eyebrow">Next Actions</span>
-            <span class="chip chip-info">${o.nextActions.length}</span>
-          </div>
-          <div class="action-list">${actionList}</div>
-        </div>
-
-        <div class="summary-section">
-          <div class="summary-header">
-            <span class="eyebrow">BANT Status</span>
-          </div>
-          <div class="bant-grid">${bantRows}</div>
+        <div class="scen-dash">
+          ${headerHtml}
+          ${stakeHtml}
+          ${matrixHtml}
+          ${emergedHtml}
+          ${proposalsHtml}
         </div>
       `;
     }
 
     /* ============================================================
-       Action-first hero — top of workspace
-       Surfaces "next moves" prominently and provides an evidence
-       trail back to the slide that triggered each action.
+       Scenario update hero — top of workspace
+       Replaces the old "Next Actions" checklist. Shows the Scenario
+       diff that came out of this Session: which論点 progressed, which
+       regressed, what emerged that wasn't in the deck, and which deck
+       updates the AI recommends for the next version.
        ============================================================ */
-    function priorityLabel(p) {
-      return p === 'high' ? 'P1' : p === 'mid' ? 'P2' : 'P3';
+    function findIssue(id) {
+      return SCENARIO_DATA.issues.find(x => x.id === id)
+          || SCENARIO_DATA.emergedIssues.find(x => x.id === id);
     }
 
-    function updateActionsProgress() {
-      const actions = MOCK_DATA.overall.nextActions || [];
-      const total = actions.length;
-      const done  = actions.filter(a => a.done).length;
-      const pct   = total ? (done / total) * 100 : 0;
-      const countEl = document.querySelector('.actions-hero-count');
-      const fillEl  = document.querySelector('.actions-hero-bar-fill');
-      if (countEl) countEl.innerHTML = '<strong>' + done + '</strong> / ' + total + ' 完了';
-      if (fillEl)  fillEl.style.width = pct + '%';
-    }
+    function renderScenarioHero() {
+      const hero = document.getElementById('scenHero');
+      const su = SCENARIO_DATA.sessionUpdate;
+      const score = SCENARIO_DATA.agreementScore;
+      const delta = SCENARIO_DATA.agreementDelta;
 
-    function renderActionsHero() {
-      const actions = MOCK_DATA.overall.nextActions || [];
-      const total = actions.length;
-      const done  = actions.filter(a => a.done).length;
-      const pct   = total ? (done / total) * 100 : 0;
+      const progressedHtml = su.progressed.length
+        ? su.progressed.map(p => {
+            const issue = findIssue(p.issueId);
+            return `<div class="scen-hero-item" data-issue="${escapeHtml(p.issueId)}">
+              <span class="scen-hero-item-marker">↑</span>
+              <span class="scen-hero-item-text"><strong>${escapeHtml(issue ? issue.title : p.issueId)}</strong><br>${escapeHtml(p.summary)}</span>
+            </div>`;
+          }).join('')
+        : '<div class="scen-hero-empty">なし</div>';
 
-      const hero = document.getElementById('actionsHero');
-      if (!actions.length) { hero.style.display = 'none'; return; }
-      hero.style.display = '';
+      const regressedHtml = su.regressed.length
+        ? su.regressed.map(r => {
+            const issue = findIssue(r.issueId);
+            return `<div class="scen-hero-item" data-issue="${escapeHtml(r.issueId)}">
+              <span class="scen-hero-item-marker">↓</span>
+              <span class="scen-hero-item-text"><strong>${escapeHtml(issue ? issue.title : r.issueId)}</strong><br>${escapeHtml(r.summary)}</span>
+            </div>`;
+          }).join('')
+        : '<div class="scen-hero-empty">なし</div>';
+
+      const emergedHtml = su.emerged.length
+        ? su.emerged.map(eid => {
+            const e = SCENARIO_DATA.emergedIssues.find(x => x.id === eid);
+            if (!e) return '';
+            return `<div class="scen-hero-item" data-emerged="${escapeHtml(eid)}">
+              <span class="scen-hero-item-marker">＋</span>
+              <span class="scen-hero-item-text"><strong>${escapeHtml(e.title)}</strong><br>${escapeHtml(e.evidence)}</span>
+            </div>`;
+          }).join('')
+        : '<div class="scen-hero-empty">なし</div>';
+
+      const propsTop = SCENARIO_DATA.updateProposals.filter(p => p.priority === 'high').slice(0, 3);
+      const proposalsHtml = propsTop.length
+        ? propsTop.map(p => `
+            <div class="scen-hero-item">
+              <span class="scen-hero-item-marker">▸</span>
+              <span class="scen-hero-item-text"><strong>${escapeHtml(p.title)}</strong><br>${escapeHtml(p.reason)}</span>
+            </div>`).join('')
+        : '<div class="scen-hero-empty">なし</div>';
 
       hero.innerHTML = `
-        <div class="actions-hero-head">
-          <span class="eyebrow">Next Actions</span>
-          <span class="actions-hero-title">次回までにやること</span>
-          <div class="actions-hero-progress">
-            <span class="actions-hero-count"><strong>${done}</strong> / ${total} 完了</span>
-            <div class="actions-hero-bar"><div class="actions-hero-bar-fill" style="width: ${pct}%"></div></div>
-          </div>
+        <div class="scen-hero-head">
+          <span class="eyebrow">Scenario Update</span>
+          <span class="scen-hero-title">${escapeHtml(SCENARIO_DATA.title)} — 今回Sessionで何が変わったか</span>
+          <span class="scen-hero-scoreshift">
+            <span class="scen-hero-scoreshift-label">合意度</span>
+            <span class="scen-hero-scoreshift-val">${Math.round(score * 100)}%</span>
+            <span class="scen-hero-scoreshift-delta">${delta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(delta) * 100)}pt</span>
+          </span>
         </div>
-        <div class="actions-hero-list">
-          ${actions.map((a, i) => `
-            <div class="hero-action ${a.done ? 'done' : ''}" data-idx="${i}">
-              <div class="hero-action-row">
-                <div class="hero-action-check" data-role="check" role="checkbox" aria-checked="${a.done ? 'true' : 'false'}">
-                  ${svgIcon('i-check', 10)}
-                </div>
-                <span class="hero-action-priority ${a.priority}">${priorityLabel(a.priority)}</span>
-                <span class="hero-action-title">${escapeHtml(a.title)}</span>
-                <span class="hero-action-due">${svgIcon('i-calendar', 11)} ${escapeHtml(a.due)}</span>
-                <div class="hero-action-toggle">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 4.5 L6 7.5 L9 4.5"/>
-                  </svg>
-                </div>
-              </div>
-              ${a.rationale ? `
-                <div class="hero-action-detail">
-                  <div class="hero-action-detail-note">${escapeHtml(a.rationale)}</div>
-                  ${a.note ? '<div style="color: var(--text-muted); font-size: 11px;">' + escapeHtml(a.note) + '</div>' : ''}
-                  ${typeof a.sourceSlideIdx === 'number' ? `
-                    <span class="hero-action-source" data-slide="${a.sourceSlideIdx}">
-                      ${svgIcon('i-arrow-r', 10)}
-                      SLIDE ${String(a.sourceSlideIdx + 1).padStart(2, '0')} に飛ぶ
-                    </span>` : ''}
-                </div>` : ''}
+        <div class="scen-hero-grid">
+          <div class="scen-hero-col progressed">
+            <div class="scen-hero-col-head">
+              <span class="scen-hero-col-head-dot"></span>
+              <span class="scen-hero-col-head-label">進展した論点</span>
+              <span class="scen-hero-col-head-count">${su.progressed.length}</span>
             </div>
-          `).join('')}
+            ${progressedHtml}
+          </div>
+          <div class="scen-hero-col regressed">
+            <div class="scen-hero-col-head">
+              <span class="scen-hero-col-head-dot"></span>
+              <span class="scen-hero-col-head-label">後退/障害</span>
+              <span class="scen-hero-col-head-count">${su.regressed.length}</span>
+            </div>
+            ${regressedHtml}
+          </div>
+          <div class="scen-hero-col emerged">
+            <div class="scen-hero-col-head">
+              <span class="scen-hero-col-head-dot"></span>
+              <span class="scen-hero-col-head-label">新規論点</span>
+              <span class="scen-hero-col-head-count">${su.emerged.length}</span>
+            </div>
+            ${emergedHtml}
+          </div>
+          <div class="scen-hero-col proposals">
+            <div class="scen-hero-col-head">
+              <span class="scen-hero-col-head-dot"></span>
+              <span class="scen-hero-col-head-label">次版デッキ修正</span>
+              <span class="scen-hero-col-head-count">${propsTop.length}</span>
+            </div>
+            ${proposalsHtml}
+          </div>
         </div>
       `;
 
-      // Wire interactions — mutate DOM directly on check (don't re-render)
-      // so expanded state survives clicks. Only the progress meter needs updating.
-      hero.querySelectorAll('.hero-action').forEach(el => {
-        const idx = parseInt(el.dataset.idx, 10);
-        const row = el.querySelector('.hero-action-row');
-        const check = el.querySelector('[data-role="check"]');
-
-        check.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const a = MOCK_DATA.overall.nextActions[idx];
-          a.done = !a.done;
-          el.classList.toggle('done', a.done);
-          check.setAttribute('aria-checked', a.done ? 'true' : 'false');
-          updateActionsProgress();
-          renderSummary();
-          // [Pipeline sync] Action status changed — mirror to Pipeline as a Task update
-          pipelineSync.actionUpdated({
-            actionTitle: a.title, priority: a.priority,
-            done: a.done, completedAt: a.done ? new Date().toISOString() : null
-          });
-        });
-
-        row.addEventListener('click', () => {
-          el.classList.toggle('expanded');
+      // Clicking a progressed/regressed item jumps to the source slide
+      hero.querySelectorAll('.scen-hero-item[data-issue]').forEach(el => {
+        el.addEventListener('click', () => {
+          const issueId = el.dataset.issue;
+          const issue = findIssue(issueId);
+          if (!issue || !issue.sourceSlides || !issue.sourceSlides.length) return;
+          const slideIdx = issue.sourceSlides[0] - 1;
+          goToSlide(slideIdx);
+          switchTab('feedback');
+          document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
-
-      hero.querySelectorAll('.hero-action-source').forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const slideIdx = parseInt(el.dataset.slide, 10);
-          goToSlide(slideIdx);
-          // Keep the user on the feedback tab so they see the related context
-          switchTab('feedback');
-          // Scroll the slide into view (the slide pane is in the workspace below)
-          document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Emerged items jump to the Scenario tab where they're elaborated
+      hero.querySelectorAll('.scen-hero-item[data-emerged]').forEach(el => {
+        el.addEventListener('click', () => {
+          switchTab('summary');
+          document.getElementById('section-summary').scrollIntoView({ behavior: 'smooth' });
         });
       });
     }
@@ -3651,11 +4245,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderHeader();
       renderThumbnails();
-      renderActionsHero();
+      renderScenarioHero();
       renderSlide();
       renderTranscript();
       renderFeedback();
-      renderSummary();
+      renderScenario();
 
       document.getElementById('prevBtn').addEventListener('click', () => goToSlide(state.currentSlideIdx - 1));
       document.getElementById('nextBtn').addEventListener('click', () => goToSlide(state.currentSlideIdx + 1));
@@ -3672,49 +4266,6 @@
       document.getElementById('analyzeBtn').addEventListener('click', handleAnalyzeClick);
       document.getElementById('slideUpload').addEventListener('click', () => handleUploadClick('slides'));
       document.getElementById('audioUpload').addEventListener('click', () => handleUploadClick('audio'));
-
-      // Pipeline sync indicator
-      const syncChip = document.getElementById('syncChip');
-      const syncPopover = document.getElementById('syncPopover');
-      const syncCount = document.getElementById('syncChipCount');
-      const syncList = document.getElementById('syncPopoverList');
-
-      function renderSyncLog() {
-        const events = pipelineSync.getLog();
-        syncCount.textContent = events.length;
-        syncChip.classList.toggle('active', events.length > 0);
-        if (!events.length) {
-          syncList.innerHTML = '<div class="sync-popover-empty">まだイベントはありません</div>';
-          return;
-        }
-        const recent = events.slice().reverse().slice(0, 20);
-        syncList.innerHTML = recent.map(e => {
-          const time = e.at.slice(11, 19);
-          let summary = '';
-          try { summary = JSON.stringify(e.payload).substring(0, 120); } catch (_) {}
-          return `
-            <div class="sync-event">
-              <div style="display:flex;justify-content:space-between;gap:8px;">
-                <span class="sync-event-name">${escapeHtml(e.event)}</span>
-                <span class="sync-event-time">${escapeHtml(time)}</span>
-              </div>
-              <div class="sync-event-payload">${escapeHtml(summary)}</div>
-            </div>
-          `;
-        }).join('');
-      }
-      pipelineSync.subscribe(() => renderSyncLog());
-      renderSyncLog();
-
-      syncChip.addEventListener('click', (e) => {
-        e.stopPropagation();
-        syncPopover.classList.toggle('open');
-      });
-      document.addEventListener('click', (e) => {
-        if (!syncPopover.contains(e.target) && !syncChip.contains(e.target)) {
-          syncPopover.classList.remove('open');
-        }
-      });
 
       // New session flow
       populateDealSelector();
