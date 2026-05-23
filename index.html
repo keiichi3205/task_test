@@ -1393,6 +1393,109 @@
     .btn-new-session:hover { background: var(--primary-dark); }
     .btn-new-session:active { transform: scale(0.97); }
 
+    /* Pipeline sync indicator in header */
+    .sync-chip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      background: var(--surface-low);
+      color: var(--on-surface-variant);
+      border-radius: var(--r-sm);
+      font: 600 10px/1.4 var(--font-mono);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background var(--dur-fast);
+    }
+    .sync-chip:hover { background: var(--surface-high); }
+    .sync-chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .sync-chip.active .sync-chip-dot { background: var(--primary); }
+    .sync-chip-count {
+      color: var(--on-surface);
+      font-weight: 700;
+    }
+    .sync-popover {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 360px;
+      max-height: 380px;
+      background: var(--surface-lowest);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-float);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sync-popover.open { display: flex; }
+    .sync-popover-hd {
+      padding: 12px 14px;
+      background: var(--surface-high);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sync-popover-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .sync-popover-sub {
+      font: 500 10px var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      margin-top: 1px;
+      text-transform: none;
+    }
+    .sync-popover-list {
+      padding: 6px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .sync-event {
+      padding: 8px 10px;
+      border-radius: var(--r-sm);
+      font-size: 11.5px;
+      color: var(--on-surface-variant);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sync-event:hover { background: var(--surface-low); }
+    .sync-event-name {
+      font: 700 10.5px var(--font-mono);
+      color: var(--primary-dark);
+      letter-spacing: 0.04em;
+    }
+    .sync-event-time {
+      font: 500 10px var(--font-mono);
+      color: var(--text-muted);
+    }
+    .sync-event-payload {
+      font-size: 10.5px;
+      color: var(--on-surface-variant);
+      margin-top: 2px;
+      max-height: 32px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .sync-popover-empty {
+      padding: 24px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 11.5px;
+    }
+
     /* Session goal display in header */
     .header-goal {
       display: flex;
@@ -1703,6 +1806,22 @@
       <div class="header-goal" id="headerGoal" style="display:none">
         <span class="header-goal-label">Goal</span>
         <span class="header-goal-text" id="headerGoalText"></span>
+      </div>
+      <div class="sync-chip" id="syncChip" title="Pipeline (案件管理ツール) 連携状態">
+        <span class="sync-chip-dot"></span>
+        <span>Pipeline · モック</span>
+        <span class="sync-chip-count" id="syncChipCount">0</span>
+        <div class="sync-popover" id="syncPopover">
+          <div class="sync-popover-hd">
+            <div>
+              <div class="sync-popover-title">Pipeline 連携イベント</div>
+              <div class="sync-popover-sub">現在モックモード · APIに繋ぐと自動送信</div>
+            </div>
+          </div>
+          <div class="sync-popover-list" id="syncPopoverList">
+            <div class="sync-popover-empty">まだイベントはありません</div>
+          </div>
+        </div>
       </div>
       <button class="btn-new-session" id="newSessionBtn">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -2233,6 +2352,49 @@
         productLine: '販売管理SaaS'
       }
     ];
+
+    /* ============================================================
+       Integration seams — swap implementations to connect to the
+       sibling "案件管理ツール" (Pipeline) when its API is available.
+       Today: in-memory mock + event log. No network calls.
+       ============================================================ */
+    const dealService = (() => {
+      function list()   { return DEALS.slice(); }
+      function get(id)  { return DEALS.find(d => d.id === id) || null; }
+      function getSessions(dealId)        { return []; /* TODO Pipeline GET /deals/:id/sessions */ }
+      function getPendingActions(dealId)  {
+        const d = get(dealId);
+        return d ? (d.pendingActions || 0) : 0;
+      }
+      return { list, get, getSessions, getPendingActions };
+    })();
+
+    const pipelineSync = (() => {
+      const log = [];
+      const subscribers = [];
+      function emit(event, payload) {
+        const entry = { event, at: new Date().toISOString(), payload };
+        log.push(entry);
+        console.log('[pipelineSync] ' + event, payload);
+        subscribers.forEach(fn => { try { fn(entry); } catch (_) {} });
+        // Future: fetch('/api/pipeline/events', { method: 'POST', body: JSON.stringify(entry) });
+      }
+      return {
+        sessionStarted(session)     { emit('session.started',  session); },
+        sessionAnalyzed(session)    { emit('session.analyzed', session); },
+        actionsGenerated(actions)   { emit('actions.generated', { count: actions.length, items: actions }); },
+        actionUpdated(action)       { emit('action.updated',    action); },
+        frameworkUpdated(scores)    { emit('framework.updated', scores); },
+        suggestStageChange(dealId, fromStage, toStage, reason) {
+          emit('stage.suggested', { dealId, fromStage, toStage, reason });
+        },
+        getLog() { return log.slice(); },
+        subscribe(fn) { subscribers.push(fn); return () => {
+          const i = subscribers.indexOf(fn);
+          if (i >= 0) subscribers.splice(i, 1);
+        }; }
+      };
+    })();
 
     /* ============================================================
        App state
@@ -2826,13 +2988,13 @@
     function populateDealSelector() {
       const sel = document.getElementById('dealSelector');
       sel.innerHTML = '<option value="">既存の案件から選択…</option>' +
-        DEALS.map(d => `
+        dealService.list().map(d => `
           <option value="${escapeHtml(d.id)}">${escapeHtml(d.customer)} — ${escapeHtml(d.productLine)} (${escapeHtml(d.stage)})</option>
         `).join('');
     }
 
     function selectDealInModal(dealId) {
-      const deal = DEALS.find(d => d.id === dealId);
+      const deal = dealService.get(dealId);
       pendingNewSession.dealId = dealId;
       const preview = document.getElementById('dealPreview');
       if (!deal) {
@@ -2840,6 +3002,7 @@
         updateNewSessionStartButton();
         return;
       }
+      const pending = dealService.getPendingActions(dealId);
       preview.style.display = '';
       preview.innerHTML = `
         <div class="deal-preview-name">${escapeHtml(deal.customer)} <span style="font-weight:400;color:var(--on-surface-variant);font-size:12px;">— ${escapeHtml(deal.productLine)}</span></div>
@@ -2864,7 +3027,7 @@
         ${deal.sessionsCount > 0 ? `
           <div class="deal-preview-history">
             ${svgIcon('i-clock', 12)}
-            過去 ${deal.sessionsCount} 回の商談履歴あり${deal.pendingActions ? ' · <strong>前回未完了アクション ' + deal.pendingActions + ' 件</strong>' : ''}
+            過去 ${deal.sessionsCount} 回の商談履歴あり${pending ? ' · <strong>前回未完了アクション ' + pending + ' 件</strong>' : ''}
           </div>` : `
           <div class="deal-preview-history">
             ${svgIcon('i-sparkle', 12)}
@@ -2933,12 +3096,13 @@
     }
 
     async function startNewSession() {
-      const deal = DEALS.find(d => d.id === pendingNewSession.dealId);
+      const deal = dealService.get(pendingNewSession.dealId);
       if (!deal || !pendingNewSession.slides || !pendingNewSession.audio) return;
 
       const goal = document.getElementById('sessionGoal').value.trim();
       const today = new Date();
       const datePad = n => String(n).padStart(2, '0');
+      const sessionId = 'session-' + Date.now();
 
       // Update active session metadata
       MOCK_DATA.meta.title = deal.customer + '様 ' + deal.productLine + ' 提案商談';
@@ -2952,6 +3116,16 @@
       pickedFiles.audio = pendingNewSession.audio.meta;
 
       closeNewSessionModal();
+
+      // [Pipeline sync] Session was created — Pipeline can log it as an Activity.
+      pipelineSync.sessionStarted({
+        sessionId,
+        dealId: deal.id,
+        startedAt: new Date().toISOString(),
+        goal,
+        slides: pendingNewSession.slides.meta,
+        audio: pendingNewSession.audio.meta
+      });
 
       // Apply files to the workspace
       try {
@@ -2967,8 +3141,27 @@
       // Run the staged progress
       await runAnalysisProgress();
 
+      // [Pipeline sync] Analysis finished — Pipeline can update qualification
+      // and pick up newly generated action items.
+      pipelineSync.sessionAnalyzed({
+        sessionId,
+        dealId: deal.id,
+        slideCount: MOCK_DATA.slides.length,
+        avgMappingConfidence: avgConfidence()
+      });
+      pipelineSync.actionsGenerated(MOCK_DATA.overall.nextActions || []);
+      pipelineSync.frameworkUpdated({
+        sessionId, dealId: deal.id, bant: MOCK_DATA.overall.bant
+      });
+
       // Land on the feedback tab so the user sees the deliverable
       switchTab('feedback');
+    }
+
+    function avgConfidence() {
+      const vals = MOCK_DATA.slides.map(s => s.mappingConfidence).filter(v => v != null);
+      if (!vals.length) return null;
+      return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100) / 100;
     }
 
     async function handleAnalyzeClick() {
@@ -3408,6 +3601,11 @@
           check.setAttribute('aria-checked', a.done ? 'true' : 'false');
           updateActionsProgress();
           renderSummary();
+          // [Pipeline sync] Action status changed — mirror to Pipeline as a Task update
+          pipelineSync.actionUpdated({
+            actionTitle: a.title, priority: a.priority,
+            done: a.done, completedAt: a.done ? new Date().toISOString() : null
+          });
         });
 
         row.addEventListener('click', () => {
@@ -3474,6 +3672,49 @@
       document.getElementById('analyzeBtn').addEventListener('click', handleAnalyzeClick);
       document.getElementById('slideUpload').addEventListener('click', () => handleUploadClick('slides'));
       document.getElementById('audioUpload').addEventListener('click', () => handleUploadClick('audio'));
+
+      // Pipeline sync indicator
+      const syncChip = document.getElementById('syncChip');
+      const syncPopover = document.getElementById('syncPopover');
+      const syncCount = document.getElementById('syncChipCount');
+      const syncList = document.getElementById('syncPopoverList');
+
+      function renderSyncLog() {
+        const events = pipelineSync.getLog();
+        syncCount.textContent = events.length;
+        syncChip.classList.toggle('active', events.length > 0);
+        if (!events.length) {
+          syncList.innerHTML = '<div class="sync-popover-empty">まだイベントはありません</div>';
+          return;
+        }
+        const recent = events.slice().reverse().slice(0, 20);
+        syncList.innerHTML = recent.map(e => {
+          const time = e.at.slice(11, 19);
+          let summary = '';
+          try { summary = JSON.stringify(e.payload).substring(0, 120); } catch (_) {}
+          return `
+            <div class="sync-event">
+              <div style="display:flex;justify-content:space-between;gap:8px;">
+                <span class="sync-event-name">${escapeHtml(e.event)}</span>
+                <span class="sync-event-time">${escapeHtml(time)}</span>
+              </div>
+              <div class="sync-event-payload">${escapeHtml(summary)}</div>
+            </div>
+          `;
+        }).join('');
+      }
+      pipelineSync.subscribe(() => renderSyncLog());
+      renderSyncLog();
+
+      syncChip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        syncPopover.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!syncPopover.contains(e.target) && !syncChip.contains(e.target)) {
+          syncPopover.classList.remove('open');
+        }
+      });
 
       // New session flow
       populateDealSelector();
