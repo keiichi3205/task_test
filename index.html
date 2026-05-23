@@ -1232,6 +1232,191 @@
     .modal-header-title { display: flex; flex-direction: column; gap: 2px; }
     .modal-title { font-size: 14px; font-weight: 600; color: var(--on-surface); }
     .modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+    .modal-content.modal-wide { max-width: 580px; }
+    .modal-footer {
+      padding: 12px 20px;
+      background: var(--surface-low);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ============ FORM SECTIONS (in modal) ============ */
+    .form-section { margin-bottom: 20px; }
+    .form-section:last-child { margin-bottom: 0; }
+    .form-section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .form-section-step {
+      width: 22px; height: 22px;
+      background: var(--surface-low);
+      color: var(--on-surface-variant);
+      border-radius: var(--r-sm);
+      display: grid; place-items: center;
+      font: 700 11px var(--font-mono);
+      flex-shrink: 0;
+    }
+    .form-section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .form-control {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--r);
+      background: var(--surface-lowest);
+      color: var(--on-surface);
+      font: 13px 'Inter', 'Noto Sans JP', sans-serif;
+      transition: border-color var(--dur-base), box-shadow var(--dur-base);
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(54, 161, 145, 0.15);
+    }
+    .form-control::placeholder { color: var(--text-muted); }
+    .form-field { display: flex; flex-direction: column; gap: 4px; }
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--on-surface-variant);
+    }
+
+    /* Deal preview card */
+    .deal-preview {
+      margin-top: 10px;
+      padding: 12px 14px;
+      background: var(--primary-light);
+      border-radius: var(--r-lg);
+    }
+    .deal-preview-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 6px;
+    }
+    .deal-preview-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 16px;
+      font-size: 11px;
+    }
+    .deal-preview-meta-item { display: flex; flex-direction: column; gap: 1px; }
+    .deal-preview-meta-label {
+      font: 600 9px var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .deal-preview-meta-value {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--on-surface);
+    }
+    .deal-preview-history {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--ghost-border);
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* File pickers inside the modal (compact form) */
+    .file-picker-list { display: flex; flex-direction: column; gap: 6px; }
+    .file-picker {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--surface-low);
+      border-radius: var(--r);
+      cursor: pointer;
+      transition: background var(--dur-fast);
+    }
+    .file-picker:hover { background: var(--surface-high); }
+    .file-picker.picked { background: var(--primary-light); }
+    .file-picker-icon {
+      width: 32px; height: 32px;
+      background: var(--surface-lowest);
+      border-radius: var(--r-sm);
+      display: grid; place-items: center;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .file-picker.picked .file-picker-icon { color: var(--primary-dark); }
+    .file-picker-info { flex: 1; min-width: 0; }
+    .file-picker-label {
+      font: 600 10px/1 var(--font-mono);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .file-picker-name {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--on-surface);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-picker-name.empty { color: var(--text-muted); font-weight: 400; }
+    .file-picker-action {
+      font: 600 11px var(--font-mono);
+      color: var(--primary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* New Session button in header */
+    .btn-new-session {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      background: var(--primary);
+      color: var(--on-primary);
+      border-radius: var(--r);
+      font: 600 12px 'Inter', 'Noto Sans JP', sans-serif;
+      letter-spacing: 0.01em;
+      transition: background var(--dur-base);
+    }
+    .btn-new-session:hover { background: var(--primary-dark); }
+    .btn-new-session:active { transform: scale(0.97); }
+
+    /* Session goal display in header */
+    .header-goal {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-radius: var(--r-sm);
+      font-size: 11px;
+      font-weight: 500;
+      max-width: 320px;
+    }
+    .header-goal-label {
+      font: 600 9px var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .header-goal-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .modal-close {
       width: 28px; height: 28px;
       border-radius: var(--r);
@@ -1515,6 +1700,16 @@
       </nav>
     </div>
     <div class="header-right">
+      <div class="header-goal" id="headerGoal" style="display:none">
+        <span class="header-goal-label">Goal</span>
+        <span class="header-goal-text" id="headerGoalText"></span>
+      </div>
+      <button class="btn-new-session" id="newSessionBtn">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M6 1.5v9M1.5 6h9"/>
+        </svg>
+        <span>新規Session</span>
+      </button>
       <div class="header-meta">
         <div class="header-meta-item">
           <span class="header-meta-label">DATE</span>
@@ -1624,6 +1819,83 @@
         </div>
       </div>
     </section>
+  </div>
+
+  <!-- New Session creation flow -->
+  <div class="modal" id="newSessionModal" role="dialog" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-content modal-wide">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="eyebrow">New Session</span>
+          <span class="modal-title">新規商談セッションを作成</span>
+        </div>
+        <button class="modal-close" id="newSessionClose" aria-label="閉じる">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M3 3 L11 11 M11 3 L3 11"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-step">01</div>
+            <div class="form-section-label">案件を選択</div>
+          </div>
+          <select class="form-control" id="dealSelector">
+            <option value="">既存の案件から選択…</option>
+          </select>
+          <div class="deal-preview" id="dealPreview" style="display:none"></div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-step">02</div>
+            <div class="form-section-label">商談情報</div>
+          </div>
+          <div class="form-field" style="margin-bottom: 10px;">
+            <label class="form-label">担当</label>
+            <input type="text" class="form-control" value="営業 田中（あなた）" readonly>
+          </div>
+          <div class="form-field">
+            <label class="form-label">今回のゴール（任意）</label>
+            <input type="text" class="form-control" id="sessionGoal" placeholder="例: 価格まで合意し、次回ROI議論に進める">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-step">03</div>
+            <div class="form-section-label">ファイル</div>
+          </div>
+          <div class="file-picker-list">
+            <div class="file-picker" id="modalSlidePicker">
+              <div class="file-picker-icon"><svg width="16" height="16"><use href="#i-doc"/></svg></div>
+              <div class="file-picker-info">
+                <div class="file-picker-label">提案資料</div>
+                <div class="file-picker-name empty">未選択</div>
+              </div>
+              <div class="file-picker-action">選択</div>
+            </div>
+            <div class="file-picker" id="modalAudioPicker">
+              <div class="file-picker-icon"><svg width="16" height="16"><use href="#i-mic"/></svg></div>
+              <div class="file-picker-info">
+                <div class="file-picker-label">商談音声</div>
+                <div class="file-picker-name empty">未選択</div>
+              </div>
+              <div class="file-picker-action">選択</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="newSessionCancel">キャンセル</button>
+        <button class="btn btn-primary" id="newSessionStart" disabled>
+          <svg width="14" height="14"><use href="#i-sparkle"/></svg>
+          <span>分析を開始</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Audio sample selector (demo) -->
@@ -1905,11 +2177,76 @@
     };
 
     /* ============================================================
+       Deal catalog — would come from CRM in production
+       ============================================================ */
+    const DEALS = [
+      {
+        id: 'deal-b',
+        customer: '株式会社B',
+        industry: '精密機械製造業',
+        size: '従業員500名',
+        stage: 'Solution Fit',
+        arrEstimate: 7200000,
+        expectedClose: '2026-08-31',
+        primaryUser: '営業 田中',
+        sessionsCount: 2,
+        pendingActions: 3,
+        productLine: 'クラウド勤怠管理'
+      },
+      {
+        id: 'deal-c',
+        customer: '株式会社C',
+        industry: '小売チェーン',
+        size: '店舗120 / 従業員800名',
+        stage: 'Proposal',
+        arrEstimate: 4800000,
+        expectedClose: '2026-07-15',
+        primaryUser: '営業 田中',
+        sessionsCount: 1,
+        pendingActions: 2,
+        productLine: 'CRM'
+      },
+      {
+        id: 'deal-d',
+        customer: '株式会社D',
+        industry: 'SaaSスタートアップ',
+        size: '従業員80名',
+        stage: 'Discovery',
+        arrEstimate: 1800000,
+        expectedClose: '2026-09-30',
+        primaryUser: '営業 田中',
+        sessionsCount: 0,
+        pendingActions: 0,
+        productLine: 'マーケティングオートメーション'
+      },
+      {
+        id: 'deal-e',
+        customer: '株式会社E',
+        industry: '医療機器',
+        size: '従業員1,200名',
+        stage: 'Negotiation',
+        arrEstimate: 15600000,
+        expectedClose: '2026-06-30',
+        primaryUser: '営業 田中',
+        sessionsCount: 4,
+        pendingActions: 1,
+        productLine: '販売管理SaaS'
+      }
+    ];
+
+    /* ============================================================
        App state
        ============================================================ */
     const state = {
       currentSlideIdx: 0,
       currentTab: 'transcript'
+    };
+
+    const pendingNewSession = {
+      dealId: null,
+      goal: '',
+      slides: null,
+      audio: null
     };
 
     /* ============================================================
@@ -2373,86 +2710,265 @@
       return await resp.blob();
     }
 
-    /* Drive Picker path (production):
-         pick → fetch metadata → for slides, download bytes & render
-         Returns the metadata on success, or null if not applicable
-         (not in GAS, no config, user cancelled). Throws on real errors. */
-    async function tryDriveLoad(kind) {
-      if (!drive.inGas()) return null;
-      await drive.loadConfig();
-      if (!CONFIG.apiKey || !CONFIG.appId) return null;
-      const picked = await drive.pick(kind);
-      if (!picked) return null;
-
-      let meta = {
-        id: picked.id, name: picked.name,
-        mimeType: picked.mimeType, sizeBytes: picked.sizeBytes
-      };
-      try {
-        const serverMeta = await drive.callServer('getFileMetadata', picked.id);
-        if (serverMeta && serverMeta.ok) meta = serverMeta;
-      } catch (_) { /* keep picker-only metadata */ }
-
-      pickedFiles[kind] = meta;
-      updateUploadCard(kind, meta, { loading: kind === 'slides', loadingLabel: 'Driveから取得中' });
-
-      if (kind === 'slides') {
-        try {
-          const token = await drive.callServer('getOAuthToken');
-          const blob = await fetchDriveFileBlob(picked.id, token, picked.mimeType);
-          updateUploadCard('slides', meta, { loading: true, loadingLabel: 'スライド解析中' });
-          await applySlideBlob(blob, meta.name, picked.mimeType);
-          updateUploadCard('slides', meta);
-        } catch (e) {
-          updateUploadCard('slides', meta);
-          throw e;
+    /* Pure pickers — return the picked source without applying it.
+       Used both by the top-bar upload cards (immediate apply) and the
+       new-session modal (apply on "分析を開始"). */
+    async function pickSlideFromAnywhere() {
+      // 1) Drive Picker (production)
+      if (drive.inGas()) {
+        await drive.loadConfig();
+        if (CONFIG.apiKey && CONFIG.appId) {
+          try {
+            const picked = await drive.pick('slides');
+            if (picked) {
+              let meta = {
+                id: picked.id, name: picked.name,
+                mimeType: picked.mimeType, sizeBytes: picked.sizeBytes
+              };
+              try {
+                const serverMeta = await drive.callServer('getFileMetadata', picked.id);
+                if (serverMeta && serverMeta.ok) meta = serverMeta;
+              } catch (_) {}
+              const token = await drive.callServer('getOAuthToken');
+              const blob = await fetchDriveFileBlob(picked.id, token, picked.mimeType);
+              return { meta, blob, mimeType: picked.mimeType };
+            }
+          } catch (e) {
+            console.warn('Drive slide pick fell through:', e);
+          }
         }
       }
-      return meta;
+      // 2) Local file (demo)
+      const file = await pickLocalFile('.pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation');
+      if (!file) return null;
+      return {
+        meta: { id: 'local-' + Date.now(), name: file.name, sizeBytes: file.size, mimeType: file.type },
+        blob: file, mimeType: file.type
+      };
+    }
+
+    async function pickAudioFromAnywhere() {
+      // 1) Drive Picker (production)
+      if (drive.inGas()) {
+        await drive.loadConfig();
+        if (CONFIG.apiKey && CONFIG.appId) {
+          try {
+            const picked = await drive.pick('audio');
+            if (picked) {
+              let meta = {
+                id: picked.id, name: picked.name,
+                mimeType: picked.mimeType, sizeBytes: picked.sizeBytes
+              };
+              try {
+                const serverMeta = await drive.callServer('getFileMetadata', picked.id);
+                if (serverMeta && serverMeta.ok) meta = serverMeta;
+              } catch (_) {}
+              return { meta };
+            }
+          } catch (e) {
+            console.warn('Drive audio pick fell through:', e);
+          }
+        }
+      }
+      // 2) Sample library (demo)
+      const sample = await showAudioSampleModal();
+      if (!sample) return null;
+      return {
+        meta: { id: sample.id, name: sample.name, sizeBytes: Math.round(sample.sizeMb * 1024 * 1024) }
+      };
+    }
+
+    /* Apply helpers — render a picked source into the workspace. */
+    async function applySlideToWorkspace(picked) {
+      updateUploadCard('slides', picked.meta, { loading: true, loadingLabel: 'スライド解析中' });
+      try {
+        if (picked.blob) {
+          await applySlideBlob(picked.blob, picked.meta.name, picked.mimeType);
+        }
+        updateUploadCard('slides', picked.meta);
+      } catch (e) {
+        updateUploadCard('slides', picked.meta);
+        throw e;
+      }
+    }
+
+    function applyAudioToWorkspace(picked) {
+      updateUploadCard('audio', picked.meta);
     }
 
     async function handleUploadClick(kind) {
-      // 1) Production: Drive Picker → fetch → render
       try {
-        const driveMeta = await tryDriveLoad(kind);
-        if (driveMeta) return;
-      } catch (e) {
-        console.warn('Drive load failed:', e);
-        alert('Drive からの読み込みでエラーが発生しました:\n  ' +
-              (e && e.message ? e.message : e) +
-              '\n\nローカルファイル選択にフォールバックします。');
-        // continue to demo path
-      }
-
-      // 2) Demo path
-      if (kind === 'slides') {
-        const file = await pickLocalFile('.pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation');
-        if (!file) return;
-        const meta = {
-          id: 'local-' + Date.now(),
-          name: file.name,
-          sizeBytes: file.size,
-          mimeType: file.type
-        };
-        pickedFiles.slides = meta;
-        updateUploadCard('slides', meta, { loading: true, loadingLabel: 'スライド解析中' });
-        try {
-          await applySlideBlob(file, file.name, file.type);
-          updateUploadCard('slides', meta);
-        } catch (e) {
-          updateUploadCard('slides', meta);
-          alert('ファイル読み込みエラー: ' + (e && e.message ? e.message : e));
+        if (kind === 'slides') {
+          const picked = await pickSlideFromAnywhere();
+          if (!picked) return;
+          pickedFiles.slides = picked.meta;
+          await applySlideToWorkspace(picked);
+        } else {
+          const picked = await pickAudioFromAnywhere();
+          if (!picked) return;
+          pickedFiles.audio = picked.meta;
+          applyAudioToWorkspace(picked);
         }
-      } else {
-        const sample = await showAudioSampleModal();
-        if (!sample) return;
-        pickedFiles.audio = {
-          id: sample.id,
-          name: sample.name,
-          sizeBytes: Math.round(sample.sizeMb * 1024 * 1024)
-        };
-        updateUploadCard('audio', pickedFiles.audio);
+      } catch (e) {
+        alert('ファイル処理エラー: ' + (e && e.message ? e.message : e));
       }
+    }
+
+    /* ============================================================
+       New Session creation flow
+       ============================================================ */
+    function formatYen(n) {
+      if (n >= 1_000_000) return '¥' + (n / 1_000_000).toFixed(1) + 'M';
+      if (n >= 10_000) return '¥' + Math.round(n / 10_000) + '万';
+      return '¥' + n.toLocaleString();
+    }
+
+    function populateDealSelector() {
+      const sel = document.getElementById('dealSelector');
+      sel.innerHTML = '<option value="">既存の案件から選択…</option>' +
+        DEALS.map(d => `
+          <option value="${escapeHtml(d.id)}">${escapeHtml(d.customer)} — ${escapeHtml(d.productLine)} (${escapeHtml(d.stage)})</option>
+        `).join('');
+    }
+
+    function selectDealInModal(dealId) {
+      const deal = DEALS.find(d => d.id === dealId);
+      pendingNewSession.dealId = dealId;
+      const preview = document.getElementById('dealPreview');
+      if (!deal) {
+        preview.style.display = 'none';
+        updateNewSessionStartButton();
+        return;
+      }
+      preview.style.display = '';
+      preview.innerHTML = `
+        <div class="deal-preview-name">${escapeHtml(deal.customer)} <span style="font-weight:400;color:var(--on-surface-variant);font-size:12px;">— ${escapeHtml(deal.productLine)}</span></div>
+        <div class="deal-preview-meta">
+          <div class="deal-preview-meta-item">
+            <span class="deal-preview-meta-label">業界 / 規模</span>
+            <span class="deal-preview-meta-value">${escapeHtml(deal.industry)} · ${escapeHtml(deal.size)}</span>
+          </div>
+          <div class="deal-preview-meta-item">
+            <span class="deal-preview-meta-label">ステージ</span>
+            <span class="deal-preview-meta-value">${escapeHtml(deal.stage)}</span>
+          </div>
+          <div class="deal-preview-meta-item">
+            <span class="deal-preview-meta-label">ARR想定</span>
+            <span class="deal-preview-meta-value mono">${formatYen(deal.arrEstimate)}</span>
+          </div>
+          <div class="deal-preview-meta-item">
+            <span class="deal-preview-meta-label">想定クローズ</span>
+            <span class="deal-preview-meta-value mono">${escapeHtml(deal.expectedClose)}</span>
+          </div>
+        </div>
+        ${deal.sessionsCount > 0 ? `
+          <div class="deal-preview-history">
+            ${svgIcon('i-clock', 12)}
+            過去 ${deal.sessionsCount} 回の商談履歴あり${deal.pendingActions ? ' · <strong>前回未完了アクション ' + deal.pendingActions + ' 件</strong>' : ''}
+          </div>` : `
+          <div class="deal-preview-history">
+            ${svgIcon('i-sparkle', 12)}
+            初回商談です
+          </div>`}
+      `;
+      updateNewSessionStartButton();
+    }
+
+    function updateNewSessionStartButton() {
+      const ready = pendingNewSession.dealId && pendingNewSession.slides && pendingNewSession.audio;
+      document.getElementById('newSessionStart').disabled = !ready;
+    }
+
+    function updateModalFilePicker(kind, meta) {
+      const id = kind === 'slides' ? 'modalSlidePicker' : 'modalAudioPicker';
+      const el = document.getElementById(id);
+      const nameEl = el.querySelector('.file-picker-name');
+      if (meta) {
+        el.classList.add('picked');
+        nameEl.classList.remove('empty');
+        const sizeStr = meta.sizeBytes ? ' · ' + formatBytes(meta.sizeBytes) : '';
+        nameEl.textContent = meta.name + sizeStr;
+        el.querySelector('.file-picker-action').textContent = '変更';
+      } else {
+        el.classList.remove('picked');
+        nameEl.classList.add('empty');
+        nameEl.textContent = '未選択';
+        el.querySelector('.file-picker-action').textContent = '選択';
+      }
+    }
+
+    async function handleModalFilePick(kind) {
+      try {
+        const picked = kind === 'slides'
+          ? await pickSlideFromAnywhere()
+          : await pickAudioFromAnywhere();
+        if (!picked) return;
+        pendingNewSession[kind] = picked;
+        updateModalFilePicker(kind, picked.meta);
+        updateNewSessionStartButton();
+      } catch (e) {
+        alert('ファイル選択エラー: ' + (e && e.message ? e.message : e));
+      }
+    }
+
+    function resetNewSessionModal() {
+      pendingNewSession.dealId = null;
+      pendingNewSession.goal = '';
+      pendingNewSession.slides = null;
+      pendingNewSession.audio = null;
+      document.getElementById('dealSelector').value = '';
+      document.getElementById('dealPreview').style.display = 'none';
+      document.getElementById('sessionGoal').value = '';
+      updateModalFilePicker('slides', null);
+      updateModalFilePicker('audio', null);
+      updateNewSessionStartButton();
+    }
+
+    function openNewSessionModal() {
+      resetNewSessionModal();
+      document.getElementById('newSessionModal').classList.add('open');
+    }
+    function closeNewSessionModal() {
+      document.getElementById('newSessionModal').classList.remove('open');
+    }
+
+    async function startNewSession() {
+      const deal = DEALS.find(d => d.id === pendingNewSession.dealId);
+      if (!deal || !pendingNewSession.slides || !pendingNewSession.audio) return;
+
+      const goal = document.getElementById('sessionGoal').value.trim();
+      const today = new Date();
+      const datePad = n => String(n).padStart(2, '0');
+
+      // Update active session metadata
+      MOCK_DATA.meta.title = deal.customer + '様 ' + deal.productLine + ' 提案商談';
+      MOCK_DATA.meta.customerCompany = deal.customer + '（' + deal.industry + ' / ' + deal.size + '）';
+      MOCK_DATA.meta.meetingDate = today.getFullYear() + '-' + datePad(today.getMonth() + 1) + '-' + datePad(today.getDate());
+      MOCK_DATA.meta.goal = goal;
+      MOCK_DATA.meta.files.slides = pendingNewSession.slides.meta.name;
+      MOCK_DATA.meta.files.audio = pendingNewSession.audio.meta.name;
+
+      pickedFiles.slides = pendingNewSession.slides.meta;
+      pickedFiles.audio = pendingNewSession.audio.meta;
+
+      closeNewSessionModal();
+
+      // Apply files to the workspace
+      try {
+        await applySlideToWorkspace(pendingNewSession.slides);
+      } catch (e) {
+        alert('スライド適用エラー: ' + (e && e.message ? e.message : e));
+        return;
+      }
+      applyAudioToWorkspace(pendingNewSession.audio);
+
+      renderHeader();
+
+      // Run the staged progress
+      await runAnalysisProgress();
+
+      // Land on the feedback tab so the user sees the deliverable
+      switchTab('feedback');
     }
 
     async function handleAnalyzeClick() {
@@ -2488,6 +3004,15 @@
       document.getElementById('duration').textContent = MOCK_DATA.meta.duration;
       document.querySelector('#slideUpload .upload-filename').textContent = MOCK_DATA.meta.files.slides;
       document.querySelector('#audioUpload .upload-filename').textContent = MOCK_DATA.meta.files.audio;
+      const goalEl = document.getElementById('headerGoal');
+      const goalText = document.getElementById('headerGoalText');
+      if (MOCK_DATA.meta.goal) {
+        goalEl.style.display = '';
+        goalText.textContent = MOCK_DATA.meta.goal;
+        goalEl.title = MOCK_DATA.meta.goal;
+      } else {
+        goalEl.style.display = 'none';
+      }
     }
 
     function confidenceLevel(c) {
@@ -2949,6 +3474,22 @@
       document.getElementById('analyzeBtn').addEventListener('click', handleAnalyzeClick);
       document.getElementById('slideUpload').addEventListener('click', () => handleUploadClick('slides'));
       document.getElementById('audioUpload').addEventListener('click', () => handleUploadClick('audio'));
+
+      // New session flow
+      populateDealSelector();
+      document.getElementById('newSessionBtn').addEventListener('click', openNewSessionModal);
+      document.getElementById('newSessionClose').addEventListener('click', closeNewSessionModal);
+      document.getElementById('newSessionCancel').addEventListener('click', closeNewSessionModal);
+      document.querySelector('#newSessionModal .modal-overlay').addEventListener('click', closeNewSessionModal);
+      document.getElementById('dealSelector').addEventListener('change', (e) => selectDealInModal(e.target.value));
+      document.getElementById('modalSlidePicker').addEventListener('click', () => handleModalFilePick('slides'));
+      document.getElementById('modalAudioPicker').addEventListener('click', () => handleModalFilePick('audio'));
+      document.getElementById('newSessionStart').addEventListener('click', startNewSession);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('newSessionModal').classList.contains('open')) {
+          closeNewSessionModal();
+        }
+      });
 
       // Warm up the server config so the first Picker click feels instant
       drive.loadConfig();
