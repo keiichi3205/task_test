@@ -450,6 +450,201 @@
     }
     .hero-action-source:hover { background: var(--primary-fixed-dim); }
 
+    /* ============ HEADLINE BANNER (top-of-screen verdict) ============
+       Single-glance state of the Scenario. Big agreement-score ring +
+       one-line headline + primary CTA. Replaces the dispersed "score
+       lives in a small pill" problem.
+       ================================================================= */
+    .headline-banner {
+      margin: 0 20px 12px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--surface-lowest) 60%);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 18px;
+      align-items: center;
+    }
+    .hl-ring-wrap {
+      position: relative;
+      width: 92px; height: 92px;
+      flex-shrink: 0;
+    }
+    .hl-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .hl-ring-track { fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 8; }
+    .hl-ring-fill  { fill: none; stroke: var(--primary); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray var(--dur-slow) ease; }
+    .hl-ring-text {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .hl-ring-val {
+      font: 800 24px 'Inter', sans-serif;
+      color: var(--on-surface);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+    .hl-ring-delta {
+      font: 700 10px var(--font-mono);
+      color: var(--primary-dark);
+      letter-spacing: 0.04em;
+      margin-top: 3px;
+    }
+    .hl-content { min-width: 0; }
+    .hl-eyebrow {
+      font: 700 10px var(--font-mono);
+      letter-spacing: 0.1em;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .hl-headline {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--on-surface);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .hl-summary {
+      font-size: 12.5px;
+      color: var(--on-surface-variant);
+      line-height: 1.55;
+    }
+    .hl-summary strong { color: var(--on-surface); font-weight: 600; }
+    .hl-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--primary);
+      color: var(--on-primary);
+      border-radius: var(--r);
+      font: 600 13px 'Inter', 'Noto Sans JP', sans-serif;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: background var(--dur-base), transform var(--dur-fast);
+      white-space: nowrap;
+    }
+    .hl-cta:hover { background: var(--primary-dark); }
+    .hl-cta:active { transform: scale(0.97); }
+    .hl-cta-arrow {
+      transition: transform var(--dur-base);
+    }
+    .hl-cta:hover .hl-cta-arrow { transform: translateX(3px); }
+
+    /* ============ NEXT MOVES (concrete actions section) ============
+       The 4th column from the old hero, promoted to its own section
+       with bigger cards. Provides the clear "what do I do next" answer.
+       ================================================================ */
+    .next-moves {
+      margin: 0 20px 14px;
+      padding: 14px 18px 16px;
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    .next-moves-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .next-moves-eyebrow {
+      font: 700 10px var(--font-mono);
+      letter-spacing: 0.1em;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+    }
+    .next-moves-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+    .next-moves-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+    .next-moves-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+    .nm-card {
+      padding: 12px 14px;
+      background: var(--surface-low);
+      border-radius: var(--r-lg);
+      border-left: 3px solid var(--outline-variant);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform var(--dur-fast), background var(--dur-fast);
+    }
+    .nm-card:hover { background: var(--primary-light); transform: translateY(-1px); }
+    .nm-card.high  { border-left-color: var(--danger); }
+    .nm-card.mid   { border-left-color: var(--warning-text); }
+    .nm-card-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font: 700 9.5px var(--font-mono);
+      letter-spacing: 0.06em;
+    }
+    .nm-card-prio {
+      padding: 1px 6px;
+      border-radius: 6px;
+      background: var(--surface-lowest);
+    }
+    .nm-card-prio.high { background: var(--danger-weak); color: var(--danger); }
+    .nm-card-prio.mid  { background: var(--warning-bg); color: var(--warning-text); }
+    .nm-card-type {
+      color: var(--text-muted);
+    }
+    .nm-card-target {
+      margin-left: auto;
+      color: var(--primary-dark);
+      background: var(--primary-light);
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+    .nm-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--on-surface);
+      line-height: 1.45;
+    }
+    .nm-card-reason {
+      font-size: 11.5px;
+      color: var(--on-surface-variant);
+      line-height: 1.55;
+    }
+
+    /* ============ Section divider before workspace ============ */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 28px 8px;
+    }
+    .section-divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--outline-faint);
+    }
+    .section-divider-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-divider-text {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
     /* ============ SCENARIO UPDATE HERO (replaces Next Actions) ============
        Shows the diff this Session made to the Scenario:
        progressed / regressed / emerged / next deck edits.
@@ -505,6 +700,7 @@
       gap: 8px;
       padding: 4px 12px 14px;
     }
+    .scen-hero-grid-3 { grid-template-columns: repeat(3, 1fr); }
     .scen-hero-col {
       padding: 10px 12px;
       background: var(--surface-low);
@@ -2212,9 +2408,22 @@
       </div>
     </section>
 
-    <section class="thumbnail-strip" id="thumbnailStrip"></section>
+    <section class="headline-banner" id="headlineBanner" aria-label="シナリオ状況サマリー"></section>
 
-    <section class="scen-hero" id="scenHero" aria-label="シナリオ更新サマリー"></section>
+    <section class="scen-hero" id="scenHero" aria-label="今回Sessionの変化"></section>
+
+    <section class="next-moves" id="nextMoves" aria-label="次の打ち手"></section>
+
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-label">
+        <span class="eyebrow">Detail & Evidence</span>
+        <span class="section-divider-text">スライドごとの反応・文字起こし・シナリオ全体マトリックスを確認</span>
+      </div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <section class="thumbnail-strip" id="thumbnailStrip"></section>
 
     <section class="workspace">
       <div class="slide-pane">
@@ -2247,26 +2456,26 @@
 
       <div class="content-pane">
         <div class="pane-tabs" role="tablist">
-          <button class="tab-btn active" data-tab="transcript" role="tab">
+          <button class="tab-btn active" data-tab="feedback" role="tab">
+            <svg width="14" height="14"><use href="#i-sparkle"/></svg>
+            <span>スライド別反応</span>
+          </button>
+          <button class="tab-btn" data-tab="transcript" role="tab">
             <svg width="14" height="14"><use href="#i-transcript"/></svg>
             <span>文字起こし</span>
             <span class="tab-badge" id="transcriptCount">0</span>
           </button>
-          <button class="tab-btn" data-tab="feedback" role="tab">
-            <svg width="14" height="14"><use href="#i-sparkle"/></svg>
-            <span>AIフィードバック</span>
-          </button>
           <button class="tab-btn" data-tab="summary" role="tab">
             <svg width="14" height="14"><use href="#i-chart"/></svg>
-            <span>シナリオ</span>
+            <span>シナリオ全体</span>
           </button>
         </div>
 
         <div class="pane-content">
-          <div class="pane-section active" id="section-transcript">
+          <div class="pane-section" id="section-transcript">
             <div class="transcript-list" id="transcriptList"></div>
           </div>
-          <div class="pane-section" id="section-feedback">
+          <div class="pane-section active" id="section-feedback">
             <div id="feedbackContent"></div>
           </div>
           <div class="pane-section" id="section-summary">
@@ -2875,7 +3084,7 @@
        ============================================================ */
     const state = {
       currentSlideIdx: 0,
-      currentTab: 'transcript'
+      currentTab: 'feedback'
     };
 
     const pendingNewSession = {
@@ -4107,63 +4316,92 @@
           || SCENARIO_DATA.emergedIssues.find(x => x.id === id);
     }
 
+    function renderHeadlineBanner() {
+      const S = SCENARIO_DATA;
+      const score = S.agreementScore;
+      const delta = S.agreementDelta;
+      const pct = Math.round(score * 100);
+      const circumference = 251.33; // 2π * 40
+      const dasharray = (score) * circumference;
+      const su = S.sessionUpdate;
+      const unmet = S.stakeholders.filter(s => !s.lastContact);
+
+      // Compose a one-line headline of where we are. This is the
+      // "if you only read one sentence" verdict.
+      const champ = S.stakeholders.find(s => s.role === 'Champion');
+      const eb = S.stakeholders.find(s => s.role === 'Economic Buyer');
+      const ebPart = eb && !eb.lastContact ? `<strong>${escapeHtml(eb.name.replace(' (未接触)','').replace(' (未確認)',''))} (EB) 未接触</strong>` : '';
+      const regPart = su.regressed.length ? `<strong>${escapeHtml((findIssue(su.regressed[0].issueId) || {}).title || '')}</strong>で停滞` : '';
+      const summary = [
+        champ ? `${escapeHtml(champ.name)} と論点合意進行中` : '',
+        ebPart,
+        regPart
+      ].filter(Boolean).join(' / ');
+
+      document.getElementById('headlineBanner').innerHTML = `
+        <div class="hl-ring-wrap">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="hl-ring-track" cx="50" cy="50" r="40"/>
+            <circle class="hl-ring-fill" cx="50" cy="50" r="40"
+              stroke-dasharray="${dasharray} ${circumference}"/>
+          </svg>
+          <div class="hl-ring-text">
+            <span class="hl-ring-val">${pct}<span style="font-size:14px;font-weight:600;">%</span></span>
+            <span class="hl-ring-delta">${delta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(delta) * 100)}pt</span>
+          </div>
+        </div>
+        <div class="hl-content">
+          <div class="hl-eyebrow">Scenario Status · ${escapeHtml(S.accountName)} (${escapeHtml(S.accountMeta)})</div>
+          <div class="hl-headline">${escapeHtml(S.title)} <span style="font:600 11px var(--font-mono);color:var(--primary-dark);background:var(--surface-lowest);padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:2px;">DECK v${S.currentDeckVersion}</span></div>
+          <div class="hl-summary">${summary}</div>
+        </div>
+        <button class="hl-cta" id="hlCta" type="button">
+          <span>次の打ち手を見る</span>
+          <svg class="hl-cta-arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7 L11 7 M7 3 L11 7 L7 11"/>
+          </svg>
+        </button>
+      `;
+
+      document.getElementById('hlCta').addEventListener('click', () => {
+        document.getElementById('nextMoves').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
     function renderScenarioHero() {
       const hero = document.getElementById('scenHero');
       const su = SCENARIO_DATA.sessionUpdate;
-      const score = SCENARIO_DATA.agreementScore;
-      const delta = SCENARIO_DATA.agreementDelta;
 
-      const progressedHtml = su.progressed.length
-        ? su.progressed.map(p => {
-            const issue = findIssue(p.issueId);
-            return `<div class="scen-hero-item" data-issue="${escapeHtml(p.issueId)}">
-              <span class="scen-hero-item-marker">↑</span>
-              <span class="scen-hero-item-text"><strong>${escapeHtml(issue ? issue.title : p.issueId)}</strong><br>${escapeHtml(p.summary)}</span>
-            </div>`;
-          }).join('')
-        : '<div class="scen-hero-empty">なし</div>';
+      const itemHtml = (items, marker, dataAttr) =>
+        items.length
+          ? items.map(item => {
+              const issue = findIssue(item.issueId || item);
+              const title = issue ? issue.title : (item.issueId || item);
+              const evidence = item.summary || (issue && issue.evidence) || '';
+              const dataKey = dataAttr === 'data-emerged' ? (item.id || item) : (item.issueId || item);
+              return `<div class="scen-hero-item" ${dataAttr}="${escapeHtml(dataKey)}">
+                <span class="scen-hero-item-marker">${marker}</span>
+                <span class="scen-hero-item-text"><strong>${escapeHtml(title)}</strong><br>${escapeHtml(evidence)}</span>
+              </div>`;
+            }).join('')
+          : '<div class="scen-hero-empty">なし</div>';
 
-      const regressedHtml = su.regressed.length
-        ? su.regressed.map(r => {
-            const issue = findIssue(r.issueId);
-            return `<div class="scen-hero-item" data-issue="${escapeHtml(r.issueId)}">
-              <span class="scen-hero-item-marker">↓</span>
-              <span class="scen-hero-item-text"><strong>${escapeHtml(issue ? issue.title : r.issueId)}</strong><br>${escapeHtml(r.summary)}</span>
-            </div>`;
-          }).join('')
-        : '<div class="scen-hero-empty">なし</div>';
-
-      const emergedHtml = su.emerged.length
-        ? su.emerged.map(eid => {
-            const e = SCENARIO_DATA.emergedIssues.find(x => x.id === eid);
-            if (!e) return '';
-            return `<div class="scen-hero-item" data-emerged="${escapeHtml(eid)}">
-              <span class="scen-hero-item-marker">＋</span>
-              <span class="scen-hero-item-text"><strong>${escapeHtml(e.title)}</strong><br>${escapeHtml(e.evidence)}</span>
-            </div>`;
-          }).join('')
-        : '<div class="scen-hero-empty">なし</div>';
-
-      const propsTop = SCENARIO_DATA.updateProposals.filter(p => p.priority === 'high').slice(0, 3);
-      const proposalsHtml = propsTop.length
-        ? propsTop.map(p => `
-            <div class="scen-hero-item">
-              <span class="scen-hero-item-marker">▸</span>
-              <span class="scen-hero-item-text"><strong>${escapeHtml(p.title)}</strong><br>${escapeHtml(p.reason)}</span>
-            </div>`).join('')
+      const progressedHtml = itemHtml(su.progressed, '↑', 'data-issue');
+      const regressedHtml  = itemHtml(su.regressed,  '↓', 'data-issue');
+      const emergedList = su.emerged.map(eid => SCENARIO_DATA.emergedIssues.find(x => x.id === eid)).filter(Boolean);
+      const emergedHtml = emergedList.length
+        ? emergedList.map(e => `<div class="scen-hero-item" data-emerged="${escapeHtml(e.id)}">
+            <span class="scen-hero-item-marker">＋</span>
+            <span class="scen-hero-item-text"><strong>${escapeHtml(e.title)}</strong><br>${escapeHtml(e.evidence)}</span>
+          </div>`).join('')
         : '<div class="scen-hero-empty">なし</div>';
 
       hero.innerHTML = `
         <div class="scen-hero-head">
-          <span class="eyebrow">Scenario Update</span>
-          <span class="scen-hero-title">${escapeHtml(SCENARIO_DATA.title)} — 今回Sessionで何が変わったか</span>
-          <span class="scen-hero-scoreshift">
-            <span class="scen-hero-scoreshift-label">合意度</span>
-            <span class="scen-hero-scoreshift-val">${Math.round(score * 100)}%</span>
-            <span class="scen-hero-scoreshift-delta">${delta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(delta) * 100)}pt</span>
-          </span>
+          <span class="eyebrow">What Changed</span>
+          <span class="scen-hero-title">今回Sessionで議論された論点の変化</span>
         </div>
-        <div class="scen-hero-grid">
+        <div class="scen-hero-grid scen-hero-grid-3">
           <div class="scen-hero-col progressed">
             <div class="scen-hero-col-head">
               <span class="scen-hero-col-head-dot"></span>
@@ -4183,41 +4421,56 @@
           <div class="scen-hero-col emerged">
             <div class="scen-hero-col-head">
               <span class="scen-hero-col-head-dot"></span>
-              <span class="scen-hero-col-head-label">新規論点</span>
-              <span class="scen-hero-col-head-count">${su.emerged.length}</span>
+              <span class="scen-hero-col-head-label">新規論点 (デッキ外)</span>
+              <span class="scen-hero-col-head-count">${emergedList.length}</span>
             </div>
             ${emergedHtml}
-          </div>
-          <div class="scen-hero-col proposals">
-            <div class="scen-hero-col-head">
-              <span class="scen-hero-col-head-dot"></span>
-              <span class="scen-hero-col-head-label">次版デッキ修正</span>
-              <span class="scen-hero-col-head-count">${propsTop.length}</span>
-            </div>
-            ${proposalsHtml}
           </div>
         </div>
       `;
 
-      // Clicking a progressed/regressed item jumps to the source slide
       hero.querySelectorAll('.scen-hero-item[data-issue]').forEach(el => {
         el.addEventListener('click', () => {
-          const issueId = el.dataset.issue;
-          const issue = findIssue(issueId);
+          const issue = findIssue(el.dataset.issue);
           if (!issue || !issue.sourceSlides || !issue.sourceSlides.length) return;
-          const slideIdx = issue.sourceSlides[0] - 1;
-          goToSlide(slideIdx);
+          goToSlide(issue.sourceSlides[0] - 1);
           switchTab('feedback');
           document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });
-      // Emerged items jump to the Scenario tab where they're elaborated
       hero.querySelectorAll('.scen-hero-item[data-emerged]').forEach(el => {
         el.addEventListener('click', () => {
           switchTab('summary');
-          document.getElementById('section-summary').scrollIntoView({ behavior: 'smooth' });
+          document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth' });
         });
       });
+    }
+
+    function renderNextMoves() {
+      const S = SCENARIO_DATA;
+      const moves = S.updateProposals;
+      const typeLabel = (t) => t === 'deck_add' ? 'デッキ追加' : t === 'meeting' ? 'Session方針' : 'デッキ修正';
+
+      const cardsHtml = moves.map(p => `
+        <div class="nm-card ${p.priority}">
+          <div class="nm-card-head">
+            <span class="nm-card-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
+            <span class="nm-card-type">${escapeHtml(typeLabel(p.type))}</span>
+            ${p.targetVersion ? `<span class="nm-card-target">→ ${escapeHtml(p.targetVersion)}</span>` : ''}
+          </div>
+          <div class="nm-card-title">${escapeHtml(p.title)}</div>
+          <div class="nm-card-reason">${escapeHtml(p.reason)}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('nextMoves').innerHTML = `
+        <div class="next-moves-head">
+          <span class="next-moves-eyebrow">Next Moves</span>
+          <span class="next-moves-title">次の打ち手</span>
+          <span class="next-moves-sub">AI推奨 ${moves.length} 件 (P1: ${moves.filter(m => m.priority === 'high').length} 件)</span>
+        </div>
+        <div class="next-moves-grid">${cardsHtml}</div>
+      `;
     }
 
     /* ============================================================
@@ -4245,7 +4498,9 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderHeader();
       renderThumbnails();
+      renderHeadlineBanner();
       renderScenarioHero();
+      renderNextMoves();
       renderSlide();
       renderTranscript();
       renderFeedback();
