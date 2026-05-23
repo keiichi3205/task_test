@@ -306,6 +306,150 @@
     }
     .meta-info-block { display: flex; flex-direction: column; gap: 1px; }
 
+    /* ============ ACTIONS HERO (Action-first principle) ============ */
+    .actions-hero {
+      background: var(--surface-lowest);
+      border-radius: var(--r-xl);
+      box-shadow: var(--shadow-sm);
+      margin: 0 20px 12px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .actions-hero-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px 6px;
+    }
+    .actions-hero-head .eyebrow { color: var(--primary-dark); }
+    .actions-hero-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--on-surface);
+      letter-spacing: -0.01em;
+    }
+    .actions-hero-progress {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .actions-hero-count {
+      font: 600 11px var(--font-mono);
+      color: var(--on-surface-variant);
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    .actions-hero-count strong { color: var(--primary-dark); }
+    .actions-hero-bar {
+      width: 80px; height: 4px;
+      background: var(--surface-low);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .actions-hero-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width var(--dur-slow) ease;
+    }
+    .actions-hero-list {
+      padding: 4px 8px 12px;
+    }
+    .hero-action {
+      border-radius: var(--r);
+      transition: background var(--dur-fast);
+    }
+    .hero-action-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+    .hero-action-row:hover { background: var(--surface-low); border-radius: var(--r); }
+    .hero-action.done .hero-action-row { opacity: 0.5; }
+    .hero-action.done .hero-action-title { text-decoration: line-through; }
+    .hero-action-check {
+      width: 18px; height: 18px;
+      border: 1.5px solid var(--outline-variant);
+      border-radius: var(--r-sm);
+      flex-shrink: 0;
+      display: grid; place-items: center;
+      color: transparent;
+      transition: all var(--dur-fast);
+      cursor: pointer;
+    }
+    .hero-action-check:hover { border-color: var(--primary); }
+    .hero-action.done .hero-action-check {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--on-primary);
+    }
+    .hero-action-priority {
+      flex-shrink: 0;
+      padding: 1px 5px;
+      border-radius: var(--r-sm);
+      font: 700 10px var(--font-mono);
+      letter-spacing: 0.04em;
+    }
+    .hero-action-priority.high { background: var(--danger-weak); color: var(--danger); }
+    .hero-action-priority.mid  { background: var(--warning-bg); color: var(--warning-text); }
+    .hero-action-priority.low  { background: var(--done-bg); color: var(--done-text); }
+    .hero-action-title {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--on-surface);
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .hero-action-due {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font: 500 11px var(--font-mono);
+      color: var(--on-surface-variant);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+    .hero-action-toggle {
+      width: 18px; height: 18px;
+      color: var(--text-muted);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+      transition: transform var(--dur-base);
+    }
+    .hero-action.expanded .hero-action-toggle { transform: rotate(180deg); }
+    .hero-action-detail {
+      display: none;
+      padding: 4px 12px 12px 46px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--on-surface-variant);
+    }
+    .hero-action.expanded .hero-action-detail { display: block; }
+    .hero-action-detail-note {
+      margin-bottom: 6px;
+      color: var(--on-surface);
+    }
+    .hero-action-source {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-radius: var(--r-sm);
+      font: 600 10px var(--font-mono);
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background var(--dur-fast);
+      margin-top: 6px;
+    }
+    .hero-action-source:hover { background: var(--primary-fixed-dim); }
+
     /* ============ THUMBNAIL STRIP ============ */
     .thumbnail-strip {
       background: var(--surface);
@@ -1338,6 +1482,8 @@
 
     <section class="thumbnail-strip" id="thumbnailStrip"></section>
 
+    <section class="actions-hero" id="actionsHero" aria-label="次回までのアクション"></section>
+
     <section class="workspace">
       <div class="slide-pane">
         <div class="slide-pane-hd">
@@ -1612,11 +1758,46 @@
           "クロージング設計（次回約束・決裁者同席）ができていない"
         ],
         nextActions: [
-          { title: "ROIシートを作成し再提示", priority: "high", due: "5月29日まで", note: "年間人件費削減480万円+機会損失を含めた試算" },
-          { title: "決裁者（社長 or 経理担当）の同席アポ依頼", priority: "high", due: "5月26日まで", note: "鈴木様経由でセッティング依頼メール送付" },
-          { title: "現場担当者向け簡易デモを提案", priority: "mid", due: "次回商談時", note: "『現場の抵抗感』への先回り対策" },
-          { title: "競合製品比較表を準備", priority: "mid", due: "次回商談時", note: "鈴木様が他社比較を気にしている可能性" },
-          { title: "コンプライアンス監査の指摘事項を共有依頼", priority: "low", due: "次回商談時", note: "提案調整のための情報収集" }
+          {
+            title: "ROIシートを作成し再提示",
+            priority: "high", due: "5月29日まで",
+            note: "年間人件費削減480万円+機会損失を含めた試算",
+            rationale: "鈴木様の「思ったより高い」反応に対し、価格に対する感情を ROI による事実認識に置き換えるため。価格抵抗は反論ではなく「投資対効果が見えていない」状態のシグナル。",
+            sourceSlideIdx: 4,
+            done: false
+          },
+          {
+            title: "決裁者（社長 or 経理担当）の同席アポ依頼",
+            priority: "high", due: "5月26日まで",
+            note: "鈴木様経由でセッティング依頼メール送付",
+            rationale: "BANT-Authority は確認済だが、決裁者本人と直接の論点擦り合わせができていない。次回までに決裁者の懸念を可視化しなければ商談はクローズしない。",
+            sourceSlideIdx: 4,
+            done: false
+          },
+          {
+            title: "現場担当者向け簡易デモを提案",
+            priority: "mid", due: "次回商談時",
+            note: "「現場の抵抗感」への先回り対策",
+            rationale: "A社事例(Slide 4)では現場の高齢ベテラン社員のスマホ抵抗が最大の懸念だった。同業種の御社でも高確率で同じ論点が出る。先回りで打ち手を提示すると意思決定が早まる。",
+            sourceSlideIdx: 3,
+            done: false
+          },
+          {
+            title: "競合製品比較表を準備",
+            priority: "mid", due: "次回商談時",
+            note: "鈴木様が他社比較を気にしている可能性",
+            rationale: "「持ち帰り検討」の典型理由の一つが他社比較。聞かれてから出すのでは遅く、自社主導で比較軸を提示する方が優位に立てる。",
+            sourceSlideIdx: 4,
+            done: false
+          },
+          {
+            title: "コンプライアンス監査の指摘事項を共有依頼",
+            priority: "low", due: "次回商談時",
+            note: "提案調整のための情報収集",
+            rationale: "Slide 3 で鈴木様が「コンプライアンス監査が厳しくなって」と購買シグナルを出している。指摘事項を入手できれば、提案を監査対応に明示的に紐付けて訴求できる。",
+            sourceSlideIdx: 2,
+            done: false
+          }
         ],
         bant: {
           B: { label: "Budget", value: "未確認", note: "持ち帰り検討の理由として予算感の可能性大", tone: "high" },
@@ -2475,6 +2656,111 @@
     }
 
     /* ============================================================
+       Action-first hero — top of workspace
+       Surfaces "next moves" prominently and provides an evidence
+       trail back to the slide that triggered each action.
+       ============================================================ */
+    function priorityLabel(p) {
+      return p === 'high' ? 'P1' : p === 'mid' ? 'P2' : 'P3';
+    }
+
+    function updateActionsProgress() {
+      const actions = MOCK_DATA.overall.nextActions || [];
+      const total = actions.length;
+      const done  = actions.filter(a => a.done).length;
+      const pct   = total ? (done / total) * 100 : 0;
+      const countEl = document.querySelector('.actions-hero-count');
+      const fillEl  = document.querySelector('.actions-hero-bar-fill');
+      if (countEl) countEl.innerHTML = '<strong>' + done + '</strong> / ' + total + ' 完了';
+      if (fillEl)  fillEl.style.width = pct + '%';
+    }
+
+    function renderActionsHero() {
+      const actions = MOCK_DATA.overall.nextActions || [];
+      const total = actions.length;
+      const done  = actions.filter(a => a.done).length;
+      const pct   = total ? (done / total) * 100 : 0;
+
+      const hero = document.getElementById('actionsHero');
+      if (!actions.length) { hero.style.display = 'none'; return; }
+      hero.style.display = '';
+
+      hero.innerHTML = `
+        <div class="actions-hero-head">
+          <span class="eyebrow">Next Actions</span>
+          <span class="actions-hero-title">次回までにやること</span>
+          <div class="actions-hero-progress">
+            <span class="actions-hero-count"><strong>${done}</strong> / ${total} 完了</span>
+            <div class="actions-hero-bar"><div class="actions-hero-bar-fill" style="width: ${pct}%"></div></div>
+          </div>
+        </div>
+        <div class="actions-hero-list">
+          ${actions.map((a, i) => `
+            <div class="hero-action ${a.done ? 'done' : ''}" data-idx="${i}">
+              <div class="hero-action-row">
+                <div class="hero-action-check" data-role="check" role="checkbox" aria-checked="${a.done ? 'true' : 'false'}">
+                  ${svgIcon('i-check', 10)}
+                </div>
+                <span class="hero-action-priority ${a.priority}">${priorityLabel(a.priority)}</span>
+                <span class="hero-action-title">${escapeHtml(a.title)}</span>
+                <span class="hero-action-due">${svgIcon('i-calendar', 11)} ${escapeHtml(a.due)}</span>
+                <div class="hero-action-toggle">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 4.5 L6 7.5 L9 4.5"/>
+                  </svg>
+                </div>
+              </div>
+              ${a.rationale ? `
+                <div class="hero-action-detail">
+                  <div class="hero-action-detail-note">${escapeHtml(a.rationale)}</div>
+                  ${a.note ? '<div style="color: var(--text-muted); font-size: 11px;">' + escapeHtml(a.note) + '</div>' : ''}
+                  ${typeof a.sourceSlideIdx === 'number' ? `
+                    <span class="hero-action-source" data-slide="${a.sourceSlideIdx}">
+                      ${svgIcon('i-arrow-r', 10)}
+                      SLIDE ${String(a.sourceSlideIdx + 1).padStart(2, '0')} に飛ぶ
+                    </span>` : ''}
+                </div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      // Wire interactions — mutate DOM directly on check (don't re-render)
+      // so expanded state survives clicks. Only the progress meter needs updating.
+      hero.querySelectorAll('.hero-action').forEach(el => {
+        const idx = parseInt(el.dataset.idx, 10);
+        const row = el.querySelector('.hero-action-row');
+        const check = el.querySelector('[data-role="check"]');
+
+        check.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const a = MOCK_DATA.overall.nextActions[idx];
+          a.done = !a.done;
+          el.classList.toggle('done', a.done);
+          check.setAttribute('aria-checked', a.done ? 'true' : 'false');
+          updateActionsProgress();
+          renderSummary();
+        });
+
+        row.addEventListener('click', () => {
+          el.classList.toggle('expanded');
+        });
+      });
+
+      hero.querySelectorAll('.hero-action-source').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const slideIdx = parseInt(el.dataset.slide, 10);
+          goToSlide(slideIdx);
+          // Keep the user on the feedback tab so they see the related context
+          switchTab('feedback');
+          // Scroll the slide into view (the slide pane is in the workspace below)
+          document.querySelector('.workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    }
+
+    /* ============================================================
        Interactions
        ============================================================ */
     function goToSlide(idx) {
@@ -2499,6 +2785,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderHeader();
       renderThumbnails();
+      renderActionsHero();
       renderSlide();
       renderTranscript();
       renderFeedback();
