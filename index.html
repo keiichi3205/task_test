@@ -1344,19 +1344,23 @@
     }
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
 
+    /* Flyout that expands from the clicked icon (top set in JS to align
+       with the active icon; grows out of its top-left corner). */
     .fb-drawer {
-      position: absolute; left: 64px; right: 12px; bottom: 0;
+      position: absolute; left: 60px;
+      width: min(430px, calc(100% - 78px));
       z-index: 5;
       background: var(--surface-lowest);
       border: 1px solid var(--ghost-border);
-      border-bottom: none;
-      border-radius: var(--r-xl) var(--r-xl) 0 0;
+      border-radius: var(--r-xl);
       box-shadow: var(--shadow-lg);
-      max-height: 0; overflow: hidden;
+      overflow: hidden;
       display: flex; flex-direction: column;
-      transition: max-height var(--dur-base) ease;
+      opacity: 0; transform: scale(0.72); transform-origin: left top;
+      transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease;
+      pointer-events: none;
     }
-    .fb-drawer.open { max-height: 66%; }
+    .fb-drawer.open { opacity: 1; transform: scale(1); pointer-events: auto; }
     .fb-drawer-hd {
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between;
@@ -4555,16 +4559,32 @@
         </button>`;
       }).join('');
 
-      // Drawer (shows the active category, slides up over the slide)
+      // Flyout that expands from the clicked icon (anchored to its row)
       const drawer = document.getElementById('fbDrawer');
       const tab = FB_TABS.find(t => t.key === state.openFb);
       if (tab) {
         document.getElementById('fbDrawerTitle').textContent = tab.title;
         document.getElementById('feedbackContent').innerHTML = fbDrawerContent(slide, tab.key);
+        positionFbFlyout();
         drawer.classList.add('open');
       } else {
         drawer.classList.remove('open');
       }
+    }
+
+    // Align the flyout with the active icon and cap its height to the stage.
+    function positionFbFlyout() {
+      const stage = document.querySelector('.slide-pane.presenter .slide-stage');
+      const btn = document.querySelector('#fbIconbar .fb-ic.active');
+      const fly = document.getElementById('fbDrawer');
+      if (!stage || !btn) return;
+      const sR = stage.getBoundingClientRect();
+      const bR = btn.getBoundingClientRect();
+      const maxH = Math.min(360, sR.height - 24);
+      let top = (bR.top - sR.top);
+      top = Math.max(12, Math.min(top, sR.height - maxH - 12));
+      fly.style.top = top + 'px';
+      fly.style.maxHeight = maxH + 'px';
     }
 
     /* ============================================================
