@@ -1307,39 +1307,46 @@
     .fb-iconbar {
       position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
       z-index: 6;
-      display: flex; flex-direction: column; gap: 6px;
-      padding: 6px;
+      display: flex; flex-direction: column; gap: 16px;
+      padding: 12px 8px;
       background: rgba(255, 255, 255, 0.5);
       backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
       border: 1px solid rgba(255, 255, 255, 0.45);
-      border-radius: 999px;
+      border-radius: var(--r-xl);
       box-shadow: var(--shadow-md);
-      opacity: 0.62;
+      opacity: 0.82;
       transition: opacity var(--dur-base);
     }
     .fb-iconbar:hover { opacity: 1; }
     .fb-iconbar:has(.fb-ic.active) { opacity: 1; }
+    /* Each rail item: an icon circle with a caption below it. */
     .fb-ic {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 2px; width: 64px;
+    }
+    .fb-ic-ico {
       position: relative;
-      width: 38px; height: 38px; border-radius: 50%;
+      width: 46px; height: 46px; border-radius: 50%;
       display: grid; place-items: center;
-      background: rgba(255, 255, 255, 0.85); color: var(--on-surface-variant);
+      background: rgba(255, 255, 255, 0.92); color: var(--on-surface-variant);
       box-shadow: var(--shadow-sm);
       transition: background var(--dur-fast), color var(--dur-fast);
     }
-    .fb-ic:hover { color: var(--on-surface); }
+    .fb-ic:hover .fb-ic-ico { color: var(--on-surface); }
     .fb-ic.good .fb-ic-ico { color: var(--done-text); }
     .fb-ic.weak .fb-ic-ico { color: var(--warning-border); }
     .fb-ic.next .fb-ic-ico { color: var(--primary-dark); }
-    .fb-ic.active { background: var(--primary); color: #fff; }
-    .fb-ic.active .fb-ic-ico { color: #fff; }
-    .fb-ic-ico { display: inline-grid; place-items: center; }
-    .fb-ic-label { display: none; }
+    .fb-ic.active .fb-ic-ico { background: var(--primary); color: #fff; }
+    .fb-ic-label {
+      display: block; font-size: 9.5px; font-weight: 600;
+      color: var(--on-surface-variant); white-space: nowrap; letter-spacing: -0.01em;
+    }
+    .fb-ic.active .fb-ic-label { color: var(--primary-dark); font-weight: 700; }
     .fb-ic-badge {
-      position: absolute; top: -3px; right: -3px;
-      min-width: 15px; height: 15px; padding: 0 3px;
+      position: absolute; top: -4px; right: -4px;
+      min-width: 16px; height: 16px; padding: 0 3px;
       border-radius: 8px; background: var(--surface-high); color: var(--on-surface-variant);
-      font: 700 9px var(--font-mono); display: grid; place-items: center;
+      font: 700 9.5px var(--font-mono); display: grid; place-items: center;
       border: 1.5px solid var(--surface-lowest);
     }
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
@@ -1347,11 +1354,12 @@
     /* Flyout that expands from the clicked icon (top set in JS to align
        with the active icon; grows out of its top-left corner). */
     .fb-drawer {
-      position: absolute; left: 60px;
-      width: min(430px, calc(100% - 78px));
+      position: absolute; left: 100px;
+      width: min(640px, calc(100% - 120px));
       z-index: 5;
-      background: var(--surface-lowest);
-      border: 1px solid var(--ghost-border);
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       border-radius: var(--r-xl);
       box-shadow: var(--shadow-lg);
       overflow: hidden;
@@ -4554,8 +4562,8 @@
           badge = `<span class="fb-ic-badge${urgentCls}">${t.key === 'weak' && weakUrgent ? '!' : counts[t.key]}</span>`;
         }
         return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
-          <span class="fb-ic-ico">${svgIcon(t.icon, 15)}</span>
-          <span class="fb-ic-label">${t.label}</span>${badge}
+          <span class="fb-ic-ico">${svgIcon(t.icon, 19)}${badge}</span>
+          <span class="fb-ic-label">${t.label}</span>
         </button>`;
       }).join('');
 
