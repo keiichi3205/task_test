@@ -1300,15 +1300,9 @@
        (PowerPoint "presenter view" style — uses the wide left pane that
        previously just held the slide image). */
     /* Presenter view: feedback icons live in the header (left of the
-       slide-nav). Selecting one opens a panel in the dark area ABOVE the
-       slide — the slide shrinks down and the panel fills the freed space,
-       so the slide is never covered. */
-    .slide-pane.presenter .slide-stage {
-      position: relative;
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .slide-pane.presenter .slide-stage > .slide { flex: 1 1 0; min-height: 0; }
+       slide-nav). Selecting one overlays a frosted panel on the top of
+       the slide. */
+    .slide-pane.presenter .slide-stage { position: relative; }
     .slide-pane-hd-right { display: flex; align-items: center; gap: 14px; }
 
     .fb-iconbar { display: flex; align-items: center; gap: 4px; }
@@ -1335,29 +1329,25 @@
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
     @media (max-width: 1366px) { .fb-ic-label { display: none; } .fb-ic { padding: 7px; } }
 
-    /* Feedback panel — a flex sibling of the slide, placed above it.
-       Closed: zero height. Open: takes the dark area above the (now
-       smaller) slide. */
+    /* Feedback panel — frosted overlay on the top of the slide. Kept
+       translucent (slide shows through) but with a strong blur so the
+       text stays easy to read. */
     .fb-drawer {
-      order: -1;
-      flex: 0 0 0; min-height: 0;
-      align-self: stretch;
-      overflow: hidden;
-      background: var(--surface-lowest);
-      border: 1px solid var(--ghost-border);
+      position: absolute; bottom: 14px; left: 16px; right: 16px;
+      z-index: 5;
+      max-height: 64%;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+      border: 1px solid rgba(255, 255, 255, 0.6);
       border-radius: var(--r-xl);
       box-shadow: var(--shadow-lg);
+      overflow: hidden;
       display: flex; flex-direction: column;
-      opacity: 0; margin-bottom: 0;
-      transition: flex-basis var(--dur-base) ease, opacity var(--dur-base) ease, margin-bottom var(--dur-base) ease;
+      opacity: 0; transform: translateY(10px); transform-origin: bottom center;
+      transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease;
       pointer-events: none;
     }
-    .fb-drawer.open {
-      flex-basis: 42%;
-      opacity: 1;
-      margin-bottom: 16px;
-      pointer-events: auto;
-    }
+    .fb-drawer.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .fb-drawer-hd {
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between;
