@@ -2185,14 +2185,20 @@
 
     /* ============ SLIDE TEMPLATES: pdf-page & text ============ */
     .pdf-page {
+      position: relative;
       width: 100%; height: 100%;
-      display: grid; place-items: center;
     }
     .pdf-page img {
-      max-width: 100%; max-height: 100%;
+      /* Absolutely fill the container so the <img> box is exactly the
+         stage size (definite height), then object-fit:contain scales the
+         page within it. A plain width/height:100% fails here because the
+         grid/auto-row collapses the percentage height, letting tall
+         (A4/portrait) pages overflow and clip at the bottom. */
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
-      border-radius: var(--r);
-      box-shadow: 0 0 0 1px var(--ghost-border);
     }
     .text-slide-body {
       display: flex; flex-direction: column; gap: 10px;
@@ -2216,10 +2222,28 @@
       font-size: 8.5px;
     }
 
-    /* When showing a PDF image, the slide-head can be more compact */
-    .slide.template-image { padding: 18px 22px; }
-    .slide.template-image .slide-head { margin-bottom: 12px; }
-    .slide.template-image .slide-title { font-size: 16px; }
+    /* PDF/image slides: fit the whole page into the stage at its own
+       aspect ratio. The .slide card no longer forces 16:9 (which clipped
+       the bottom of A4 / 4:3 / portrait pages) — the image is bounded by
+       both the stage width AND height via object-fit: contain. */
+    .slide.template-image {
+      aspect-ratio: auto;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0;
+    }
+    .slide.template-image .slide-head { display: none; }
+    .slide.template-image .slide-body {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      overflow: hidden;
+    }
 
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
