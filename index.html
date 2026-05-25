@@ -1300,15 +1300,15 @@
        (PowerPoint "presenter view" style — uses the wide left pane that
        previously just held the slide image). */
     /* Presenter view: feedback icons live in the header (left of the
-       slide-nav). Selecting one opens a panel in the dark area beside the
-       slide — the slide shrinks left and the panel fills the freed space,
+       slide-nav). Selecting one opens a panel in the dark area ABOVE the
+       slide — the slide shrinks down and the panel fills the freed space,
        so the slide is never covered. */
     .slide-pane.presenter .slide-stage {
       position: relative;
-      flex-direction: row;
+      flex-direction: column;
       align-items: stretch;
     }
-    .slide-pane.presenter .slide-stage > .slide { flex: 1 1 0; min-width: 0; }
+    .slide-pane.presenter .slide-stage > .slide { flex: 1 1 0; min-height: 0; }
     .slide-pane-hd-right { display: flex; align-items: center; gap: 14px; }
 
     .fb-iconbar { display: flex; align-items: center; gap: 4px; }
@@ -1335,10 +1335,12 @@
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
     @media (max-width: 1366px) { .fb-ic-label { display: none; } .fb-ic { padding: 7px; } }
 
-    /* Feedback panel — a flex sibling of the slide. Closed: zero width.
-       Open: takes the dark area to the right of the (now smaller) slide. */
+    /* Feedback panel — a flex sibling of the slide, placed above it.
+       Closed: zero height. Open: takes the dark area above the (now
+       smaller) slide. */
     .fb-drawer {
-      flex: 0 0 0; min-width: 0; max-width: 470px;
+      order: -1;
+      flex: 0 0 0; min-height: 0;
       align-self: stretch;
       overflow: hidden;
       background: var(--surface-lowest);
@@ -1346,14 +1348,14 @@
       border-radius: var(--r-xl);
       box-shadow: var(--shadow-lg);
       display: flex; flex-direction: column;
-      opacity: 0; margin-left: 0;
-      transition: flex-basis var(--dur-base) ease, opacity var(--dur-base) ease, margin-left var(--dur-base) ease;
+      opacity: 0; margin-bottom: 0;
+      transition: flex-basis var(--dur-base) ease, opacity var(--dur-base) ease, margin-bottom var(--dur-base) ease;
       pointer-events: none;
     }
     .fb-drawer.open {
-      flex-basis: 40%;
+      flex-basis: 42%;
       opacity: 1;
-      margin-left: 16px;
+      margin-bottom: 16px;
       pointer-events: auto;
     }
     .fb-drawer-hd {
