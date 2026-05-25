@@ -3414,8 +3414,7 @@
       loaded: false,        // no session/deck loaded until analyzed
       openFb: null,         // which feedback drawer is open ('script'|'good'|'weak'|'next'|null)
       scenSubTab: 'action', // 商談サマリー sub-tab ('action'|'change'|'people')
-      improveTab: 'deck',   // 資料改善('deck') / 商談改善('meeting')
-      todos: []             // 次回提案までの ToDo (seeded from nextActions)
+      improveTab: 'deck'    // 資料改善('deck') / 商談改善('meeting')
     };
 
     const pendingNewSession = {
@@ -3935,7 +3934,6 @@
       state.currentSlideIdx = 0;
       state.scenSubTab = 'action';
       state.improveTab = 'deck';
-      state.todos = (FANCL_OVERALL.nextActions || []).map(a => ({ title: a.title, priority: a.priority, done: !!a.done }));
       pickedFiles.slides = { id: 'fancl-deck', name: FANCL_META.files.slides };
       pickedFiles.audio = { id: 'fancl-whisper', name: FANCL_META.files.audio };
       renderLoadedAll();
@@ -4797,7 +4795,6 @@
         const iss = p.linkedIssue ? findIssue(p.linkedIssue) : null;
         return (iss && iss.sourceSlides && iss.sourceSlides.length) ? iss.sourceSlides[0] : null;
       };
-      const isTodoAdded = (title) => (state.todos || []).some(t => t.title === title);
       const deckProps = S.updateProposals.filter(p => p.type !== 'meeting');
       const meetingProps = S.updateProposals.filter(p => p.type === 'meeting');
       const it = state.improveTab || 'deck';
@@ -4811,7 +4808,6 @@
           <div class="scen-improve-list">
             ${propList.map(p => {
               const sref = slideRefOf(p);
-              const added = isTodoAdded(p.title);
               return `<div class="scen-improve-item">
                 <div class="scen-improve-head">
                   <span class="scen-improve-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
@@ -4819,33 +4815,8 @@
                   ${sref ? `<button class="scen-improve-target" data-goslide="${sref - 1}">対象: Slide ${String(sref).padStart(2, '0')}</button>` : ''}
                 </div>
                 <div class="scen-improve-reason">${escapeHtml(p.reason)}</div>
-                <div class="scen-improve-actions">
-                  <button class="scen-improve-btn ${added ? 'done' : 'primary'}" data-imp-todo="${escapeHtml(p.title)}" data-imp-prio="${p.priority}" ${added ? 'disabled' : ''}>${added ? '✓ ToDoに追加済み' : '＋ ToDoに追加'}</button>
-                </div>
               </div>`;
             }).join('')}
-          </div>
-        </div>
-      `;
-
-      const todos = state.todos || [];
-      const todoHtml = `
-        <div class="scen-dash-section">
-          <div class="scen-dash-section-head">
-            <span class="scen-dash-section-title">次回提案までの ToDo</span>
-            <span class="scen-dash-section-count">${todos.filter(t => !t.done).length} / ${todos.length}</span>
-          </div>
-          <div class="scen-todo-list">
-            ${todos.map((t, i) => `
-              <label class="scen-todo-item ${t.done ? 'done' : ''}">
-                <input type="checkbox" data-todo="${i}" ${t.done ? 'checked' : ''}>
-                <span class="scen-todo-check">${svgIcon('i-check', 10)}</span>
-                <span class="scen-todo-text">${escapeHtml(t.title)}</span>
-                ${t.priority === 'high' ? '<span class="scen-todo-prio">P1</span>' : ''}
-              </label>`).join('')}
-          </div>
-          <div class="scen-todo-foot">
-            <button class="btn btn-outline btn-sm" id="todoExport">${svgIcon('i-doc', 13)}<span>エクスポート</span></button>
           </div>
         </div>
       `;
@@ -4984,7 +4955,7 @@
 
       const sub = state.scenSubTab || 'action';
       const subTabs = [
-        { key: 'action', label: '改善・ToDo', sub: '資料/商談の改善と次アクション' },
+        { key: 'action', label: '改善', sub: '資料/商談の改善ポイント' },
         { key: 'change', label: '変化・論点', sub: '今回の変化 / 新規論点' },
         { key: 'people', label: '関係者',     sub: '合意状況マトリクス' }
       ];
@@ -5003,7 +4974,6 @@
           ${subBar}
           <div class="scen-subpane" data-sub="action" ${sub === 'action' ? '' : 'hidden'}>
             ${improveHtml}
-            ${todoHtml}
           </div>
           <div class="scen-subpane" data-sub="change" ${sub === 'change' ? '' : 'hidden'}>
             ${changesHtml}
@@ -5028,26 +4998,6 @@
       document.querySelectorAll('[data-goslide]').forEach(el => {
         el.addEventListener('click', () => goToSlide(parseInt(el.dataset.goslide, 10)));
       });
-      // 改善項目を ToDo に追加
-      document.querySelectorAll('[data-imp-todo]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const title = btn.dataset.impTodo;
-          if (!(state.todos || []).some(t => t.title === title)) {
-            state.todos.push({ title, priority: btn.dataset.impPrio || 'mid', done: false });
-            renderScenario();
-          }
-        });
-      });
-      // ToDo チェック
-      document.querySelectorAll('.scen-todo-item input[data-todo]').forEach(cb => {
-        cb.addEventListener('change', () => {
-          const i = parseInt(cb.dataset.todo, 10);
-          if (state.todos[i]) { state.todos[i].done = cb.checked; renderScenario(); }
-        });
-      });
-      // エクスポート
-      const exportBtn = document.getElementById('todoExport');
-      if (exportBtn) exportBtn.addEventListener('click', exportTodos);
 
       // Change items jump to the source slide.
       document.querySelectorAll('.scen-change-item[data-issue]').forEach(el => {
@@ -5057,28 +5007,6 @@
           goToSlide(issue.sourceSlides[0] - 1);
         });
       });
-    }
-
-    // Export the session summary + ToDo as a downloadable text file.
-    function exportTodos() {
-      const ov = MOCK_DATA.overall || {};
-      const lines = [];
-      lines.push(MOCK_DATA.meta.title || '商談サマリー');
-      lines.push('商談日: ' + (MOCK_DATA.meta.meetingDate || '—'));
-      lines.push('総合スコア: ' + (ov.score100 != null ? ov.score100 + ' / 100' : '—'));
-      if (ov.verdict) lines.push('総評: ' + ov.verdict);
-      if (ov.deductions && ov.deductions.length) {
-        lines.push('', '[減点要因]');
-        ov.deductions.forEach((d, i) => lines.push(`  ${i + 1}. ${d}`));
-      }
-      lines.push('', '[次回提案までの ToDo]');
-      (state.todos || []).forEach(t => lines.push(`  [${t.done ? 'x' : ' '}] ${t.title}${t.priority === 'high' ? '  (P1)' : ''}`));
-      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'todo_' + (MOCK_DATA.meta.meetingDate || 'session') + '.txt';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(a.href);
     }
 
     /* ============================================================
