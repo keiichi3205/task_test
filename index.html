@@ -467,6 +467,30 @@
        Replaces the old top-of-page Verdict Bar + Session Summary.
        All Scenario state now lives inside the right pane's シナリオ tab.
        =============================================================== */
+    /* Overall score block (top of 商談サマリー) */
+    .scen-score {
+      display: grid;
+      grid-template-columns: auto 1.4fr 1fr;
+      gap: 18px;
+      align-items: start;
+      padding: 16px 18px;
+      background: var(--surface-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--r-xl);
+    }
+    .scen-score-eyebrow {
+      font: 700 9.5px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .scen-score-figure { display: flex; align-items: baseline; gap: 4px; }
+    .scen-score-val { font-size: 40px; font-weight: 800; line-height: 1; color: var(--on-surface); letter-spacing: -0.02em; }
+    .scen-score-max { font: 600 13px var(--font-mono); color: var(--text-muted); }
+    .scen-score-text { font-size: 12px; line-height: 1.65; color: var(--on-surface-variant); }
+    .scen-score-deduct { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+    .scen-score-deduct li { font-size: 11.5px; line-height: 1.5; color: var(--on-surface); }
+    .scen-score-state { margin: 8px 2px 0; font-size: 11px; color: var(--text-muted); }
+    @media (max-width: 1200px) { .scen-score { grid-template-columns: auto 1fr; } .scen-score-col:last-child { grid-column: 1 / -1; } }
+
     .scen-verdict {
       display: flex;
       align-items: center;
@@ -1129,7 +1153,7 @@
     }
     .thumbnail {
       flex-shrink: 0;
-      width: 156px;
+      width: 176px;
       min-height: 56px;
       background: var(--surface-lowest);
       border-radius: var(--r-lg);
@@ -1182,19 +1206,25 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
     }
-    .thumb-confidence {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--surface-low);
+    .thumb-score-row { display: flex; align-items: center; gap: 6px; }
+    .thumb-score {
+      font: 700 11px var(--font-mono); color: var(--on-surface);
+      font-variant-numeric: tabular-nums;
     }
-    .thumb-confidence-fill {
-      height: 100%;
-      transition: width var(--dur-slow);
+    .thumb-score.low { color: var(--danger); }
+    .thumb-flag {
+      font: 700 9px var(--font-mono); color: var(--danger);
+      background: var(--danger-weak); border-radius: var(--r-sm); padding: 1px 5px;
     }
-    .conf-high .thumb-confidence-fill { background: var(--primary); }
-    .conf-mid  .thumb-confidence-fill { background: var(--warning-accent); }
-    .conf-low  .thumb-confidence-fill { background: var(--danger); }
+    .thumb-prio { display: flex; gap: 5px; }
+    .thumb-prio-chip {
+      font: 700 9px var(--font-mono); letter-spacing: 0.03em;
+      border-radius: var(--r-sm); padding: 1px 5px;
+    }
+    .thumb-prio-chip.p1 { background: var(--danger-weak); color: var(--danger); }
+    .thumb-prio-chip.p2 { background: var(--warning-bg); color: var(--warning-text); }
+    .thumbnail.needs-work { box-shadow: inset 0 0 0 1px var(--danger-weak); }
+    .thumbnail.active.needs-work { box-shadow: inset 0 0 0 2px var(--primary); }
 
     /* Confidence chip — used in slide pane header */
     .conf-chip {
@@ -2976,9 +3006,29 @@
 
     /* Session-level rollup. Not shown in the current UI directly — it
        feeds the pipelineSync event log (actions / BANT). Kept lightweight. */
+    /* Per-slide score (0-100) + priority issue counts, shown on the
+       thumbnail strip so weak sections are spotted at a glance. */
+    const FANCL_SCORES = [
+      { score: 62, p1: 1, p2: 2 },
+      { score: 48, p1: 1, p2: 3 },
+      { score: 58, p1: 1, p2: 2 },
+      { score: 45, p1: 2, p2: 4 },
+      { score: 40, p1: 3, p2: 2 },
+      { score: 52, p1: 1, p2: 2 },
+      { score: 55, p1: 0, p2: 2 },
+      { score: 46, p1: 2, p2: 2 }
+    ];
+
     const FANCL_OVERALL = {
       score: 7.8,
       scoreLabel: '良好 / 次フェーズへ',
+      score100: 48,
+      verdict: '実行支援の実績は伝えられているが、今回提案における優先領域・PoC成功基準・投資対効果の説明が不足。決裁者向けには、初期着手範囲と成果指標を明確化する必要がある。',
+      deductions: [
+        '投資判断に必要な定量基準が不足',
+        '重点領域の優先順位が曖昧',
+        'PoC成功基準が未定義'
+      ],
       summary: '各部門の懸念（店舗の売上責任、現場の入力負荷、ベンダー調整、薬機法、セキュリティ、KPI設計）に正面から応答し、否定せず再定義する高水準の合意形成ができている。一方、効果の定量化（運用1/2・LP単価の根拠）、4領域の優先順位づけ、PoCの成功基準・概算規模が次回の宿題。決裁者を動かすには定量と優先順位の明確化が鍵。',
       strengths: [
         '顧客の懸念を否定せず再定義して合意を取り戻す対話設計',
@@ -3786,6 +3836,9 @@
           content: { imageUrl: FANCL_DATA.deckImages[i] },
           mappingConfidence: m.mappingConfidence,
           mappingNote: m.mappingNote || null,
+          score: (FANCL_SCORES[i] || {}).score,
+          p1: (FANCL_SCORES[i] || {}).p1 || 0,
+          p2: (FANCL_SCORES[i] || {}).p2 || 0,
           script: FANCL_SCRIPTS[i] || '',
           transcript: tr.length ? tr : [{
             speaker: 'system', name: 'AI', time: '—',
@@ -4345,14 +4398,19 @@
       strip.innerHTML = '';
       MOCK_DATA.slides.forEach((slide, idx) => {
         const thumb = document.createElement('div');
-        const level = confidenceLevel(slide.mappingConfidence);
         const classes = ['thumbnail'];
         if (idx === state.currentSlideIdx) classes.push('active');
-        if (level) classes.push('conf-' + level);
+        const needsWork = slide.score != null && slide.score < 50;
+        if (needsWork) classes.push('needs-work');
         thumb.className = classes.join(' ');
-        const confBar = (slide.mappingConfidence != null) ? `
-          <div class="thumb-confidence" title="信頼度 ${slide.mappingConfidence.toFixed(2)}">
-            <div class="thumb-confidence-fill" style="width: ${slide.mappingConfidence * 100}%"></div>
+        const scoreRow = (slide.score != null) ? `
+          <div class="thumb-score-row">
+            <span class="thumb-score ${needsWork ? 'low' : ''}">スコア ${slide.score}</span>
+            ${needsWork ? '<span class="thumb-flag">⚠ 要改善</span>' : ''}
+          </div>
+          <div class="thumb-prio">
+            <span class="thumb-prio-chip p1">P1 ${slide.p1 || 0}</span>
+            <span class="thumb-prio-chip p2">P2 ${slide.p2 || 0}</span>
           </div>` : '';
         thumb.innerHTML = `
           <div class="thumb-meta">
@@ -4360,7 +4418,7 @@
             <span class="thumb-dur">${escapeHtml(slide.duration || '')}</span>
           </div>
           <div class="thumb-title">${escapeHtml(slide.title)}</div>
-          ${confBar}
+          ${scoreRow}
         `;
         thumb.addEventListener('click', () => goToSlide(idx));
         strip.appendChild(thumb);
@@ -4607,21 +4665,24 @@
       if (eb && !eb.lastContact) stateParts.push(`<strong>${escapeHtml(eb.shortName || 'EB')}未接触</strong>`);
       if (regIssue) stateParts.push(`<strong>${escapeHtml(regIssue.title)}</strong>で停滞`);
 
-      // === 1. Compact verdict ===
+      // === 1. Overall score + verdict + top deductions ===
+      const ov = MOCK_DATA.overall || {};
       const verdictHtml = `
-        <div class="scen-verdict">
-          <div class="scen-verdict-score">
-            <span class="scen-verdict-val">${pct}<span class="scen-verdict-pct">%</span></span>
-            <span class="scen-verdict-delta">${delta >= 0 ? '↑+' : '↓'}${Math.round(Math.abs(delta) * 100)}pt</span>
+        <div class="scen-score">
+          <div class="scen-score-num">
+            <div class="scen-score-eyebrow">総合スコア</div>
+            <div class="scen-score-figure"><span class="scen-score-val">${ov.score100 != null ? ov.score100 : '—'}</span><span class="scen-score-max">/ 100</span></div>
           </div>
-          <div class="scen-verdict-titleblock">
-            <div class="scen-verdict-title">
-              ${escapeHtml(S.title)}
-              <span class="scen-verdict-deck">DECK v${S.currentDeckVersion}</span>
-            </div>
-            <div class="scen-verdict-state">${stateParts.join(' · ')}</div>
+          <div class="scen-score-col">
+            <div class="scen-score-eyebrow">総評</div>
+            <div class="scen-score-text">${escapeHtml(ov.verdict || '')}</div>
+          </div>
+          <div class="scen-score-col">
+            <div class="scen-score-eyebrow">減点要因 TOP3</div>
+            <ol class="scen-score-deduct">${(ov.deductions || []).map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ol>
           </div>
         </div>
+        <div class="scen-verdict-state scen-score-state">${stateParts.join(' · ')}</div>
       `;
 
       // === 2. Next Moves (all proposals, P1 highlighted) ===
