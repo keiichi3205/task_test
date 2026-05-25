@@ -773,6 +773,24 @@
       flex-direction: column;
       gap: 16px;
     }
+    /* Sub-tabs inside 商談サマリー */
+    .scen-subtabs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .scen-subtab {
+      display: flex; flex-direction: column; gap: 1px;
+      padding: 8px 12px; border-radius: var(--r-lg);
+      background: var(--surface-lowest); border: 1px solid var(--outline-variant);
+      text-align: left; cursor: pointer;
+      transition: background var(--dur-fast), border-color var(--dur-fast);
+    }
+    .scen-subtab:hover { background: var(--surface-low); border-color: var(--outline); }
+    .scen-subtab.active { background: var(--primary-light); border-color: var(--primary); }
+    .scen-subtab-label { font-size: 12.5px; font-weight: 700; color: var(--on-surface); }
+    .scen-subtab.active .scen-subtab-label { color: var(--primary-dark); }
+    .scen-subtab-sub { font-size: 10.5px; color: var(--text-muted); }
+    .scen-subpane { display: flex; flex-direction: column; gap: 16px; }
+    .scen-subpane[hidden] { display: none; }
     .scen-dash-header {
       padding: 16px 18px;
       background: linear-gradient(135deg, var(--primary-light) 0%, var(--surface-lowest) 100%);
@@ -946,9 +964,8 @@
       letter-spacing: 0;
     }
     .scen-matrix-stake-role {
-      font: 500 9px var(--font-mono);
+      font: 600 10px 'Inter', 'Noto Sans JP', sans-serif;
       color: var(--text-muted);
-      letter-spacing: 0.05em;
     }
     .scen-matrix-stake-head.eb .scen-matrix-stake-role { color: #8A6014; }
     .scen-matrix-stake-head.champion .scen-matrix-stake-role { color: var(--primary-dark); }
@@ -1089,8 +1106,7 @@
       color: var(--on-surface);
     }
     .scen-stake-card-role {
-      font: 600 9.5px var(--font-mono);
-      letter-spacing: 0.06em;
+      font: 600 10.5px 'Inter', 'Noto Sans JP', sans-serif;
       color: var(--text-muted);
     }
     .scen-stake-card-role.eb { color: #8A6014; }
@@ -1309,12 +1325,15 @@
     .fb-ic {
       position: relative;
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 10px; border-radius: var(--r);
+      padding: 6px 11px; border-radius: 999px;
+      background: var(--surface-low);
+      border: 1px solid var(--outline-variant);
       color: var(--on-surface-variant);
-      transition: background var(--dur-fast), color var(--dur-fast);
+      cursor: pointer;
+      transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast), box-shadow var(--dur-fast);
     }
-    .fb-ic:hover { background: var(--surface-low); color: var(--on-surface); }
-    .fb-ic.active { background: var(--primary-light); color: var(--primary-dark); }
+    .fb-ic:hover { background: var(--surface-high); border-color: var(--outline); color: var(--on-surface); box-shadow: var(--shadow-sm); }
+    .fb-ic.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
     .fb-ic-ico { display: inline-grid; place-items: center; }
     .fb-ic.good .fb-ic-ico { color: var(--done-text); }
     .fb-ic.weak .fb-ic-ico { color: var(--warning-border); }
@@ -2541,11 +2560,6 @@
             <span class="eyebrow">Proposal Deck</span>
             <div class="slide-pane-title-row">
               <span class="slide-pane-title" id="paneTitle">—</span>
-              <span class="conf-chip" id="slideConfChip" style="display:none">
-                <span class="conf-chip-dot"></span>
-                <span>信頼度</span>
-                <span id="confChipValue">—</span>
-              </span>
             </div>
           </div>
           <div class="slide-pane-hd-right">
@@ -2579,7 +2593,7 @@
         <div class="pane-tabs" role="tablist">
           <button class="tab-btn active" data-tab="summary" role="tab">
             <svg width="14" height="14"><use href="#i-chart"/></svg>
-            <span>シナリオ</span>
+            <span>商談サマリー</span>
           </button>
           <button class="tab-btn" data-tab="transcript" role="tab">
             <svg width="14" height="14"><use href="#i-transcript"/></svg>
@@ -3267,8 +3281,9 @@
     const state = {
       currentSlideIdx: 0,
       currentTab: 'summary',
-      loaded: false,    // no session/deck loaded until analyzed
-      openFb: null      // which feedback drawer is open ('script'|'good'|'weak'|'next'|null)
+      loaded: false,        // no session/deck loaded until analyzed
+      openFb: null,         // which feedback drawer is open ('script'|'good'|'weak'|'next'|null)
+      scenSubTab: 'overview' // 商談サマリー sub-tab ('overview'|'people')
     };
 
     const pendingNewSession = {
@@ -4264,7 +4279,6 @@
       document.getElementById('slideCounter').textContent = '00 / 00';
       document.getElementById('prevBtn').disabled = true;
       document.getElementById('nextBtn').disabled = true;
-      document.getElementById('slideConfChip').style.display = 'none';
 
       const view = document.getElementById('slideView');
       view.className = 'slide template-empty';
@@ -4360,18 +4374,6 @@
       document.getElementById('slideCounter').textContent = `${String(state.currentSlideIdx + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
       document.getElementById('prevBtn').disabled = state.currentSlideIdx === 0;
       document.getElementById('nextBtn').disabled = state.currentSlideIdx === total - 1;
-
-      // Confidence chip in pane header
-      const chip = document.getElementById('slideConfChip');
-      const level = confidenceLevel(slide.mappingConfidence);
-      if (level) {
-        chip.style.display = '';
-        chip.className = 'conf-chip ' + level;
-        document.getElementById('confChipValue').textContent =
-          slide.mappingConfidence.toFixed(2);
-      } else {
-        chip.style.display = 'none';
-      }
 
       const view = document.getElementById('slideView');
       view.className = 'slide template-' + slide.template;
@@ -4579,6 +4581,7 @@
     };
     const STATE_GLYPH = { agreed: '✓', partial: '△', negative: '✕', unknown: '？', interested: '◎', concern: '!' };
     const ROLE_CLS = { 'Champion': 'champion', 'Economic Buyer': 'eb', 'User': 'blocker', 'Coach': '' };
+    const ROLE_JA = { 'Champion': '推進者', 'Economic Buyer': '決裁者', 'User': '利用部門', 'Coach': '協力者' };
 
     function cellFor(pos) {
       if (!pos) return `<span class="scen-cell unknown" title="未確認">${STATE_GLYPH.unknown}</span>`;
@@ -4682,7 +4685,7 @@
             ${stakes.map(s => `
               <div class="scen-stake-card ${s.lastContact ? '' : 'unmet'}">
                 <div class="scen-stake-card-name">${escapeHtml(s.name)}</div>
-                <div class="scen-stake-card-role ${ROLE_CLS[s.role] || ''}">${escapeHtml(s.role.toUpperCase())}</div>
+                <div class="scen-stake-card-role ${ROLE_CLS[s.role] || ''}">${escapeHtml(ROLE_JA[s.role] || s.role)}</div>
                 <div class="scen-stake-card-meta ${s.lastContact ? '' : 'unmet'}">${s.lastContact ? '最終接触 ' + escapeHtml(s.lastContact) : '⚠ 一度も接触なし'}</div>
               </div>
             `).join('')}
@@ -4695,7 +4698,7 @@
         const roleCls = ROLE_CLS[s.role] || '';
         return `<th><div class="scen-matrix-stake-head ${roleCls}">
           <span class="scen-matrix-stake-name">${escapeHtml(s.shortName)}</span>
-          <span class="scen-matrix-stake-role">${escapeHtml(s.role.toUpperCase())}</span>
+          <span class="scen-matrix-stake-role">${escapeHtml(ROLE_JA[s.role] || s.role)}</span>
         </div></th>`;
       }).join('');
 
@@ -4776,16 +4779,43 @@
         </div>
       `;
 
+      const sub = state.scenSubTab || 'overview';
+      const subTabs = [
+        { key: 'overview', label: '概況', sub: '変化と次アクション' },
+        { key: 'people',   label: '関係者マップ', sub: '関係者の合意状況' }
+      ];
+      const subBar = `
+        <div class="scen-subtabs">
+          ${subTabs.map(t => `
+            <button class="scen-subtab ${sub === t.key ? 'active' : ''}" data-sub="${t.key}">
+              <span class="scen-subtab-label">${t.label}</span>
+              <span class="scen-subtab-sub">${t.sub}</span>
+            </button>`).join('')}
+        </div>`;
+
       document.getElementById('summaryContent').innerHTML = `
         <div class="scen-dash">
           ${verdictHtml}
-          ${movesHtml}
-          ${changesHtml}
-          ${emergedHtml}
-          ${stakeHtml}
-          ${matrixHtml}
+          ${subBar}
+          <div class="scen-subpane" data-sub="overview" ${sub === 'overview' ? '' : 'hidden'}>
+            ${changesHtml}
+            ${movesHtml}
+            ${emergedHtml}
+          </div>
+          <div class="scen-subpane" data-sub="people" ${sub === 'people' ? '' : 'hidden'}>
+            ${stakeHtml}
+            ${matrixHtml}
+          </div>
         </div>
       `;
+
+      // Sub-tab switching (概況 / 関係者マップ)
+      document.querySelectorAll('.scen-subtab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.scenSubTab = btn.dataset.sub;
+          renderScenario();
+        });
+      });
 
       // Click handlers — change items jump to the source slide (its
       // 資料/トークスクリプト feedback shows in the left presenter pane).
