@@ -129,12 +129,25 @@
     .app-header {
       background: var(--surface-lowest);
       border-bottom: 1px solid var(--ghost-border);
-      height: 48px;
+      height: 58px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 16px;
       padding: 0 20px;
       position: sticky; top: 0; z-index: 100;
+    }
+    .breadcrumb-current { max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* Compact upload chips, hosted in the header */
+    .hdr-uploads { display: flex; align-items: center; gap: 8px; }
+    .upload-card.compact {
+      min-width: 0; gap: 8px; padding: 5px 10px; max-width: 196px;
+    }
+    .upload-card.compact .upload-icon { width: 26px; height: 26px; }
+    .upload-card.compact .upload-filename { font-size: 11px; max-width: 140px; }
+    @media (max-width: 1280px) {
+      .upload-card.compact .upload-info { display: none; }
+      .upload-card.compact { padding: 6px; }
     }
     .brand-cluster { display: flex; align-items: center; gap: 16px; }
     .brand {
@@ -182,7 +195,7 @@
     .app-main {
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 48px);
+      height: calc(100vh - 58px);
       background: var(--surface);
     }
 
@@ -1092,7 +1105,7 @@
     /* ============ THUMBNAIL STRIP ============ */
     .thumbnail-strip {
       background: var(--surface);
-      padding: 8px 20px 12px;
+      padding: 6px 20px 8px;
       display: flex;
       gap: 8px;
       overflow-x: auto;
@@ -1100,8 +1113,8 @@
     }
     .thumbnail {
       flex-shrink: 0;
-      width: 168px;
-      min-height: 72px;
+      width: 156px;
+      min-height: 56px;
       background: var(--surface-lowest);
       border-radius: var(--r-lg);
       cursor: pointer;
@@ -1286,9 +1299,9 @@
     /* Presenter view: slide on top, its 資料/トークスクリプト feedback below
        (PowerPoint "presenter view" style — uses the wide left pane that
        previously just held the slide image). */
-    .slide-pane.presenter .slide-stage { flex: 3 1 0; padding: 18px; }
+    .slide-pane.presenter .slide-stage { flex: 0 0 42%; padding: 16px; }
     .presenter-fb {
-      flex: 2 1 0;
+      flex: 1 1 0;
       min-height: 0;
       display: flex;
       flex-direction: column;
@@ -1298,12 +1311,15 @@
     .presenter-fb-hd {
       flex-shrink: 0;
       display: flex; align-items: center; gap: 7px;
-      padding: 11px 16px 9px;
+      padding: 10px 16px 9px;
       font-size: 12px; font-weight: 600; color: var(--on-surface);
       border-bottom: 1px solid var(--outline-faint);
     }
     .presenter-fb-hd svg { color: var(--primary); }
     .presenter-fb-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 16px; }
+    /* Use the full pane width: 良かった点 / 弱かった点 sit side by side. */
+    .fb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .fb-grid .fb-section { margin-bottom: 0; }
     body.no-session .presenter-fb { display: none; }
 
     .slide {
@@ -2442,62 +2458,37 @@
       </nav>
     </div>
     <div class="header-right">
-      <div class="header-goal" id="headerGoal" style="display:none">
-        <span class="header-goal-label">Goal</span>
-        <span class="header-goal-text" id="headerGoalText"></span>
+      <div class="hdr-uploads">
+        <div class="upload-card compact" id="slideUpload" title="提案資料を選択">
+          <div class="upload-icon"><svg width="15" height="15"><use href="#i-doc"/></svg></div>
+          <div class="upload-info">
+            <span class="upload-label">提案資料</span>
+            <span class="upload-filename">未読み込み</span>
+          </div>
+        </div>
+        <div class="upload-card compact" id="audioUpload" title="商談録音(Whisper JSON)を選択">
+          <div class="upload-icon"><svg width="15" height="15"><use href="#i-mic"/></svg></div>
+          <div class="upload-info">
+            <span class="upload-label">商談録音</span>
+            <span class="upload-filename">未読み込み</span>
+          </div>
+        </div>
       </div>
+      <button class="btn btn-primary btn-sm" id="analyzeBtn">
+        <svg width="13" height="13"><use href="#i-sparkle"/></svg>
+        <span>再分析</span>
+      </button>
       <button class="btn-new-session" id="newSessionBtn">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M6 1.5v9M1.5 6h9"/>
         </svg>
         <span>新規Session</span>
       </button>
-      <div class="header-meta">
-        <div class="header-meta-item">
-          <span class="header-meta-label">DATE</span>
-          <span class="header-meta-value mono" id="meetingDate">—</span>
-        </div>
-        <div class="header-meta-item">
-          <span class="header-meta-label">CUSTOMER</span>
-          <span class="header-meta-value" id="meetingCustomer">—</span>
-        </div>
-      </div>
       <div class="topbar-avatar" title="ユーザー">YK</div>
     </div>
   </header>
 
   <div class="app-main">
-    <section class="upload-bar">
-      <div class="upload-card" id="slideUpload">
-        <div class="upload-icon"><svg width="16" height="16"><use href="#i-doc"/></svg></div>
-        <div class="upload-info">
-          <span class="upload-label">提案資料</span>
-          <span class="upload-filename">読み込み中…</span>
-        </div>
-      </div>
-      <div class="upload-card" id="audioUpload">
-        <div class="upload-icon"><svg width="16" height="16"><use href="#i-mic"/></svg></div>
-        <div class="upload-info">
-          <span class="upload-label">商談音声</span>
-          <span class="upload-filename">読み込み中…</span>
-        </div>
-      </div>
-      <button class="btn btn-primary" id="analyzeBtn">
-        <svg width="14" height="14"><use href="#i-sparkle"/></svg>
-        <span>再分析する</span>
-      </button>
-      <div class="meta-info">
-        <div class="meta-info-block">
-          <span class="upload-label">分析完了</span>
-          <span class="header-meta-value mono" id="analyzedAt">—</span>
-        </div>
-        <div class="meta-info-block">
-          <span class="upload-label">所要</span>
-          <span class="header-meta-value mono" id="duration">—</span>
-        </div>
-      </div>
-    </section>
-
     <section class="thumbnail-strip" id="thumbnailStrip"></section>
 
     <section class="workspace">
@@ -3782,7 +3773,7 @@
       opts = opts || {};
       const cardId = kind === 'slides' ? 'slideUpload' : 'audioUpload';
       const card = document.getElementById(cardId);
-      const baseLabel = kind === 'slides' ? '提案資料' : '商談音声';
+      const baseLabel = kind === 'slides' ? '提案資料' : '商談録音';
       const sizeStr = file.sizeBytes ? formatBytes(file.sizeBytes) : '';
       card.querySelector('.upload-label').textContent = baseLabel + (sizeStr ? ' · ' + sizeStr : '');
       const chip = opts.loading
@@ -4213,13 +4204,10 @@
     function renderEmptyState() {
       document.body.classList.add('no-session');
       document.getElementById('meetingTitle').textContent = '商談セッション未読み込み';
-      document.getElementById('meetingDate').textContent = '—';
-      document.getElementById('meetingCustomer').textContent = '提案資料と文字起こし(Whisper JSON)を読み込んで分析します';
-      document.getElementById('analyzedAt').textContent = '—';
-      document.getElementById('duration').textContent = '—';
       document.querySelector('#slideUpload .upload-filename').textContent = '未読み込み';
       document.querySelector('#audioUpload .upload-filename').textContent = '未読み込み';
-      document.getElementById('headerGoal').style.display = 'none';
+      document.getElementById('slideUpload').classList.remove('swapped');
+      document.getElementById('audioUpload').classList.remove('swapped');
 
       document.getElementById('thumbnailStrip').innerHTML = '';
       document.getElementById('paneTitle').textContent = '—';
@@ -4274,22 +4262,11 @@
     }
 
     function renderHeader() {
-      document.getElementById('meetingTitle').textContent = MOCK_DATA.meta.title;
-      document.getElementById('meetingDate').textContent = MOCK_DATA.meta.meetingDate;
-      document.getElementById('meetingCustomer').textContent = MOCK_DATA.meta.customerCompany;
-      document.getElementById('analyzedAt').textContent = MOCK_DATA.meta.analyzedAt;
-      document.getElementById('duration').textContent = MOCK_DATA.meta.duration;
+      document.getElementById('meetingTitle').textContent = MOCK_DATA.meta.title || '商談セッション';
       document.querySelector('#slideUpload .upload-filename').textContent = MOCK_DATA.meta.files.slides;
       document.querySelector('#audioUpload .upload-filename').textContent = MOCK_DATA.meta.files.audio;
-      const goalEl = document.getElementById('headerGoal');
-      const goalText = document.getElementById('headerGoalText');
-      if (MOCK_DATA.meta.goal) {
-        goalEl.style.display = '';
-        goalText.textContent = MOCK_DATA.meta.goal;
-        goalEl.title = MOCK_DATA.meta.goal;
-      } else {
-        goalEl.style.display = 'none';
-      }
+      document.getElementById('slideUpload').classList.toggle('swapped', MOCK_DATA.meta.files.slides !== '—');
+      document.getElementById('audioUpload').classList.toggle('swapped', MOCK_DATA.meta.files.audio !== '—');
     }
 
     function confidenceLevel(c) {
@@ -4483,16 +4460,18 @@
           <div class="fb-eyebrow script">${svgIcon('i-transcript', 12)}<span>想定トークスクリプト</span><span class="fb-eyebrow-note">PPTノート</span></div>
           <div class="fb-block script-prepared">${escapeHtml(slide.script || '（このスライドのスクリプトは設定されていません）')}</div>
         </div>
-        <div class="fb-section">
-          <div class="fb-eyebrow good">${svgIcon('i-check', 12)}<span>良かった点</span></div>
-          <div class="fb-block good">
-            <ul class="fb-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
+        <div class="fb-grid">
+          <div class="fb-section">
+            <div class="fb-eyebrow good">${svgIcon('i-check', 12)}<span>良かった点</span></div>
+            <div class="fb-block good">
+              <ul class="fb-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
+            </div>
           </div>
-        </div>
-        <div class="fb-section">
-          <div class="fb-eyebrow improve">${svgIcon('i-alert', 12)}<span>弱かった点</span></div>
-          <div class="fb-block improve">
-            <ul class="fb-list">${improveList}</ul>
+          <div class="fb-section">
+            <div class="fb-eyebrow improve">${svgIcon('i-alert', 12)}<span>弱かった点</span></div>
+            <div class="fb-block improve">
+              <ul class="fb-list">${improveList}</ul>
+            </div>
           </div>
         </div>
         <div class="fb-section">
