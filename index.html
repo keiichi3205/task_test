@@ -815,6 +815,63 @@
     .scen-subtab-sub { font-size: 10.5px; color: var(--text-muted); }
     .scen-subpane { display: flex; flex-direction: column; gap: 16px; }
     .scen-subpane[hidden] { display: none; }
+
+    /* 資料改善 / 商談改善 */
+    .scen-improve-tabs { display: flex; gap: 6px; margin-bottom: 12px; border-bottom: 1px solid var(--outline-faint); }
+    .scen-improve-tab {
+      padding: 7px 12px 9px; font-size: 12.5px; font-weight: 600; color: var(--on-surface-variant);
+      border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer;
+    }
+    .scen-improve-tab:hover { color: var(--on-surface); }
+    .scen-improve-tab.active { color: var(--primary-dark); border-bottom-color: var(--primary); }
+    .scen-improve-count {
+      font: 700 10px var(--font-mono); background: var(--surface-low); color: var(--on-surface-variant);
+      border-radius: 8px; padding: 1px 6px; margin-left: 2px;
+    }
+    .scen-improve-tab.active .scen-improve-count { background: var(--primary-light); color: var(--primary-dark); }
+    .scen-improve-list { display: flex; flex-direction: column; gap: 10px; }
+    .scen-improve-item { background: var(--surface-low); border-radius: var(--r-lg); padding: 12px 14px; }
+    .scen-improve-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
+    .scen-improve-prio {
+      flex-shrink: 0; font: 700 9.5px var(--font-mono); color: #fff;
+      border-radius: 6px; padding: 2px 7px;
+    }
+    .scen-improve-prio.high { background: var(--danger); }
+    .scen-improve-prio.mid { background: var(--warning-accent); }
+    .scen-improve-title { font-size: 12.5px; font-weight: 700; color: var(--on-surface); flex: 1; min-width: 0; }
+    .scen-improve-target {
+      flex-shrink: 0; font: 600 10px var(--font-mono); color: var(--primary-dark);
+      background: var(--primary-light); border-radius: 6px; padding: 2px 7px; cursor: pointer;
+    }
+    .scen-improve-target:hover { background: var(--primary-fixed-dim); }
+    .scen-improve-reason { font-size: 11.5px; line-height: 1.6; color: var(--on-surface-variant); margin-bottom: 9px; }
+    .scen-improve-actions { display: flex; gap: 8px; }
+    .scen-improve-btn {
+      font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: var(--r);
+      cursor: pointer; transition: background var(--dur-fast);
+    }
+    .scen-improve-btn.primary { background: var(--primary); color: var(--on-primary); }
+    .scen-improve-btn.primary:hover { background: var(--primary-dark); }
+    .scen-improve-btn.done { background: var(--done-bg); color: var(--done-text); cursor: default; }
+
+    /* 次回提案までの ToDo */
+    .scen-todo-list { display: flex; flex-direction: column; gap: 4px; }
+    .scen-todo-item {
+      display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+      border-radius: var(--r); cursor: pointer; transition: background var(--dur-fast);
+    }
+    .scen-todo-item:hover { background: var(--surface-low); }
+    .scen-todo-item input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .scen-todo-check {
+      flex-shrink: 0; width: 18px; height: 18px; border-radius: var(--r-sm);
+      border: 1.5px solid var(--outline-variant); display: grid; place-items: center;
+      color: transparent; background: var(--surface-lowest);
+    }
+    .scen-todo-item.done .scen-todo-check { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .scen-todo-text { flex: 1; font-size: 12.5px; color: var(--on-surface); line-height: 1.4; }
+    .scen-todo-item.done .scen-todo-text { color: var(--text-muted); text-decoration: line-through; }
+    .scen-todo-prio { flex-shrink: 0; font: 700 9px var(--font-mono); color: var(--danger); background: var(--danger-weak); border-radius: 6px; padding: 1px 6px; }
+    .scen-todo-foot { display: flex; justify-content: flex-end; margin-top: 12px; }
     .scen-dash-header {
       padding: 16px 18px;
       background: linear-gradient(135deg, var(--primary-light) 0%, var(--surface-lowest) 100%);
@@ -3333,7 +3390,9 @@
       currentTab: 'summary',
       loaded: false,        // no session/deck loaded until analyzed
       openFb: null,         // which feedback drawer is open ('script'|'good'|'weak'|'next'|null)
-      scenSubTab: 'overview' // 商談サマリー sub-tab ('overview'|'people')
+      scenSubTab: 'action', // 商談サマリー sub-tab ('action'|'change'|'people')
+      improveTab: 'deck',   // 資料改善('deck') / 商談改善('meeting')
+      todos: []             // 次回提案までの ToDo (seeded from nextActions)
     };
 
     const pendingNewSession = {
@@ -3850,6 +3909,9 @@
 
       state.loaded = true;
       state.currentSlideIdx = 0;
+      state.scenSubTab = 'action';
+      state.improveTab = 'deck';
+      state.todos = (FANCL_OVERALL.nextActions || []).map(a => ({ title: a.title, priority: a.priority, done: !!a.done }));
       pickedFiles.slides = { id: 'fancl-deck', name: FANCL_META.files.slides };
       pickedFiles.audio = { id: 'fancl-whisper', name: FANCL_META.files.audio };
       renderLoadedAll();
@@ -4685,25 +4747,60 @@
         <div class="scen-verdict-state scen-score-state">${stateParts.join(' · ')}</div>
       `;
 
-      // === 2. Next Moves (all proposals, P1 highlighted) ===
-      const typeLabel = (t) => t === 'deck_add' ? 'デッキ追加' : t === 'meeting' ? 'Session方針' : 'デッキ修正';
-      const movesHtml = `
+      // === 2. Improvements (資料改善 / 商談改善) + ToDo ===
+      const slideRefOf = (p) => {
+        const iss = p.linkedIssue ? findIssue(p.linkedIssue) : null;
+        return (iss && iss.sourceSlides && iss.sourceSlides.length) ? iss.sourceSlides[0] : null;
+      };
+      const isTodoAdded = (title) => (state.todos || []).some(t => t.title === title);
+      const deckProps = S.updateProposals.filter(p => p.type !== 'meeting');
+      const meetingProps = S.updateProposals.filter(p => p.type === 'meeting');
+      const it = state.improveTab || 'deck';
+      const propList = it === 'deck' ? deckProps : meetingProps;
+      const improveHtml = `
+        <div class="scen-dash-section">
+          <div class="scen-improve-tabs">
+            <button class="scen-improve-tab ${it === 'deck' ? 'active' : ''}" data-imp="deck">資料改善 <span class="scen-improve-count">${deckProps.length}</span></button>
+            <button class="scen-improve-tab ${it === 'meeting' ? 'active' : ''}" data-imp="meeting">商談改善 <span class="scen-improve-count">${meetingProps.length}</span></button>
+          </div>
+          <div class="scen-improve-list">
+            ${propList.map(p => {
+              const sref = slideRefOf(p);
+              const added = isTodoAdded(p.title);
+              return `<div class="scen-improve-item">
+                <div class="scen-improve-head">
+                  <span class="scen-improve-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
+                  <span class="scen-improve-title">${escapeHtml(p.title)}</span>
+                  ${sref ? `<button class="scen-improve-target" data-goslide="${sref - 1}">対象: Slide ${String(sref).padStart(2, '0')}</button>` : ''}
+                </div>
+                <div class="scen-improve-reason">${escapeHtml(p.reason)}</div>
+                <div class="scen-improve-actions">
+                  <button class="scen-improve-btn ${added ? 'done' : 'primary'}" data-imp-todo="${escapeHtml(p.title)}" data-imp-prio="${p.priority}" ${added ? 'disabled' : ''}>${added ? '✓ ToDoに追加済み' : '＋ ToDoに追加'}</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      const todos = state.todos || [];
+      const todoHtml = `
         <div class="scen-dash-section">
           <div class="scen-dash-section-head">
-            <span class="scen-dash-section-title">次の打ち手</span>
-            <span class="scen-dash-section-sub">次回提案までの推奨アクション</span>
-            <span class="scen-dash-section-count">${S.updateProposals.length}</span>
+            <span class="scen-dash-section-title">次回提案までの ToDo</span>
+            <span class="scen-dash-section-count">${todos.filter(t => !t.done).length} / ${todos.length}</span>
           </div>
-          <div class="scen-moves-list">
-            ${S.updateProposals.map(p => `
-              <div class="scen-move">
-                <span class="scen-move-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
-                <div class="scen-move-body">
-                  <div class="scen-move-title">${escapeHtml(p.title)}${p.targetVersion ? `<span class="scen-move-target">→ ${escapeHtml(p.targetVersion)}</span>` : `<span class="scen-move-target">${escapeHtml(typeLabel(p.type))}</span>`}</div>
-                  <div class="scen-move-reason">${escapeHtml(p.reason)}</div>
-                </div>
-              </div>
-            `).join('')}
+          <div class="scen-todo-list">
+            ${todos.map((t, i) => `
+              <label class="scen-todo-item ${t.done ? 'done' : ''}">
+                <input type="checkbox" data-todo="${i}" ${t.done ? 'checked' : ''}>
+                <span class="scen-todo-check">${svgIcon('i-check', 10)}</span>
+                <span class="scen-todo-text">${escapeHtml(t.title)}</span>
+                ${t.priority === 'high' ? '<span class="scen-todo-prio">P1</span>' : ''}
+              </label>`).join('')}
+          </div>
+          <div class="scen-todo-foot">
+            <button class="btn btn-outline btn-sm" id="todoExport">${svgIcon('i-doc', 13)}<span>エクスポート</span></button>
           </div>
         </div>
       `;
@@ -4840,10 +4937,11 @@
         </div>
       `;
 
-      const sub = state.scenSubTab || 'overview';
+      const sub = state.scenSubTab || 'action';
       const subTabs = [
-        { key: 'overview', label: '概況', sub: '変化と次アクション' },
-        { key: 'people',   label: '関係者マップ', sub: '関係者の合意状況' }
+        { key: 'action', label: '改善・ToDo', sub: '資料/商談の改善と次アクション' },
+        { key: 'change', label: '変化・論点', sub: '今回の変化 / 新規論点' },
+        { key: 'people', label: '関係者',     sub: '合意状況マトリクス' }
       ];
       const subBar = `
         <div class="scen-subtabs">
@@ -4858,9 +4956,12 @@
         <div class="scen-dash">
           ${verdictHtml}
           ${subBar}
-          <div class="scen-subpane" data-sub="overview" ${sub === 'overview' ? '' : 'hidden'}>
+          <div class="scen-subpane" data-sub="action" ${sub === 'action' ? '' : 'hidden'}>
+            ${improveHtml}
+            ${todoHtml}
+          </div>
+          <div class="scen-subpane" data-sub="change" ${sub === 'change' ? '' : 'hidden'}>
             ${changesHtml}
-            ${movesHtml}
             ${emergedHtml}
           </div>
           <div class="scen-subpane" data-sub="people" ${sub === 'people' ? '' : 'hidden'}>
@@ -4870,16 +4971,40 @@
         </div>
       `;
 
-      // Sub-tab switching (概況 / 関係者マップ)
+      // Sub-tab switching
       document.querySelectorAll('.scen-subtab').forEach(btn => {
+        btn.addEventListener('click', () => { state.scenSubTab = btn.dataset.sub; renderScenario(); });
+      });
+      // 資料改善 / 商談改善 toggle
+      document.querySelectorAll('.scen-improve-tab').forEach(btn => {
+        btn.addEventListener('click', () => { state.improveTab = btn.dataset.imp; renderScenario(); });
+      });
+      // Jump to the target slide
+      document.querySelectorAll('[data-goslide]').forEach(el => {
+        el.addEventListener('click', () => goToSlide(parseInt(el.dataset.goslide, 10)));
+      });
+      // 改善項目を ToDo に追加
+      document.querySelectorAll('[data-imp-todo]').forEach(btn => {
         btn.addEventListener('click', () => {
-          state.scenSubTab = btn.dataset.sub;
-          renderScenario();
+          const title = btn.dataset.impTodo;
+          if (!(state.todos || []).some(t => t.title === title)) {
+            state.todos.push({ title, priority: btn.dataset.impPrio || 'mid', done: false });
+            renderScenario();
+          }
         });
       });
+      // ToDo チェック
+      document.querySelectorAll('.scen-todo-item input[data-todo]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          const i = parseInt(cb.dataset.todo, 10);
+          if (state.todos[i]) { state.todos[i].done = cb.checked; renderScenario(); }
+        });
+      });
+      // エクスポート
+      const exportBtn = document.getElementById('todoExport');
+      if (exportBtn) exportBtn.addEventListener('click', exportTodos);
 
-      // Click handlers — change items jump to the source slide (its
-      // 資料/トークスクリプト feedback shows in the left presenter pane).
+      // Change items jump to the source slide.
       document.querySelectorAll('.scen-change-item[data-issue]').forEach(el => {
         el.addEventListener('click', () => {
           const issue = findIssue(el.dataset.issue);
@@ -4887,6 +5012,28 @@
           goToSlide(issue.sourceSlides[0] - 1);
         });
       });
+    }
+
+    // Export the session summary + ToDo as a downloadable text file.
+    function exportTodos() {
+      const ov = MOCK_DATA.overall || {};
+      const lines = [];
+      lines.push(MOCK_DATA.meta.title || '商談サマリー');
+      lines.push('商談日: ' + (MOCK_DATA.meta.meetingDate || '—'));
+      lines.push('総合スコア: ' + (ov.score100 != null ? ov.score100 + ' / 100' : '—'));
+      if (ov.verdict) lines.push('総評: ' + ov.verdict);
+      if (ov.deductions && ov.deductions.length) {
+        lines.push('', '[減点要因]');
+        ov.deductions.forEach((d, i) => lines.push(`  ${i + 1}. ${d}`));
+      }
+      lines.push('', '[次回提案までの ToDo]');
+      (state.todos || []).forEach(t => lines.push(`  [${t.done ? 'x' : ' '}] ${t.title}${t.priority === 'high' ? '  (P1)' : ''}`));
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'todo_' + (MOCK_DATA.meta.meetingDate || 'session') + '.txt';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(a.href);
     }
 
     /* ============================================================
