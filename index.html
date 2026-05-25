@@ -1468,6 +1468,15 @@
     .fb-drawer-close:hover { background: var(--surface-low); color: var(--on-surface); }
     .fb-drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: 13px 15px; }
     .fb-drawer-body .fb-section { margin-bottom: 0; }
+    /* 発話差分: 想定 / 実際 / 差分 の3カラム */
+    .fb-diff { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .fb-diff-col { background: var(--surface-low); border-radius: var(--r-lg); padding: 11px 12px; }
+    .fb-diff-col:last-child { background: var(--warning-bg); }
+    .fb-diff-hd { font: 700 10px var(--font-mono); letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 7px; }
+    .fb-diff-hd.accent { color: var(--warning-text); }
+    .fb-diff-text { font-size: 12px; line-height: 1.65; color: var(--on-surface); }
+    .fb-diff .fb-list { gap: 7px; }
+    @media (max-width: 1200px) { .fb-diff { grid-template-columns: 1fr; } }
     body.no-session .fb-iconbar,
     body.no-session .fb-drawer { display: none; }
 
@@ -3061,6 +3070,20 @@
       '【実行プロセス】25年度中（〜26年3月）にタスクフォース組成・施策/制作棚卸・ジャーニー作成・方針検討。全施策の詳細化ではなく棚卸の型を作り優先テーマを2〜3に絞る前提を強調。次回アウトプット（体制案/PoC候補/棚卸テンプレ）を約束し、ネクストアクションを明確にする。'
     ];
 
+    /* 実際の発話（要点）— what the rep actually did on each page, summarized
+       from the transcript. Paired with FANCL_SCRIPTS (想定) to show the
+       発話差分 (intended vs actual). One entry per page. */
+    const FANCL_ACTUAL = [
+      '資料構成と「3ページ以降が重点」を共有し本論へ。本日の合意ゴール（何を決めるか）は明示せずに進行した。',
+      '自己紹介と健康食品メーカー宅配の事例を提示。田中様の「体制は同一チームか」に横串会議体の経験で応答。事例の定量成果には触れず。',
+      '3チャネルの役割を説明。鈴木様の「リサーチch扱いは違和感」に、店舗売上向上のためのCRM接続だと再定義して納得を得た。',
+      '製品登録→診断→来店→定期便のジャーニーとOneID段階統合を提示。中村様の製品登録・不正懸念に「初期は割り切り」で応答。',
+      '4領域を一度に提示（優先順位は問わず）。印刷幹事の反発に「限定開始」で軟化。広告KPIは3層で整理。',
+      'AI制作センターと「運用1/2」を提示。薬機法・セキュリティ懸念に統制設計で応答。ただし効果根拠は棚卸し前提、LP60万円の出所を指摘された。',
+      'デザインシステムは最小構成先行を推奨し、主導/運用/利用の役割とDAM運用を整理。オーナー部門の合意は宙に浮いたまま。',
+      'PoC範囲（アプリ/LINE→診断→EC/店舗）とスケジュールを説明し、次回アウトプット3点を約束。PoC概算費用・投資規模は未提示。'
+    ];
+
     /* Session-level rollup. Not shown in the current UI directly — it
        feeds the pipelineSync event log (actions / BANT). Kept lightweight. */
     /* Per-slide score (0-100) + priority issue counts, shown on the
@@ -3899,6 +3922,7 @@
           p1: (FANCL_SCORES[i] || {}).p1 || 0,
           p2: (FANCL_SCORES[i] || {}).p2 || 0,
           script: FANCL_SCRIPTS[i] || '',
+          actualPoint: FANCL_ACTUAL[i] || '',
           transcript: tr.length ? tr : [{
             speaker: 'system', name: 'AI', time: '—',
             text: 'このページに対応づいた発話はありません。'
@@ -4622,6 +4646,7 @@
     // The 4 feedback categories shown as overlay icon-tabs on the slide.
     const FB_TABS = [
       { key: 'script', icon: 'i-transcript', label: '想定スクリプト', title: '想定トークスクリプト（PPTノート）' },
+      { key: 'diff',   icon: 'i-list',       label: '発話差分',      title: '発話差分（想定 × 実際）' },
       { key: 'good',   icon: 'i-check',      label: '良かった点',    title: '良かった点' },
       { key: 'weak',   icon: 'i-alert',      label: '弱かった点',    title: '弱かった点' },
       { key: 'next',   icon: 'i-bulb',       label: '次回改善',      title: '次回への改善提案' }
@@ -4631,6 +4656,26 @@
       const fb = slide.feedback;
       if (key === 'script') {
         return `<div class="fb-block script-prepared">${escapeHtml(slide.script || '（このスライドのスクリプトは設定されていません）')}</div>`;
+      }
+      if (key === 'diff') {
+        const diffList = fb.improve.map(i => {
+          const t = typeof i === 'string' ? { text: i } : i;
+          return `<li${t.urgent ? ' class="urgent"' : ''}>${escapeHtml(t.text)}</li>`;
+        }).join('');
+        return `<div class="fb-diff">
+          <div class="fb-diff-col">
+            <div class="fb-diff-hd">想定スクリプト（要点）</div>
+            <div class="fb-diff-text">${escapeHtml(slide.script || '—')}</div>
+          </div>
+          <div class="fb-diff-col">
+            <div class="fb-diff-hd">実際の発話（要点）</div>
+            <div class="fb-diff-text">${escapeHtml(slide.actualPoint || '—')}</div>
+          </div>
+          <div class="fb-diff-col">
+            <div class="fb-diff-hd accent">差分・改善ポイント</div>
+            <ul class="fb-list">${diffList}</ul>
+          </div>
+        </div>`;
       }
       if (key === 'good') {
         return `<div class="fb-block good"><ul class="fb-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul></div>`;
