@@ -4065,9 +4065,12 @@
     async function fetchDriveDeckImages(fileId) {
       let blob = null;
       if (drive.inGas()) {
-        await drive.loadConfig();
-        const token = await drive.callServer('getOAuthToken');
-        blob = await fetchDriveFileBlob(fileId, token, 'application/pdf');
+        // Server-side download (OAuth, drive.readonly) → base64 → bytes.
+        // Avoids any client → googleapis.com CORS issue.
+        const res = await drive.callServer('getFileBase64', fileId);
+        if (!res || !res.ok) throw new Error('Drive取得失敗: ' + ((res && res.error) || 'unknown'));
+        const bytes = Uint8Array.from(atob(res.base64), c => c.charCodeAt(0));
+        blob = new Blob([bytes], { type: res.mimeType || 'application/pdf' });
       } else {
         const url = 'https://drive.usercontent.google.com/download?id=' +
           encodeURIComponent(fileId) + '&export=download&confirm=t';

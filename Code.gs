@@ -84,6 +84,27 @@ function getFileMetadata(fileId) {
 }
 
 /**
+ * Read a Drive file's bytes and return them base64-encoded, so the client
+ * can render it (e.g. the proposal PDF) without a cross-origin fetch to
+ * googleapis.com (which Drive blocks via CORS). Runs as the user accessing
+ * the web app; needs the drive.readonly scope (see appsscript.json).
+ */
+function getFileBase64(fileId) {
+  try {
+    var file = DriveApp.getFileById(fileId);
+    var blob = file.getBlob();
+    return {
+      ok: true,
+      name: file.getName(),
+      mimeType: blob.getContentType(),
+      base64: Utilities.base64Encode(blob.getBytes())
+    };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
+/**
  * Entry point for the analysis pipeline.
  * Production version would:
  *   1. Hand off audio to a STT service (Whisper) via UrlFetchApp
