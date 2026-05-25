@@ -553,25 +553,24 @@
       display: flex;
       align-items: flex-start;
       gap: 9px;
-      padding: 8px 11px;
+      padding: 9px 11px;
       background: var(--surface-low);
       border-radius: var(--r);
-      border-left: 3px solid transparent;
       transition: background var(--dur-fast);
     }
     .scen-move:hover { background: var(--primary-light); }
-    .scen-move.high { border-left-color: var(--danger); }
-    .scen-move.mid  { border-left-color: var(--warning-text); }
+    /* Priority is shown with a filled badge — no left-edge line highlight. */
     .scen-move-prio {
       flex-shrink: 0;
       font: 700 9.5px var(--font-mono);
-      padding: 1px 6px;
+      padding: 2px 7px;
       border-radius: 6px;
       letter-spacing: 0.05em;
       margin-top: 1px;
+      color: #fff;
     }
-    .scen-move-prio.high { background: var(--danger-weak); color: var(--danger); }
-    .scen-move-prio.mid  { background: var(--warning-bg);  color: var(--warning-text); }
+    .scen-move-prio.high { background: var(--danger); }
+    .scen-move-prio.mid  { background: var(--warning-accent); }
     .scen-move-body { flex: 1; min-width: 0; }
     .scen-move-title {
       font-size: 12.5px;
@@ -964,7 +963,6 @@
       padding: 10px 12px;
       background: #FFF8E8;
       border-radius: var(--r-lg);
-      border-left: 3px solid #C18A2A;
     }
     .scen-emerged-head {
       display: flex;
@@ -987,11 +985,14 @@
     }
     .scen-emerged-sev {
       margin-left: auto;
+      flex-shrink: 0;
       font: 700 9px var(--font-mono);
       letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border-radius: 6px;
     }
-    .scen-emerged-sev.high { color: var(--danger); }
-    .scen-emerged-sev.mid  { color: var(--warning-text); }
+    .scen-emerged-sev.high { background: var(--danger-weak); color: var(--danger); }
+    .scen-emerged-sev.mid  { background: var(--warning-bg);  color: var(--warning-text); }
     .scen-emerged-evidence {
       font-size: 11px;
       color: var(--on-surface-variant);
@@ -1606,6 +1607,19 @@
     .fb-eyebrow.good { color: var(--done-text); }
     .fb-eyebrow.improve { color: var(--warning-border); }
     .fb-eyebrow.suggest { color: var(--primary-dark); }
+    .fb-eyebrow.script { color: var(--on-surface-variant); }
+    .fb-eyebrow-note {
+      font: 600 9px var(--font-mono); letter-spacing: 0.04em;
+      text-transform: none; color: var(--text-muted);
+      background: var(--surface-low); border-radius: 6px; padding: 1px 6px;
+    }
+    .fb-slidehead { margin-bottom: 14px; }
+    .fb-slidehead-title { font-size: 14px; font-weight: 700; color: var(--on-surface); letter-spacing: -0.01em; }
+    .fb-slidehead-sub { font-size: 11.5px; color: var(--on-surface-variant); margin-top: 3px; line-height: 1.5; }
+    .fb-block.script-prepared {
+      background: var(--surface-low);
+      font-size: 12.5px; line-height: 1.7; color: var(--on-surface);
+    }
 
     .fb-block {
       padding: 12px 14px;
@@ -2498,8 +2512,8 @@
             <span>シナリオ</span>
           </button>
           <button class="tab-btn" data-tab="feedback" role="tab">
-            <svg width="14" height="14"><use href="#i-sparkle"/></svg>
-            <span>スライド別反応</span>
+            <svg width="14" height="14"><use href="#i-doc"/></svg>
+            <span>資料/トークスクリプト</span>
           </button>
           <button class="tab-btn" data-tab="transcript" role="tab">
             <svg width="14" height="14"><use href="#i-transcript"/></svg>
@@ -2866,6 +2880,21 @@
           suggestedScript: '対象カテゴリは御社で検討いただきつつ、次回こちらから「スキンケア入口商品起点」と「サプリ購入者起点」の2案に推奨を添えてお持ちします。あわせてPoCの概算規模と期待効果のレンジ、タスクフォースの体制案、棚卸テンプレートの3点をご用意します。本日の論点（顧客ID起点のシナジー／制作・運用負荷の低減／部門横断の実行体制）で認識は合っていますでしょうか?'
         }
       }
+    ];
+
+    /* Prepared talk scripts — the "what to say" notes that live in the
+       PowerPoint speaker-notes area of each slide. The rep presents from
+       these; AI feedback compares them against what was actually said and
+       the customer's reaction (see renderFeedback). One entry per page. */
+    const FANCL_SCRIPTS = [
+      '【導入】お時間のお礼 → 全8ページの構成と、特に3ページ以降（チャネルの役割・顧客体験ToBe・実行体制）に時間を使いたい旨を共有。本日のゴール（どこまで合意し、何を持ち帰るか）を冒頭ですり合わせる。',
+      '【実績で信頼を作る】通信・製薬・小売での販促/業務改善 →近年のマーケDX（CDP/MA/アプリ/制作変革）。特に健康食品メーカー宅配の事例で「システム導入＋働き方改革」を同一チームで伴走した点を強調。「単一ベンダーではなく実行設計のハブ」という立ち位置を明示する。',
+      '【チャネルの再定義】流通=広域拡散 / 直営店=体験・リサーチ / 自社EC・通販=収益貢献、と役割を整理。「どこが偉いかではなく、顧客IDを起点に相互送客する」がメッセージ。店舗の売上責任に配慮しつつ、店舗データのCRM接続価値を訴求する。',
+      '【ToBeジャーニー】流通購入を終点にせず、製品登録→アプリ/LINE診断→直営店/サンプル→定期便へ繋ぐ流れを提示。「流通で買った人をどう自社IDに寄せるか」という相手の関心に正面から答える。OneIDは段階統合（対応表→CDP→ログイン）で現実解を示す。',
+      '【実行を支える4領域】印刷幹事制度 / 制作ルーム / デザインシステム / 広告インハウス化を提示。「施策を作るだけでなく回る状態を作る」が訴求点。各領域は同時着手でなく、痛みの大きい1領域から始める前提を示し、優先順位の合意に持ち込む。',
+      '【AI制作センター】1to1強化でコンテンツが増え運用が破綻する課題を提示し、生成AI×人で運用時間1/2を狙う構想を説明。薬機法・ブランドトーンのリスクには「AIは初稿とリスク提示まで、最終判断は人」と統制設計を先回りで示す。効果は棚卸し前提で算定する旨を添える。',
+      '【デザインシステム】商品情報・ブランドキット・表現ルール・部品/テンプレを共通管理。ECリニューアル前に最小構成（スキンケア・サプリ代表商品）で先行整備し、リニューアル要件に組み込む順序を推奨。主導=ブランド管理部門、運用=制作ルーム、の体制を提示する。',
+      '【実行プロセス】25年度中（〜26年3月）にタスクフォース組成・施策/制作棚卸・ジャーニー作成・方針検討。全施策の詳細化ではなく棚卸の型を作り優先テーマを2〜3に絞る前提を強調。次回アウトプット（体制案/PoC候補/棚卸テンプレ）を約束し、ネクストアクションを明確にする。'
     ];
 
     /* Session-level rollup. Not shown in the current UI directly — it
@@ -3678,6 +3707,7 @@
           content: { imageUrl: FANCL_DATA.deckImages[i] },
           mappingConfidence: m.mappingConfidence,
           mappingNote: m.mappingNote || null,
+          script: FANCL_SCRIPTS[i] || '',
           transcript: tr.length ? tr : [{
             speaker: 'system', name: 'AI', time: '—',
             text: 'このページに対応づいた発話はありません。'
@@ -4187,7 +4217,7 @@
         <div class="empty-onboard">
           <div class="empty-onboard-eyebrow">Get Started</div>
           <div class="empty-onboard-title">商談を分析する</div>
-          <p class="empty-onboard-text">提案資料（PDF）と、商談音声を文字起こしした Whisper API の出力（verbose_json）を読み込むと、スライドごとの反応・論点マッピング・シナリオを生成します。</p>
+          <p class="empty-onboard-text">①提案資料（PDF）②トークスクリプト（PPTのノート）③商談録音を文字起こしした Whisper API の出力（verbose_json）の3点をセットで読み込むと、用意した資料・スクリプトに対して実際の発話と顧客反応を突き合わせ、スライドごとのフィードバック（資料/トークスクリプト）と商談シナリオを生成します。</p>
           <div class="empty-onboard-actions">
             <button class="btn btn-primary" id="loadSampleBtn">
               ${svgIcon('i-sparkle', 14)}<span>サンプルセッションを読み込む（FANCL × TOPPAN）</span>
@@ -4425,6 +4455,14 @@
       }).join('');
 
       document.getElementById('feedbackContent').innerHTML = `
+        <div class="fb-slidehead">
+          <div class="fb-slidehead-title">${escapeHtml(slide.title)}</div>
+          <div class="fb-slidehead-sub">用意した資料・トークスクリプトに対し、実際の発話と顧客反応からAIが評価しています。</div>
+        </div>
+        <div class="fb-section">
+          <div class="fb-eyebrow script">${svgIcon('i-transcript', 12)}<span>想定トークスクリプト</span><span class="fb-eyebrow-note">PPTノート</span></div>
+          <div class="fb-block script-prepared">${escapeHtml(slide.script || '（このスライドのスクリプトは設定されていません）')}</div>
+        </div>
         <div class="fb-section">
           <div class="fb-eyebrow good">${svgIcon('i-check', 12)}<span>良かった点</span></div>
           <div class="fb-block good">
@@ -4432,13 +4470,13 @@
           </div>
         </div>
         <div class="fb-section">
-          <div class="fb-eyebrow improve">${svgIcon('i-alert', 12)}<span>改善点</span></div>
+          <div class="fb-eyebrow improve">${svgIcon('i-alert', 12)}<span>弱かった点</span></div>
           <div class="fb-block improve">
             <ul class="fb-list">${improveList}</ul>
           </div>
         </div>
         <div class="fb-section">
-          <div class="fb-eyebrow suggest">${svgIcon('i-bulb', 12)}<span>推奨トーク例</span></div>
+          <div class="fb-eyebrow suggest">${svgIcon('i-bulb', 12)}<span>次回への改善提案</span></div>
           <div class="script-quote">${escapeHtml(fb.suggestedScript)}</div>
         </div>
       `;
@@ -4508,15 +4546,15 @@
       // === 2. Next Moves (all proposals, P1 highlighted) ===
       const typeLabel = (t) => t === 'deck_add' ? 'デッキ追加' : t === 'meeting' ? 'Session方針' : 'デッキ修正';
       const movesHtml = `
-        <div class="scen-section">
-          <div class="scen-section-head">
-            <span class="scen-section-eyebrow">Next Moves</span>
-            <span class="scen-section-title">次の打ち手</span>
-            <span class="scen-section-count">${S.updateProposals.length}</span>
+        <div class="scen-dash-section">
+          <div class="scen-dash-section-head">
+            <span class="scen-dash-section-title">次の打ち手</span>
+            <span class="scen-dash-section-sub">次回提案までの推奨アクション</span>
+            <span class="scen-dash-section-count">${S.updateProposals.length}</span>
           </div>
           <div class="scen-moves-list">
             ${S.updateProposals.map(p => `
-              <div class="scen-move ${p.priority}">
+              <div class="scen-move">
                 <span class="scen-move-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
                 <div class="scen-move-body">
                   <div class="scen-move-title">${escapeHtml(p.title)}${p.targetVersion ? `<span class="scen-move-target">→ ${escapeHtml(p.targetVersion)}</span>` : `<span class="scen-move-target">${escapeHtml(typeLabel(p.type))}</span>`}</div>
@@ -4541,10 +4579,11 @@
         </div>`;
       };
       const changesHtml = `
-        <div class="scen-section">
-          <div class="scen-section-head">
-            <span class="scen-section-eyebrow">What Changed</span>
-            <span class="scen-section-title">今回Sessionの変化</span>
+        <div class="scen-dash-section">
+          <div class="scen-dash-section-head">
+            <span class="scen-dash-section-title">今回の商談での変化</span>
+            <span class="scen-dash-section-sub">前進した論点 / 停滞した論点</span>
+            <span class="scen-dash-section-count">${su.progressed.length + su.regressed.length}</span>
           </div>
           <div class="scen-change-list">
             ${su.progressed.map(p => changeLine(p, 'up')).join('')}
@@ -4646,7 +4685,7 @@
                 <div class="scen-emerged-head">
                   <span class="scen-emerged-type">${escapeHtml(e.type)}</span>
                   <span class="scen-emerged-title">${escapeHtml(e.title)}</span>
-                  <span class="scen-emerged-sev ${e.severity}">${e.severity === 'high' ? '重要度: 高' : '重要度: 中'}</span>
+                  <span class="scen-emerged-sev ${e.severity}">${e.severity === 'high' ? '重要度 高' : '重要度 中'}</span>
                 </div>
                 <div class="scen-emerged-evidence">"${escapeHtml(e.evidence)}"</div>
                 <div class="scen-emerged-action">
