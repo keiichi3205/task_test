@@ -1300,48 +1300,53 @@
        (PowerPoint "presenter view" style — uses the wide left pane that
        previously just held the slide image). */
     /* Presenter view: the slide fills the pane; 資料/トークスクリプト
-       feedback is an overlay dock — 4 icon tabs in the bottom letterbox,
-       each opening a slide-up drawer over the lower part of the stage. */
+       feedback is an overlay — a translucent vertical icon rail on the
+       left edge, each icon opening a slide-up drawer over the stage. */
     .slide-pane.presenter .slide-stage { position: relative; }
 
-    .fb-dock {
-      position: absolute; left: 0; right: 0; bottom: 0;
-      display: flex; flex-direction: column; align-items: stretch;
-      z-index: 5; pointer-events: none;
-    }
     .fb-iconbar {
-      pointer-events: auto;
-      align-self: center;
-      display: inline-flex; gap: 4px;
-      margin: 0 auto 12px;
-      padding: 5px;
-      background: var(--surface-lowest);
-      border: 1px solid var(--ghost-border);
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      z-index: 6;
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+      border: 1px solid rgba(255, 255, 255, 0.45);
       border-radius: 999px;
       box-shadow: var(--shadow-md);
+      opacity: 0.62;
+      transition: opacity var(--dur-base);
     }
+    .fb-iconbar:hover { opacity: 1; }
+    .fb-iconbar:has(.fb-ic.active) { opacity: 1; }
     .fb-ic {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 12px; border-radius: 999px;
-      font-size: 11.5px; font-weight: 600; color: var(--on-surface-variant);
-      position: relative; transition: background var(--dur-fast), color var(--dur-fast);
+      position: relative;
+      width: 38px; height: 38px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(255, 255, 255, 0.85); color: var(--on-surface-variant);
+      box-shadow: var(--shadow-sm);
+      transition: background var(--dur-fast), color var(--dur-fast);
     }
-    .fb-ic:hover { background: var(--surface-low); color: var(--on-surface); }
-    .fb-ic.active { background: var(--primary-light); color: var(--primary-dark); }
+    .fb-ic:hover { color: var(--on-surface); }
+    .fb-ic.good .fb-ic-ico { color: var(--done-text); }
+    .fb-ic.weak .fb-ic-ico { color: var(--warning-border); }
+    .fb-ic.next .fb-ic-ico { color: var(--primary-dark); }
+    .fb-ic.active { background: var(--primary); color: #fff; }
+    .fb-ic.active .fb-ic-ico { color: #fff; }
     .fb-ic-ico { display: inline-grid; place-items: center; }
-    .fb-ic.good .fb-ic-ico   { color: var(--done-text); }
-    .fb-ic.weak .fb-ic-ico   { color: var(--warning-border); }
-    .fb-ic.next .fb-ic-ico   { color: var(--primary-dark); }
+    .fb-ic-label { display: none; }
     .fb-ic-badge {
-      min-width: 16px; height: 16px; padding: 0 4px;
+      position: absolute; top: -3px; right: -3px;
+      min-width: 15px; height: 15px; padding: 0 3px;
       border-radius: 8px; background: var(--surface-high); color: var(--on-surface-variant);
-      font: 700 9.5px var(--font-mono); display: inline-grid; place-items: center;
+      font: 700 9px var(--font-mono); display: grid; place-items: center;
+      border: 1.5px solid var(--surface-lowest);
     }
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
 
     .fb-drawer {
-      pointer-events: auto;
-      margin: 0 12px;
+      position: absolute; left: 64px; right: 12px; bottom: 0;
+      z-index: 5;
       background: var(--surface-lowest);
       border: 1px solid var(--ghost-border);
       border-bottom: none;
@@ -1351,7 +1356,7 @@
       display: flex; flex-direction: column;
       transition: max-height var(--dur-base) ease;
     }
-    .fb-drawer.open { max-height: 62%; }
+    .fb-drawer.open { max-height: 66%; }
     .fb-drawer-hd {
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between;
@@ -1366,7 +1371,8 @@
     .fb-drawer-close:hover { background: var(--surface-low); color: var(--on-surface); }
     .fb-drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: 13px 15px; }
     .fb-drawer-body .fb-section { margin-bottom: 0; }
-    body.no-session .fb-dock { display: none; }
+    body.no-session .fb-iconbar,
+    body.no-session .fb-drawer { display: none; }
 
     .slide {
       width: 100%;
@@ -2563,17 +2569,15 @@
         </div>
         <div class="slide-stage">
           <div class="slide" id="slideView"></div>
-          <div class="fb-dock" id="fbDock">
-            <div class="fb-drawer" id="fbDrawer">
-              <div class="fb-drawer-hd">
-                <span class="fb-drawer-title" id="fbDrawerTitle"></span>
-                <button class="fb-drawer-close" id="fbDrawerClose" aria-label="閉じる">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3 L11 11 M11 3 L3 11"/></svg>
-                </button>
-              </div>
-              <div class="fb-drawer-body" id="feedbackContent"></div>
+          <div class="fb-iconbar" id="fbIconbar"></div>
+          <div class="fb-drawer" id="fbDrawer">
+            <div class="fb-drawer-hd">
+              <span class="fb-drawer-title" id="fbDrawerTitle"></span>
+              <button class="fb-drawer-close" id="fbDrawerClose" aria-label="閉じる">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3 L11 11 M11 3 L3 11"/></svg>
+              </button>
             </div>
-            <div class="fb-iconbar" id="fbIconbar"></div>
+            <div class="fb-drawer-body" id="feedbackContent"></div>
           </div>
         </div>
       </div>
@@ -4545,8 +4549,8 @@
           const urgentCls = (t.key === 'weak' && weakUrgent) ? ' urgent' : '';
           badge = `<span class="fb-ic-badge${urgentCls}">${t.key === 'weak' && weakUrgent ? '!' : counts[t.key]}</span>`;
         }
-        return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}">
-          <span class="fb-ic-ico">${svgIcon(t.icon, 14)}</span>
+        return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
+          <span class="fb-ic-ico">${svgIcon(t.icon, 15)}</span>
           <span class="fb-ic-label">${t.label}</span>${badge}
         </button>`;
       }).join('');
