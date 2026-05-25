@@ -1433,6 +1433,7 @@
       font: 700 9.5px var(--font-mono); display: inline-grid; place-items: center;
     }
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
+    .fb-ic-divider { width: 1px; align-self: stretch; margin: 3px 4px; background: var(--outline-variant); }
     @media (max-width: 1366px) { .fb-ic-label { display: none; } .fb-ic { padding: 7px; } }
 
     /* Feedback panel — frosted overlay on the top of the slide. Kept
@@ -4751,7 +4752,9 @@
           const urgentCls = (t.key === 'weak' && weakUrgent) ? ' urgent' : '';
           badge = `<span class="fb-ic-badge${urgentCls}">${t.key === 'weak' && weakUrgent ? '!' : counts[t.key]}</span>`;
         }
-        return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
+        // Divider before the AI-evaluation group (good/weak/next)
+        const div = t.key === 'good' ? '<span class="fb-ic-divider" aria-hidden="true"></span>' : '';
+        return `${div}<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
           <span class="fb-ic-ico">${svgIcon(t.icon, 16)}</span>
           <span class="fb-ic-label">${t.label}</span>${badge}
         </button>`;
