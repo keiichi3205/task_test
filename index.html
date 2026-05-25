@@ -1282,6 +1282,30 @@
       min-height: 0;
       overflow: hidden;
     }
+
+    /* Presenter view: slide on top, its 資料/トークスクリプト feedback below
+       (PowerPoint "presenter view" style — uses the wide left pane that
+       previously just held the slide image). */
+    .slide-pane.presenter .slide-stage { flex: 3 1 0; padding: 18px; }
+    .presenter-fb {
+      flex: 2 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--outline-faint);
+      background: var(--surface-lowest);
+    }
+    .presenter-fb-hd {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 7px;
+      padding: 11px 16px 9px;
+      font-size: 12px; font-weight: 600; color: var(--on-surface);
+      border-bottom: 1px solid var(--outline-faint);
+    }
+    .presenter-fb-hd svg { color: var(--primary); }
+    .presenter-fb-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 16px; }
+    body.no-session .presenter-fb { display: none; }
+
     .slide {
       width: 100%;
       max-width: 760px;
@@ -2477,7 +2501,7 @@
     <section class="thumbnail-strip" id="thumbnailStrip"></section>
 
     <section class="workspace">
-      <div class="slide-pane">
+      <div class="slide-pane presenter">
         <div class="slide-pane-hd">
           <div class="slide-pane-hd-left">
             <span class="eyebrow">Proposal Deck</span>
@@ -2503,6 +2527,13 @@
         <div class="slide-stage">
           <div class="slide" id="slideView"></div>
         </div>
+        <div class="presenter-fb" id="presenterFb">
+          <div class="presenter-fb-hd">
+            <svg width="13" height="13"><use href="#i-doc"/></svg>
+            <span>AIフィードバック — 資料 / トークスクリプト</span>
+          </div>
+          <div class="presenter-fb-body" id="feedbackContent"></div>
+        </div>
       </div>
 
       <div class="content-pane">
@@ -2510,10 +2541,6 @@
           <button class="tab-btn active" data-tab="summary" role="tab">
             <svg width="14" height="14"><use href="#i-chart"/></svg>
             <span>シナリオ</span>
-          </button>
-          <button class="tab-btn" data-tab="feedback" role="tab">
-            <svg width="14" height="14"><use href="#i-doc"/></svg>
-            <span>資料/トークスクリプト</span>
           </button>
           <button class="tab-btn" data-tab="transcript" role="tab">
             <svg width="14" height="14"><use href="#i-transcript"/></svg>
@@ -2525,9 +2552,6 @@
         <div class="pane-content">
           <div class="pane-section" id="section-transcript">
             <div class="transcript-list" id="transcriptList"></div>
-          </div>
-          <div class="pane-section" id="section-feedback">
-            <div id="feedbackContent"></div>
           </div>
           <div class="pane-section active" id="section-summary">
             <div id="summaryContent"></div>
@@ -4455,10 +4479,6 @@
       }).join('');
 
       document.getElementById('feedbackContent').innerHTML = `
-        <div class="fb-slidehead">
-          <div class="fb-slidehead-title">${escapeHtml(slide.title)}</div>
-          <div class="fb-slidehead-sub">用意した資料・トークスクリプトに対し、実際の発話と顧客反応からAIが評価しています。</div>
-        </div>
         <div class="fb-section">
           <div class="fb-eyebrow script">${svgIcon('i-transcript', 12)}<span>想定トークスクリプト</span><span class="fb-eyebrow-note">PPTノート</span></div>
           <div class="fb-block script-prepared">${escapeHtml(slide.script || '（このスライドのスクリプトは設定されていません）')}</div>
@@ -4709,13 +4729,13 @@
         </div>
       `;
 
-      // Click handlers — change items jump to source slide
+      // Click handlers — change items jump to the source slide (its
+      // 資料/トークスクリプト feedback shows in the left presenter pane).
       document.querySelectorAll('.scen-change-item[data-issue]').forEach(el => {
         el.addEventListener('click', () => {
           const issue = findIssue(el.dataset.issue);
           if (!issue || !issue.sourceSlides || !issue.sourceSlides.length) return;
           goToSlide(issue.sourceSlides[0] - 1);
-          switchTab('feedback');
         });
       });
     }
