@@ -2663,8 +2663,8 @@
 
   <script>
     /* ============================================================
-       Mock session — represents Whisper STT + diarization,
-       slide-text alignment, and Claude-generated feedback.
+       Session model — represents Whisper STT + diarization,
+       slide-text alignment, and AI-generated feedback.
        ============================================================ */
     /* ============================================================
        Active session model. EMPTY by default — no proposal deck and
@@ -3555,7 +3555,7 @@
       { key: 'diarize',  label: '話者分離 (営業 / 顧客)',             ms: 1100 },
       { key: 'slides',   label: 'スライドのテキスト抽出',             ms: 900  },
       { key: 'map',      label: 'スライドと音声をマッピング',         ms: 1500 },
-      { key: 'feedback', label: 'AIフィードバック生成 (Claude)',      ms: 2200 }
+      { key: 'feedback', label: 'AIフィードバック生成',                ms: 2200 }
     ];
 
     function runAnalysisProgress() {
@@ -4426,19 +4426,19 @@
 
       document.getElementById('feedbackContent').innerHTML = `
         <div class="fb-section">
-          <div class="fb-eyebrow good">${svgIcon('i-check', 12)}<span>Strengths</span></div>
+          <div class="fb-eyebrow good">${svgIcon('i-check', 12)}<span>良かった点</span></div>
           <div class="fb-block good">
             <ul class="fb-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul>
           </div>
         </div>
         <div class="fb-section">
-          <div class="fb-eyebrow improve">${svgIcon('i-alert', 12)}<span>Opportunities</span></div>
+          <div class="fb-eyebrow improve">${svgIcon('i-alert', 12)}<span>改善点</span></div>
           <div class="fb-block improve">
             <ul class="fb-list">${improveList}</ul>
           </div>
         </div>
         <div class="fb-section">
-          <div class="fb-eyebrow suggest">${svgIcon('i-bulb', 12)}<span>Suggested Script</span></div>
+          <div class="fb-eyebrow suggest">${svgIcon('i-bulb', 12)}<span>推奨トーク例</span></div>
           <div class="script-quote">${escapeHtml(fb.suggestedScript)}</div>
         </div>
       `;
