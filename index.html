@@ -1375,18 +1375,22 @@
       overflow: hidden;
       min-height: 0;
     }
+    /* Two stacked rows: title on its own line, controls below — so the
+       (long) filename never has to share/​wrap against the buttons. */
     .slide-pane-hd {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px 10px;
-      gap: 12px;
-      min-height: 56px;
+      display: flex; flex-direction: column; align-items: stretch;
+      padding: 12px 16px 10px;
+      gap: 9px;
     }
-    .slide-pane-hd-left { display: flex; flex-direction: column; gap: 2px; }
+    .slide-pane-hd-titlerow { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+    .slide-pane-hd-titlerow .eyebrow { flex-shrink: 0; }
+    .slide-pane-hd-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .slide-pane-title {
       font-size: 14px;
       font-weight: 600;
       color: var(--on-surface);
       letter-spacing: -0.01em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
     }
     .slide-stage {
       flex: 1;
@@ -2653,13 +2657,11 @@
     <section class="workspace">
       <div class="slide-pane presenter">
         <div class="slide-pane-hd">
-          <div class="slide-pane-hd-left">
+          <div class="slide-pane-hd-titlerow">
             <span class="eyebrow">Proposal Deck</span>
-            <div class="slide-pane-title-row">
-              <span class="slide-pane-title" id="paneTitle">—</span>
-            </div>
+            <span class="slide-pane-title" id="paneTitle">—</span>
           </div>
-          <div class="slide-pane-hd-right">
+          <div class="slide-pane-hd-controls">
             <div class="fb-iconbar" id="fbIconbar"></div>
             <div class="slide-nav">
               <button class="nav-btn" id="prevBtn" aria-label="前のスライド">
@@ -4544,10 +4546,6 @@
           <div class="thumb-score-row">
             <span class="thumb-score ${needsWork ? 'low' : ''}">スコア ${slide.score}</span>
             ${needsWork ? '<span class="thumb-flag">⚠ 要改善</span>' : ''}
-          </div>
-          <div class="thumb-prio">
-            <span class="thumb-prio-chip p1">P1 ${slide.p1 || 0}</span>
-            <span class="thumb-prio-chip p2">P2 ${slide.p2 || 0}</span>
           </div>` : '';
         thumb.innerHTML = `
           <div class="thumb-meta">
