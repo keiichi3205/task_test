@@ -1299,76 +1299,54 @@
     /* Presenter view: slide on top, its 資料/トークスクリプト feedback below
        (PowerPoint "presenter view" style — uses the wide left pane that
        previously just held the slide image). */
-    /* Presenter view: the slide fills the pane; 資料/トークスクリプト
-       feedback is an overlay — a translucent vertical icon rail on the
-       left edge, each icon opening a slide-up drawer over the stage. */
+    /* Presenter view: the slide fills the pane. The 資料/トークスクリプト
+       feedback icons live in the header (left of the slide-nav); clicking
+       one shows its content in a panel at the top of the slide. */
     .slide-pane.presenter .slide-stage { position: relative; }
+    .slide-pane-hd-right { display: flex; align-items: center; gap: 14px; }
 
-    .fb-iconbar {
-      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-      z-index: 6;
-      display: flex; flex-direction: column; gap: 16px;
-      padding: 12px 8px;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      border-radius: var(--r-xl);
-      box-shadow: var(--shadow-md);
-      opacity: 0.82;
-      transition: opacity var(--dur-base);
-    }
-    .fb-iconbar:hover { opacity: 1; }
-    .fb-iconbar:has(.fb-ic.active) { opacity: 1; }
-    /* Each rail item: an icon circle with a caption below it. */
+    .fb-iconbar { display: flex; align-items: center; gap: 4px; }
     .fb-ic {
-      display: flex; flex-direction: column; align-items: center; gap: 5px;
-      padding: 2px; width: 64px;
-    }
-    .fb-ic-ico {
       position: relative;
-      width: 46px; height: 46px; border-radius: 50%;
-      display: grid; place-items: center;
-      background: rgba(255, 255, 255, 0.92); color: var(--on-surface-variant);
-      box-shadow: var(--shadow-sm);
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-radius: var(--r);
+      color: var(--on-surface-variant);
       transition: background var(--dur-fast), color var(--dur-fast);
     }
-    .fb-ic:hover .fb-ic-ico { color: var(--on-surface); }
+    .fb-ic:hover { background: var(--surface-low); color: var(--on-surface); }
+    .fb-ic.active { background: var(--primary-light); color: var(--primary-dark); }
+    .fb-ic-ico { display: inline-grid; place-items: center; }
     .fb-ic.good .fb-ic-ico { color: var(--done-text); }
     .fb-ic.weak .fb-ic-ico { color: var(--warning-border); }
     .fb-ic.next .fb-ic-ico { color: var(--primary-dark); }
-    .fb-ic.active .fb-ic-ico { background: var(--primary); color: #fff; }
-    .fb-ic-label {
-      display: block; font-size: 9.5px; font-weight: 600;
-      color: var(--on-surface-variant); white-space: nowrap; letter-spacing: -0.01em;
-    }
-    .fb-ic.active .fb-ic-label { color: var(--primary-dark); font-weight: 700; }
+    .fb-ic.active .fb-ic-ico { color: var(--primary-dark); }
+    .fb-ic-label { font-size: 11.5px; font-weight: 600; white-space: nowrap; }
     .fb-ic-badge {
-      position: absolute; top: -4px; right: -4px;
-      min-width: 16px; height: 16px; padding: 0 3px;
+      min-width: 16px; height: 16px; padding: 0 4px;
       border-radius: 8px; background: var(--surface-high); color: var(--on-surface-variant);
-      font: 700 9.5px var(--font-mono); display: grid; place-items: center;
-      border: 1.5px solid var(--surface-lowest);
+      font: 700 9.5px var(--font-mono); display: inline-grid; place-items: center;
     }
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
+    @media (max-width: 1366px) { .fb-ic-label { display: none; } .fb-ic { padding: 7px; } }
 
-    /* Flyout that expands from the clicked icon (top set in JS to align
-       with the active icon; grows out of its top-left corner). */
+    /* Feedback content panel — anchored to the top of the slide, frosted,
+       slides down when an icon is selected. */
     .fb-drawer {
-      position: absolute; left: 100px;
-      width: min(640px, calc(100% - 120px));
+      position: absolute; top: 14px; left: 16px; right: 16px;
       z-index: 5;
-      background: rgba(255, 255, 255, 0.86);
+      max-height: 60%;
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.55);
       border-radius: var(--r-xl);
       box-shadow: var(--shadow-lg);
       overflow: hidden;
       display: flex; flex-direction: column;
-      opacity: 0; transform: scale(0.72); transform-origin: left top;
+      opacity: 0; transform: translateY(-10px); transform-origin: top center;
       transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease;
       pointer-events: none;
     }
-    .fb-drawer.open { opacity: 1; transform: scale(1); pointer-events: auto; }
+    .fb-drawer.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .fb-drawer-hd {
       flex-shrink: 0;
       display: flex; align-items: center; justify-content: space-between;
@@ -2569,19 +2547,21 @@
               </span>
             </div>
           </div>
-          <div class="slide-nav">
-            <button class="nav-btn" id="prevBtn" aria-label="前のスライド">
-              <svg width="14" height="14"><use href="#i-arrow-l"/></svg>
-            </button>
-            <span class="slide-counter" id="slideCounter">01 / 05</span>
-            <button class="nav-btn" id="nextBtn" aria-label="次のスライド">
-              <svg width="14" height="14"><use href="#i-arrow-r"/></svg>
-            </button>
+          <div class="slide-pane-hd-right">
+            <div class="fb-iconbar" id="fbIconbar"></div>
+            <div class="slide-nav">
+              <button class="nav-btn" id="prevBtn" aria-label="前のスライド">
+                <svg width="14" height="14"><use href="#i-arrow-l"/></svg>
+              </button>
+              <span class="slide-counter" id="slideCounter">01 / 05</span>
+              <button class="nav-btn" id="nextBtn" aria-label="次のスライド">
+                <svg width="14" height="14"><use href="#i-arrow-r"/></svg>
+              </button>
+            </div>
           </div>
         </div>
         <div class="slide-stage">
           <div class="slide" id="slideView"></div>
-          <div class="fb-iconbar" id="fbIconbar"></div>
           <div class="fb-drawer" id="fbDrawer">
             <div class="fb-drawer-hd">
               <span class="fb-drawer-title" id="fbDrawerTitle"></span>
@@ -4553,7 +4533,7 @@
       };
       const weakUrgent = fb.improve.some(i => typeof i === 'object' && i.urgent);
 
-      // Icon-tab bar (always visible over the slide)
+      // Icon tabs in the header (left of the slide-nav)
       document.getElementById('fbIconbar').innerHTML = FB_TABS.map(t => {
         const active = state.openFb === t.key ? ' active' : '';
         let badge = '';
@@ -4562,37 +4542,21 @@
           badge = `<span class="fb-ic-badge${urgentCls}">${t.key === 'weak' && weakUrgent ? '!' : counts[t.key]}</span>`;
         }
         return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
-          <span class="fb-ic-ico">${svgIcon(t.icon, 19)}${badge}</span>
-          <span class="fb-ic-label">${t.label}</span>
+          <span class="fb-ic-ico">${svgIcon(t.icon, 16)}</span>
+          <span class="fb-ic-label">${t.label}</span>${badge}
         </button>`;
       }).join('');
 
-      // Flyout that expands from the clicked icon (anchored to its row)
+      // Content panel at the top of the slide
       const drawer = document.getElementById('fbDrawer');
       const tab = FB_TABS.find(t => t.key === state.openFb);
       if (tab) {
         document.getElementById('fbDrawerTitle').textContent = tab.title;
         document.getElementById('feedbackContent').innerHTML = fbDrawerContent(slide, tab.key);
-        positionFbFlyout();
         drawer.classList.add('open');
       } else {
         drawer.classList.remove('open');
       }
-    }
-
-    // Align the flyout with the active icon and cap its height to the stage.
-    function positionFbFlyout() {
-      const stage = document.querySelector('.slide-pane.presenter .slide-stage');
-      const btn = document.querySelector('#fbIconbar .fb-ic.active');
-      const fly = document.getElementById('fbDrawer');
-      if (!stage || !btn) return;
-      const sR = stage.getBoundingClientRect();
-      const bR = btn.getBoundingClientRect();
-      const maxH = Math.min(360, sR.height - 24);
-      let top = (bR.top - sR.top);
-      top = Math.max(12, Math.min(top, sR.height - maxH - 12));
-      fly.style.top = top + 'px';
-      fly.style.maxHeight = maxH + 'px';
     }
 
     /* ============================================================
