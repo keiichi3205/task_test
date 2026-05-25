@@ -3730,7 +3730,7 @@
         name: 'FANCL_オムニチャネル提案_v1.pdf',
         pages: 8,
         sizeMb: 1.4,
-        desc: 'オムニチャネル構想 提案資料（全8ページ・サンプル）'
+        desc: 'Google Drive のPDFを読み込みます（全8ページ・デモ固定）'
       }
     ];
 
@@ -3790,7 +3790,7 @@
 
     // ── Multi-stage analysis progress ──────────────────────────────
     const ANALYSIS_STAGES = [
-      { key: 'upload',   label: 'ファイルをサーバーへ転送',           ms: 700  },
+      { key: 'upload',   label: 'Google Drive から提案資料を取得',     ms: 700  },
       { key: 'stt',      label: '音声を文字起こし (Whisper)',         ms: 2600 },
       { key: 'diarize',  label: '話者分離 (営業 / 顧客)',             ms: 1100 },
       { key: 'slides',   label: 'スライドのテキスト抽出',             ms: 900  },
@@ -3899,11 +3899,24 @@
 
     // Assemble MOCK_DATA from the FANCL deck images + slide meta + the
     // parsed/aligned transcript, then mark the session loaded.
-    function loadFanclSession() {
+    async function loadFanclSession() {
       const utterances = parseWhisper(FANCL_DATA.whisper);
       const bySlide = buildFanclTranscripts(utterances);
 
+      // Read the proposal PDF from Google Drive; fall back to the bundled
+      // render if Drive can't be reached from this context (CORS/offline).
+      let deckImages = FANCL_DATA.deckImages;
+      let deckSource = 'バンドル（Drive取得不可）';
+      try {
+        const imgs = await fetchDriveDeckImages(DEMO_DRIVE_FILE.id);
+        if (imgs && imgs.length) { deckImages = imgs; deckSource = 'Google Drive'; }
+      } catch (e) {
+        console.warn('[deck] Google Drive読込に失敗、バンドル描画で代替:', e && e.message);
+      }
+
       MOCK_DATA.meta = JSON.parse(JSON.stringify(FANCL_META));
+      MOCK_DATA.meta.files.slides = DEMO_DRIVE_FILE.name;
+      MOCK_DATA.meta.slidesSource = deckSource;
       MOCK_DATA.overall = FANCL_OVERALL;
       MOCK_DATA.slides = FANCL_SLIDE_META.map((m, i) => {
         const tr = (bySlide[i] || []).map(u => ({
@@ -3915,7 +3928,7 @@
           subtitle: m.subtitle,
           duration: m.duration,
           template: 'image',
-          content: { imageUrl: FANCL_DATA.deckImages[i] },
+          content: { imageUrl: deckImages[i] || FANCL_DATA.deckImages[i] },
           mappingConfidence: m.mappingConfidence,
           mappingNote: m.mappingNote || null,
           score: (FANCL_SCORES[i] || {}).score,
@@ -4036,6 +4049,42 @@
       return await resp.blob();
     }
 
+    /* ============================================================
+       Demo: the proposal deck is read from this specific Google Drive
+       file. In a deployed GAS web app it is downloaded via OAuth; in a
+       plain browser demo it is fetched from the public download endpoint
+       (which Drive may block via CORS — callers then fall back to the
+       bundled render so the demo still works).
+       ============================================================ */
+    const DEMO_DRIVE_FILE = {
+      id: '1mkw75O3zr1arVNmJscsTVfUmO6WUTEK7',
+      name: 'FANCL_オムニチャネル提案_v1.pdf',
+      viewUrl: 'https://drive.google.com/file/d/1mkw75O3zr1arVNmJscsTVfUmO6WUTEK7/view'
+    };
+
+    async function fetchDriveDeckImages(fileId) {
+      let blob = null;
+      if (drive.inGas()) {
+        await drive.loadConfig();
+        const token = await drive.callServer('getOAuthToken');
+        blob = await fetchDriveFileBlob(fileId, token, 'application/pdf');
+      } else {
+        const url = 'https://drive.usercontent.google.com/download?id=' +
+          encodeURIComponent(fileId) + '&export=download&confirm=t';
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('Drive取得失敗 (HTTP ' + resp.status + ')');
+        blob = await resp.blob();
+      }
+      // A non-PDF body usually means an HTML interstitial (sharing/virus-scan),
+      // i.e. the bytes are not actually the file.
+      if (blob && blob.type && /text|html/i.test(blob.type)) {
+        throw new Error('PDFを取得できませんでした（共有設定/CORSをご確認ください）');
+      }
+      const file = new File([blob], DEMO_DRIVE_FILE.name, { type: 'application/pdf' });
+      const slides = await renderPdfToSlides(file);
+      return slides.map(s => s.content.imageUrl);
+    }
+
     /* Pure pickers — return the picked source without applying it.
        Used both by the top-bar upload cards (immediate apply) and the
        new-session modal (apply on "分析を開始"). */
@@ -4141,7 +4190,7 @@
           updateUploadCard('slides', { name: FANCL_META.files.slides }, { loading: true, loadingLabel: 'スライド解析中' });
           updateUploadCard('audio', { name: FANCL_META.files.audio });
           await runAnalysisProgress();
-          loadFanclSession();
+          await loadFanclSession();
           renderHeader();
           switchTab('summary');
           return;
@@ -4295,7 +4344,7 @@
         updateUploadCard('audio', { name: FANCL_META.files.audio });
         pipelineSync.sessionStarted({ sessionId, dealId: deal.id, startedAt: new Date().toISOString(), goal });
         await runAnalysisProgress();
-        loadFanclSession();
+        await loadFanclSession();
         if (goal) { MOCK_DATA.meta.goal = goal; renderHeader(); }
         pipelineSync.sessionAnalyzed({ sessionId, dealId: deal.id, slideCount: MOCK_DATA.slides.length, avgMappingConfidence: avgConfidence() });
         pipelineSync.actionsGenerated(MOCK_DATA.overall.nextActions || []);
@@ -4454,10 +4503,10 @@
 
     // One-click demo: run the staged progress, then load the FANCL session.
     async function startSampleSession() {
-      updateUploadCard('slides', { name: FANCL_META.files.slides }, { loading: true, loadingLabel: 'スライド解析中' });
+      updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name }, { loading: true, loadingLabel: 'Drive取得中' });
       updateUploadCard('audio', { name: FANCL_META.files.audio });
       await runAnalysisProgress();
-      loadFanclSession();
+      await loadFanclSession();
       renderHeader();
       switchTab('summary');
       pipelineSync.sessionAnalyzed({ dealId: 'deal-fancl', slideCount: MOCK_DATA.slides.length, avgMappingConfidence: avgConfidence() });
