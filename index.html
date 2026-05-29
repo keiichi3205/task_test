@@ -1784,6 +1784,23 @@
     }
     .tr-move-btn:hover:not(:disabled) { background: var(--primary-light); color: var(--primary-dark); border-color: var(--primary); }
     .tr-move-btn:disabled { opacity: 0.3; cursor: default; }
+    .tr-drag {
+      width: 24px; height: 22px; border-radius: var(--r-sm);
+      background: var(--surface-lowest); border: 1px solid var(--outline-variant);
+      color: var(--on-surface-variant); font-size: 12px; cursor: grab;
+      display: grid; place-items: center; touch-action: none;
+    }
+    .tr-drag:hover { background: var(--primary-light); color: var(--primary-dark); border-color: var(--primary); }
+    body.tr-dragging { cursor: grabbing; user-select: none; }
+    body.tr-dragging .tr-drag { cursor: grabbing; }
+    /* drop indicator: a line above the utterance the boundary will land on */
+    .utterance.tr-drop { position: relative; }
+    .utterance.tr-drop::before {
+      content: '↦ ここがスライドの区切り'; position: absolute; left: 0; right: 0; top: -2px;
+      height: 0; border-top: 2px solid var(--primary);
+      font: 700 9px var(--font-mono); color: var(--primary-dark);
+      padding-left: 2px; line-height: 0; z-index: 1;
+    }
     .tr-sec-num {
       flex-shrink: 0; width: 24px; height: 22px; border-radius: var(--r-sm);
       background: var(--surface-high); color: var(--on-surface-variant);
@@ -4785,10 +4802,13 @@
 
       const sections = runs.map((run, ri) => {
         const s = slides[run.slide] || {};
+        const prev = runs[ri - 1];
         const canUp = run.start > 0;                 // pull the previous utterance into this run
         const canDown = run.end > run.start;          // give this run's first utterance to the previous run
+        // Boundary controls only on a run that has a previous run (ri>0).
         const mover = ri === 0 ? '' : `
-          <span class="tr-sec-move" title="スライドの区切りを移動">
+          <span class="tr-sec-move" title="ドラッグして区切りを移動">
+            <button class="tr-drag" data-drag-start="${run.start}" data-drag-min="${prev.start + 1}" data-drag-max="${run.end}" title="ドラッグで区切りを移動">⠿</button>
             <button class="tr-move-btn" data-mvup="${run.start}" ${canUp ? '' : 'disabled'} title="上の発話をこのスライドに含める">▲</button>
             <button class="tr-move-btn" data-mvdown="${run.start}" ${canDown ? '' : 'disabled'} title="先頭の発話を前のスライドに渡す">▼</button>
           </span>`;
@@ -4817,6 +4837,65 @@
       // Boundary editing — reassign the edge utterance to the neighbour slide.
       list.querySelectorAll('[data-mvup]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvup, 10), 'up')));
       list.querySelectorAll('[data-mvdown]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvdown, 10), 'down')));
+      // Boundary editing by dragging the ⠿ handle to any utterance gap.
+      list.querySelectorAll('.tr-drag').forEach(h => h.addEventListener('pointerdown', startBoundaryDrag));
+    }
+
+    // Drag the slide boundary (⠿) to any utterance gap within range.
+    function startBoundaryDrag(e) {
+      e.preventDefault();
+      const h = e.currentTarget;
+      const drag = {
+        start: parseInt(h.dataset.dragStart, 10),
+        min: parseInt(h.dataset.dragMin, 10),
+        max: parseInt(h.dataset.dragMax, 10),
+        target: parseInt(h.dataset.dragStart, 10)
+      };
+      document.body.classList.add('tr-dragging');
+      state.trSuppressFollow = true;
+
+      const markGap = (idx) => {
+        document.querySelectorAll('.utterance.tr-drop').forEach(el => el.classList.remove('tr-drop'));
+        const el = document.querySelector('.utterance[data-idx="' + idx + '"]');
+        if (el) el.classList.add('tr-drop');
+      };
+      markGap(drag.target);
+
+      const onMove = (ev) => {
+        const under = document.elementFromPoint(ev.clientX, ev.clientY);
+        const utt = under && under.closest('.utterance');
+        if (!utt) return;
+        const idx = parseInt(utt.dataset.idx, 10);
+        const r = utt.getBoundingClientRect();
+        let gap = (ev.clientY < r.top + r.height / 2) ? idx : idx + 1;  // before / after
+        gap = Math.max(drag.min, Math.min(drag.max, gap));
+        drag.target = gap;
+        markGap(gap);
+      };
+      const onUp = () => {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        document.body.classList.remove('tr-dragging');
+        state.trSuppressFollow = false;
+        if (drag.target !== drag.start) moveBoundaryTo(drag.start, drag.target);
+        else document.querySelectorAll('.utterance.tr-drop').forEach(el => el.classList.remove('tr-drop'));
+      };
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    }
+
+    // Reassign utterances so the boundary at `oldStart` moves to `newStart`.
+    function moveBoundaryTo(oldStart, newStart) {
+      const us = MOCK_DATA.utterances;
+      if (!us[oldStart] || !us[oldStart - 1] || newStart === oldStart) return;
+      const thisSlide = us[oldStart].slide;
+      const prevSlide = us[oldStart - 1].slide;
+      if (newStart < oldStart) {            // pull earlier utterances into this slide
+        for (let i = newStart; i < oldStart; i++) us[i].slide = thisSlide;
+      } else {                              // give leading utterances to the previous slide
+        for (let i = oldStart; i < newStart; i++) us[i].slide = prevSlide;
+      }
+      renderTranscript();
     }
 
     // Move the run boundary at flat-index `start` by one utterance.
