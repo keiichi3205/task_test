@@ -1744,6 +1744,54 @@
 
     /* Transcript */
     .transcript-list { display: flex; flex-direction: column; gap: 4px; }
+    /* Slide-jump nav (sticky) */
+    .tr-nav {
+      position: sticky; top: -16px; z-index: 3;
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; margin: -4px 0 8px;
+      background: var(--surface-lowest);
+      border-bottom: 1px solid var(--outline-faint);
+    }
+    .tr-nav-label { font: 700 10px var(--font-mono); letter-spacing: 0.08em; color: var(--text-muted); flex-shrink: 0; }
+    .tr-nav-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tr-nav-chip {
+      width: 30px; height: 26px; border-radius: var(--r-sm);
+      background: var(--surface-low); border: 1px solid var(--outline-variant);
+      color: var(--on-surface-variant); font: 700 11px var(--font-mono);
+      cursor: pointer; transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast);
+    }
+    .tr-nav-chip:hover { background: var(--surface-high); color: var(--on-surface); }
+    .tr-nav-chip.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+    /* Per-slide transcript section */
+    .tr-section { padding: 6px 0 12px; scroll-margin-top: 52px; }
+    .tr-section + .tr-section { border-top: 1px solid var(--outline-faint); }
+    .tr-sec-head {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      padding: 8px 8px; margin-bottom: 6px; border-radius: var(--r);
+      cursor: pointer; text-align: left; transition: background var(--dur-fast);
+    }
+    .tr-sec-head:hover { background: var(--surface-low); }
+    .tr-section.current .tr-sec-head { background: var(--primary-light); }
+    .tr-sec-num {
+      flex-shrink: 0; width: 24px; height: 22px; border-radius: var(--r-sm);
+      background: var(--surface-high); color: var(--on-surface-variant);
+      font: 700 11px var(--font-mono); display: grid; place-items: center;
+    }
+    .tr-section.current .tr-sec-num { background: var(--primary); color: var(--on-primary); }
+    .tr-sec-title { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 700; color: var(--on-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tr-sec-dur { flex-shrink: 0; font: 500 10px var(--font-mono); color: var(--text-muted); }
+    .tr-sec-conf {
+      flex-shrink: 0; font: 700 9.5px var(--font-mono); border-radius: 6px; padding: 2px 6px;
+      background: var(--done-bg); color: var(--done-text);
+    }
+    .tr-sec-conf.mid { background: var(--warning-bg); color: var(--warning-text); }
+    .tr-sec-conf.low { background: var(--danger-weak); color: var(--danger); }
+    .tr-sec-note {
+      display: flex; gap: 6px; align-items: flex-start;
+      font-size: 11px; line-height: 1.5; color: var(--warning-text);
+      background: var(--warning-bg); border-radius: var(--r); padding: 7px 10px; margin: 0 0 8px;
+    }
+    .tr-sec-body { display: flex; flex-direction: column; gap: 4px; }
     .utterance {
       display: flex;
       gap: 12px;
@@ -4652,30 +4700,8 @@
       }
     }
 
-    function renderTranscript() {
-      const slide = MOCK_DATA.slides[state.currentSlideIdx];
-      const list = document.getElementById('transcriptList');
-      const conf = slide.mappingConfidence;
-      const level = confidenceLevel(conf);
-      let warningHtml = '';
-      if (level === 'low' || level === 'mid') {
-        const isSevere = level === 'low';
-        warningHtml = `
-          <div class="conf-warning${isSevere ? ' severe' : ''}">
-            <div class="conf-warning-icon">${svgIcon('i-alert', 16)}</div>
-            <div>
-              <strong>このスライドと音声の対応推定は信頼度 ${Math.round(conf * 100)}% です。</strong>
-              ${slide.mappingNote ? '<br>' + escapeHtml(slide.mappingNote) : ''}
-              ${isSevere ? `
-                <div class="conf-warning-actions">
-                  <span class="conf-action-pill">代替候補を表示</span>
-                  <span class="conf-action-pill">手動で再マッピング</span>
-                </div>` : ''}
-            </div>
-          </div>
-        `;
-      }
-      list.innerHTML = warningHtml + slide.transcript.map((u, i) => `
+    function trUtterance(u, i) {
+      return `
         <div class="utterance ${u.hasFeedback ? 'has-feedback' : ''}" data-idx="${i}">
           <div class="speaker-badge ${u.speaker}">
             ${u.speaker === 'sales' ? '営業' : u.speaker === 'customer' ? '顧客' : 'sys'}
@@ -4687,10 +4713,65 @@
             </div>
             <div class="utterance-text">${escapeHtml(u.text)}</div>
           </div>
-        </div>
-      `).join('');
-      document.getElementById('transcriptCount').textContent = slide.transcript.length;
+        </div>`;
     }
+
+    // The transcript is shown as one section per slide, with a slide-jump
+    // nav, so the transcript↔slide correspondence is easy to scan and move
+    // through. Selecting a section also syncs the slide preview on the left.
+    function renderTranscript() {
+      const list = document.getElementById('transcriptList');
+      const slides = MOCK_DATA.slides;
+      const cur = state.currentSlideIdx;
+
+      const nav = `
+        <div class="tr-nav">
+          <span class="tr-nav-label">スライド</span>
+          <div class="tr-nav-chips">
+            ${slides.map((s, i) => `
+              <button class="tr-nav-chip ${i === cur ? 'active' : ''}" data-trnav="${i}" title="${escapeHtml(s.title)}">${String(i + 1).padStart(2, '0')}</button>
+            `).join('')}
+          </div>
+        </div>`;
+
+      const sections = slides.map((s, i) => {
+        const level = confidenceLevel(s.mappingConfidence);
+        const confChip = (s.mappingConfidence != null)
+          ? `<span class="tr-sec-conf ${level || ''}">対応 ${Math.round(s.mappingConfidence * 100)}%</span>` : '';
+        const note = ((level === 'low' || level === 'mid') && s.mappingNote)
+          ? `<div class="tr-sec-note">${svgIcon('i-alert', 13)}<span>${escapeHtml(s.mappingNote)}</span></div>` : '';
+        return `
+          <section class="tr-section ${i === cur ? 'current' : ''}" id="trSec${i}">
+            <button class="tr-sec-head" data-trnav="${i}">
+              <span class="tr-sec-num">${String(i + 1).padStart(2, '0')}</span>
+              <span class="tr-sec-title">${escapeHtml(s.title)}</span>
+              <span class="tr-sec-dur">${escapeHtml(s.duration || '')}</span>
+              ${confChip}
+            </button>
+            ${note}
+            <div class="tr-sec-body">${s.transcript.map(trUtterance).join('')}</div>
+          </section>`;
+      }).join('');
+
+      list.innerHTML = nav + sections;
+      const total = slides.reduce((n, s) => n + s.transcript.length, 0);
+      document.getElementById('transcriptCount').textContent = total;
+
+      list.querySelectorAll('[data-trnav]').forEach(el => {
+        el.addEventListener('click', () => {
+          const i = parseInt(el.dataset.trnav, 10);
+          goToSlide(i);
+          scrollTrSection(i);
+        });
+      });
+    }
+
+    function scrollTrSection(i) {
+      const sec = document.getElementById('trSec' + i);
+      const active = document.getElementById('section-transcript').classList.contains('active');
+      if (sec && active) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
 
     // The 4 feedback categories shown as overlay icon-tabs on the slide.
     const FB_TABS = [
@@ -5095,6 +5176,10 @@
       document.querySelectorAll('.pane-section').forEach(s => {
         s.classList.toggle('active', s.id === `section-${tab}`);
       });
+      if (tab === 'transcript' && state.loaded) {
+        const sec = document.getElementById('trSec' + state.currentSlideIdx);
+        if (sec) sec.scrollIntoView({ block: 'start' });
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
