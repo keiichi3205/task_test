@@ -1762,16 +1762,28 @@
     }
     .tr-nav-chip:hover { background: var(--surface-high); color: var(--on-surface); }
     .tr-nav-chip.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+    .tr-nav-hint { font-size: 10px; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
     /* Per-slide transcript section */
-    .tr-section { padding: 6px 0 12px; scroll-margin-top: 52px; }
-    .tr-section + .tr-section { border-top: 1px solid var(--outline-faint); }
+    .tr-section { padding: 0 0 10px; scroll-margin-top: 50px; }
     .tr-sec-head {
+      position: sticky; top: 30px; z-index: 2;
       display: flex; align-items: center; gap: 8px; width: 100%;
-      padding: 8px 8px; margin-bottom: 6px; border-radius: var(--r);
-      cursor: pointer; text-align: left; transition: background var(--dur-fast);
+      padding: 7px 8px; margin-bottom: 6px; border-radius: var(--r);
+      cursor: pointer; text-align: left;
+      background: var(--surface-high); border: 1px dashed var(--outline-variant);
+      transition: background var(--dur-fast);
     }
     .tr-sec-head:hover { background: var(--surface-low); }
-    .tr-section.current .tr-sec-head { background: var(--primary-light); }
+    .tr-section.current .tr-sec-head { background: var(--primary-light); border-color: var(--primary); border-style: solid; }
+    .tr-sec-move { flex-shrink: 0; display: inline-flex; gap: 2px; margin-left: auto; }
+    .tr-move-btn {
+      width: 22px; height: 22px; border-radius: var(--r-sm);
+      background: var(--surface-lowest); border: 1px solid var(--outline-variant);
+      color: var(--on-surface-variant); font-size: 10px; cursor: pointer;
+      display: grid; place-items: center; transition: background var(--dur-fast);
+    }
+    .tr-move-btn:hover:not(:disabled) { background: var(--primary-light); color: var(--primary-dark); border-color: var(--primary); }
+    .tr-move-btn:disabled { opacity: 0.3; cursor: default; }
     .tr-sec-num {
       flex-shrink: 0; width: 24px; height: 22px; border-radius: var(--r-sm);
       background: var(--surface-high); color: var(--on-surface-variant);
@@ -3949,9 +3961,29 @@
 
     // Assemble MOCK_DATA from the FANCL deck images + slide meta + the
     // parsed/aligned transcript, then mark the session loaded.
+    // Flat, time-ordered utterance list with a per-utterance slide
+    // assignment — the single source of truth for the transcript tab.
+    // Lets us follow scroll → slide, and move the slide boundary by
+    // reassigning utterances at the section edge.
+    function buildFanclUtterances(utterances) {
+      const slideOf = {};
+      FANCL_SEGMENT_MAP.forEach(r => { for (let id = r.from; id <= r.to; id++) slideOf[id] = r.slide; });
+      let last = 0;
+      const flat = utterances.map(u => {
+        const slide = (slideOf[u.segId] != null) ? slideOf[u.segId] : last;
+        last = slide;
+        return { segId: u.segId, speaker: u.speaker, name: u.name, time: u.time, text: u.text, slide, hasFeedback: false };
+      });
+      // Flag the first customer utterance per slide-run for emphasis.
+      const seen = {};
+      flat.forEach(u => { if (u.speaker === 'customer' && !seen[u.slide]) { u.hasFeedback = true; seen[u.slide] = true; } });
+      return flat;
+    }
+
     async function loadFanclSession() {
       const utterances = parseWhisper(FANCL_DATA.whisper);
       const bySlide = buildFanclTranscripts(utterances);
+      MOCK_DATA.utterances = buildFanclUtterances(utterances);
 
       // Read the proposal PDF from Google Drive; fall back to the bundled
       // render if Drive can't be reached from this context (CORS/offline).
@@ -4716,13 +4748,29 @@
         </div>`;
     }
 
-    // The transcript is shown as one section per slide, with a slide-jump
-    // nav, so the transcript↔slide correspondence is easy to scan and move
-    // through. Selecting a section also syncs the slide preview on the left.
+    // Group the flat utterance list into runs of consecutive same-slide
+    // utterances. Each run is a transcript "section" headed by a movable
+    // slide-name bar.
+    function trRuns() {
+      const us = MOCK_DATA.utterances || [];
+      const runs = [];
+      us.forEach((u, idx) => {
+        const last = runs[runs.length - 1];
+        if (last && last.slide === u.slide) { last.end = idx; }
+        else { runs.push({ slide: u.slide, start: idx, end: idx }); }
+      });
+      return runs;
+    }
+
+    // The transcript is one movable section per slide-run, under a sticky
+    // slide-jump nav. Scrolling follows the slide; the ▲▼ on a section's
+    // slide-name bar moves the boundary by one utterance to re-map it.
     function renderTranscript() {
       const list = document.getElementById('transcriptList');
       const slides = MOCK_DATA.slides;
+      const us = MOCK_DATA.utterances || [];
       const cur = state.currentSlideIdx;
+      const runs = trRuns();
 
       const nav = `
         <div class="tr-nav">
@@ -4732,44 +4780,87 @@
               <button class="tr-nav-chip ${i === cur ? 'active' : ''}" data-trnav="${i}" title="${escapeHtml(s.title)}">${String(i + 1).padStart(2, '0')}</button>
             `).join('')}
           </div>
+          <span class="tr-nav-hint">↕ スクロールで連動 ／ ⠿ で対応を調整</span>
         </div>`;
 
-      const sections = slides.map((s, i) => {
-        const level = confidenceLevel(s.mappingConfidence);
-        const confChip = (s.mappingConfidence != null)
-          ? `<span class="tr-sec-conf ${level || ''}">対応 ${Math.round(s.mappingConfidence * 100)}%</span>` : '';
-        const note = ((level === 'low' || level === 'mid') && s.mappingNote)
-          ? `<div class="tr-sec-note">${svgIcon('i-alert', 13)}<span>${escapeHtml(s.mappingNote)}</span></div>` : '';
+      const sections = runs.map((run, ri) => {
+        const s = slides[run.slide] || {};
+        const canUp = run.start > 0;                 // pull the previous utterance into this run
+        const canDown = run.end > run.start;          // give this run's first utterance to the previous run
+        const mover = ri === 0 ? '' : `
+          <span class="tr-sec-move" title="スライドの区切りを移動">
+            <button class="tr-move-btn" data-mvup="${run.start}" ${canUp ? '' : 'disabled'} title="上の発話をこのスライドに含める">▲</button>
+            <button class="tr-move-btn" data-mvdown="${run.start}" ${canDown ? '' : 'disabled'} title="先頭の発話を前のスライドに渡す">▼</button>
+          </span>`;
+        const body = us.slice(run.start, run.end + 1).map((u, k) => trUtterance(u, run.start + k)).join('');
         return `
-          <section class="tr-section ${i === cur ? 'current' : ''}" id="trSec${i}">
-            <button class="tr-sec-head" data-trnav="${i}">
-              <span class="tr-sec-num">${String(i + 1).padStart(2, '0')}</span>
-              <span class="tr-sec-title">${escapeHtml(s.title)}</span>
-              <span class="tr-sec-dur">${escapeHtml(s.duration || '')}</span>
-              ${confChip}
-            </button>
-            ${note}
-            <div class="tr-sec-body">${s.transcript.map(trUtterance).join('')}</div>
+          <section class="tr-section ${run.slide === cur ? 'current' : ''}" id="trRun${ri}" data-slide="${run.slide}">
+            <div class="tr-sec-head" data-trnav="${run.slide}">
+              <span class="tr-sec-num">${String(run.slide + 1).padStart(2, '0')}</span>
+              <span class="tr-sec-title">${escapeHtml(s.title || '')}</span>
+              ${mover}
+            </div>
+            <div class="tr-sec-body">${body}</div>
           </section>`;
       }).join('');
 
       list.innerHTML = nav + sections;
-      const total = slides.reduce((n, s) => n + s.transcript.length, 0);
-      document.getElementById('transcriptCount').textContent = total;
+      document.getElementById('transcriptCount').textContent = us.length;
 
       list.querySelectorAll('[data-trnav]').forEach(el => {
-        el.addEventListener('click', () => {
-          const i = parseInt(el.dataset.trnav, 10);
-          goToSlide(i);
-          scrollTrSection(i);
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.tr-sec-move')) return;
+          goToSlide(parseInt(el.dataset.trnav, 10));
+          scrollTrToSlide(parseInt(el.dataset.trnav, 10));
         });
       });
+      // Boundary editing — reassign the edge utterance to the neighbour slide.
+      list.querySelectorAll('[data-mvup]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvup, 10), 'up')));
+      list.querySelectorAll('[data-mvdown]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvdown, 10), 'down')));
     }
 
-    function scrollTrSection(i) {
-      const sec = document.getElementById('trSec' + i);
+    // Move the run boundary at flat-index `start` by one utterance.
+    function moveBoundary(start, dir) {
+      const us = MOCK_DATA.utterances;
+      if (dir === 'up') {            // previous utterance joins this run's slide
+        if (start <= 0) return;
+        us[start - 1].slide = us[start].slide;
+      } else {                       // this run's first utterance joins previous run's slide
+        if (start <= 0 || start >= us.length) return;
+        us[start].slide = us[start - 1].slide;
+      }
+      renderTranscript();
+    }
+
+    // Scroll the transcript so the first run of the given slide is at top.
+    function scrollTrToSlide(slideIdx) {
       const active = document.getElementById('section-transcript').classList.contains('active');
-      if (sec && active) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const sec = document.querySelector('.tr-section[data-slide="' + slideIdx + '"]');
+      if (!sec) return;
+      state.trSuppressFollow = true;
+      sec.scrollIntoView({ behavior: active ? 'smooth' : 'auto', block: 'start' });
+      setTimeout(() => { state.trSuppressFollow = false; }, 500);
+    }
+
+    // On manual scroll, sync the slide preview to the topmost visible section.
+    function onTranscriptScroll() {
+      if (state.trSuppressFollow || !state.loaded) return;
+      const scroller = document.querySelector('.content-pane .pane-content');
+      if (!scroller) return;
+      const ref = scroller.getBoundingClientRect().top + 60;  // fixed viewport line
+      let target = null;
+      document.querySelectorAll('#section-transcript .tr-section').forEach(sec => {
+        if (sec.getBoundingClientRect().top <= ref) target = sec;
+      });
+      if (target) {
+        const idx = parseInt(target.dataset.slide, 10);
+        if (idx !== state.currentSlideIdx) {
+          state.currentSlideIdx = idx;
+          renderThumbnails(); renderSlide(); renderFeedback();
+          document.querySelectorAll('.tr-nav-chip').forEach(c => c.classList.toggle('active', parseInt(c.dataset.trnav, 10) === idx));
+          document.querySelectorAll('.tr-section').forEach(s => s.classList.toggle('current', parseInt(s.dataset.slide, 10) === idx));
+        }
+      }
     }
 
 
@@ -5166,6 +5257,7 @@
       renderSlide();
       renderTranscript();
       renderFeedback();
+      if (state.currentTab === 'transcript') scrollTrToSlide(idx);
     }
 
     function switchTab(tab) {
@@ -5176,10 +5268,7 @@
       document.querySelectorAll('.pane-section').forEach(s => {
         s.classList.toggle('active', s.id === `section-${tab}`);
       });
-      if (tab === 'transcript' && state.loaded) {
-        const sec = document.getElementById('trSec' + state.currentSlideIdx);
-        if (sec) sec.scrollIntoView({ block: 'start' });
-      }
+      if (tab === 'transcript' && state.loaded) scrollTrToSlide(state.currentSlideIdx);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -5192,6 +5281,16 @@
       document.querySelectorAll('.tab-btn').forEach(b => {
         b.addEventListener('click', () => switchTab(b.dataset.tab));
       });
+      // Transcript scroll → follow the slide
+      const paneContent = document.querySelector('.content-pane .pane-content');
+      if (paneContent) {
+        let raf = null;
+        paneContent.addEventListener('scroll', () => {
+          if (state.currentTab !== 'transcript') return;
+          if (raf) return;
+          raf = requestAnimationFrame(() => { raf = null; onTranscriptScroll(); });
+        });
+      }
 
       document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
