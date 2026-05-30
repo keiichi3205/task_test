@@ -1745,24 +1745,6 @@
     /* Transcript */
     .transcript-list { display: flex; flex-direction: column; gap: 4px; }
     /* Slide-jump nav (sticky) */
-    .tr-nav {
-      position: sticky; top: -16px; z-index: 3;
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 0; margin: -4px 0 8px;
-      background: var(--surface-lowest);
-      border-bottom: 1px solid var(--outline-faint);
-    }
-    .tr-nav-label { font: 700 10px var(--font-mono); letter-spacing: 0.08em; color: var(--text-muted); flex-shrink: 0; }
-    .tr-nav-chips { display: flex; gap: 5px; flex-wrap: wrap; }
-    .tr-nav-chip {
-      width: 30px; height: 26px; border-radius: var(--r-sm);
-      background: var(--surface-low); border: 1px solid var(--outline-variant);
-      color: var(--on-surface-variant); font: 700 11px var(--font-mono);
-      cursor: pointer; transition: background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast);
-    }
-    .tr-nav-chip:hover { background: var(--surface-high); color: var(--on-surface); }
-    .tr-nav-chip.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
-    .tr-nav-hint { font-size: 10px; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
     /* Per-slide transcript section */
     .tr-section { padding: 0 0 10px; scroll-margin-top: 50px; }
     .tr-sec-head {
@@ -4788,17 +4770,6 @@
       const cur = state.currentSlideIdx;
       const runs = trRuns();
 
-      const nav = `
-        <div class="tr-nav">
-          <span class="tr-nav-label">スライド</span>
-          <div class="tr-nav-chips">
-            ${slides.map((s, i) => `
-              <button class="tr-nav-chip ${i === cur ? 'active' : ''}" data-trnav="${i}" title="${escapeHtml(s.title)}">${String(i + 1).padStart(2, '0')}</button>
-            `).join('')}
-          </div>
-          <span class="tr-nav-hint">↕ スクロールで連動 ／ ⠿ で対応を調整</span>
-        </div>`;
-
       const sections = runs.map((run, ri) => {
         const s = slides[run.slide] || {};
         const prevRun = runs[ri - 1];
@@ -4822,7 +4793,7 @@
           </section>`;
       }).join('');
 
-      list.innerHTML = nav + sections;
+      list.innerHTML = sections;
       document.getElementById('transcriptCount').textContent = us.length;
 
       list.querySelectorAll('[data-trnav]').forEach(el => {
@@ -4953,7 +4924,6 @@
         if (idx !== state.currentSlideIdx) {
           state.currentSlideIdx = idx;
           renderThumbnails(); renderSlide(); renderFeedback();
-          document.querySelectorAll('.tr-nav-chip').forEach(c => c.classList.toggle('active', parseInt(c.dataset.trnav, 10) === idx));
           document.querySelectorAll('.tr-section').forEach(s => s.classList.toggle('current', parseInt(s.dataset.slide, 10) === idx));
         }
       }
