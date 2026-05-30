@@ -4765,18 +4765,17 @@
         </div>`;
     }
 
-    // Group the flat utterance list into runs of consecutive same-slide
-    // utterances. Each run is a transcript "section" headed by a movable
-    // slide-name bar.
+    // Group utterances by slide and return them in slide-number order, so a
+    // lower-numbered slide never appears after a higher one (the conversation
+    // can jump around the deck — the transcript view re-sorts).
     function trRuns() {
       const us = MOCK_DATA.utterances || [];
-      const runs = [];
+      const bySlide = {};
       us.forEach((u, idx) => {
-        const last = runs[runs.length - 1];
-        if (last && last.slide === u.slide) { last.end = idx; }
-        else { runs.push({ slide: u.slide, start: idx, end: idx }); }
+        (bySlide[u.slide] = bySlide[u.slide] || []).push({ u, idx });
       });
-      return runs;
+      return Object.keys(bySlide).map(Number).sort((a, b) => a - b)
+        .map(slide => ({ slide, items: bySlide[slide] }));
     }
 
     // The transcript is one movable section per slide-run, under a sticky
@@ -4802,17 +4801,16 @@
 
       const sections = runs.map((run, ri) => {
         const s = slides[run.slide] || {};
-        const prev = runs[ri - 1];
-        const canUp = run.start > 0;                 // pull the previous utterance into this run
-        const canDown = run.end > run.start;          // give this run's first utterance to the previous run
-        // Boundary controls only on a run that has a previous run (ri>0).
-        const mover = ri === 0 ? '' : `
+        const prevRun = runs[ri - 1];
+        const canDown = run.items.length > 1;          // give this run's first utterance to the previous run
+        const canUp = !!prevRun && prevRun.items.length > 1;  // pull last of prev into this run
+        const mover = !prevRun ? '' : `
           <span class="tr-sec-move" title="ドラッグして区切りを移動">
-            <button class="tr-drag" data-drag-start="${run.start}" data-drag-min="${prev.start + 1}" data-drag-max="${run.end}" title="ドラッグで区切りを移動">⠿</button>
-            <button class="tr-move-btn" data-mvup="${run.start}" ${canUp ? '' : 'disabled'} title="上の発話をこのスライドに含める">▲</button>
-            <button class="tr-move-btn" data-mvdown="${run.start}" ${canDown ? '' : 'disabled'} title="先頭の発話を前のスライドに渡す">▼</button>
+            <button class="tr-drag" data-drag-cur="${run.slide}" data-drag-prev="${prevRun.slide}" title="ドラッグで区切りを移動">⠿</button>
+            <button class="tr-move-btn" data-mvup-slide="${run.slide}" ${canUp ? '' : 'disabled'} title="前スライドの最後の発話をこちらに取り込む">▲</button>
+            <button class="tr-move-btn" data-mvdown-slide="${run.slide}" ${canDown ? '' : 'disabled'} title="このスライドの最初の発話を前へ渡す">▼</button>
           </span>`;
-        const body = us.slice(run.start, run.end + 1).map((u, k) => trUtterance(u, run.start + k)).join('');
+        const body = run.items.map(it => trUtterance(it.u, it.idx)).join('');
         return `
           <section class="tr-section ${run.slide === cur ? 'current' : ''}" id="trRun${ri}" data-slide="${run.slide}">
             <div class="tr-sec-head" data-trnav="${run.slide}">
@@ -4834,79 +4832,98 @@
           scrollTrToSlide(parseInt(el.dataset.trnav, 10));
         });
       });
-      // Boundary editing — reassign the edge utterance to the neighbour slide.
-      list.querySelectorAll('[data-mvup]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvup, 10), 'up')));
-      list.querySelectorAll('[data-mvdown]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvdown, 10), 'down')));
-      // Boundary editing by dragging the ⠿ handle to any utterance gap.
+      // Boundary editing — move one edge utterance between adjacent slides.
+      list.querySelectorAll('[data-mvup-slide]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvupSlide, 10), 'up')));
+      list.querySelectorAll('[data-mvdown-slide]').forEach(b => b.addEventListener('click', () => moveBoundary(parseInt(b.dataset.mvdownSlide, 10), 'down')));
+      // Boundary editing by dragging the ⠿ handle to an utterance.
       list.querySelectorAll('.tr-drag').forEach(h => h.addEventListener('pointerdown', startBoundaryDrag));
     }
 
-    // Drag the slide boundary (⠿) to any utterance gap within range.
+    // Drag the slide boundary (⠿) to any utterance in the previous or this
+    // slide's section. Dropping on an utterance reassigns it (and the
+    // contiguous edge of its slide) to the neighbouring slide.
     function startBoundaryDrag(e) {
       e.preventDefault();
       const h = e.currentTarget;
       const drag = {
-        start: parseInt(h.dataset.dragStart, 10),
-        min: parseInt(h.dataset.dragMin, 10),
-        max: parseInt(h.dataset.dragMax, 10),
-        target: parseInt(h.dataset.dragStart, 10)
+        curSlide: parseInt(h.dataset.dragCur, 10),
+        prevSlide: parseInt(h.dataset.dragPrev, 10),
+        targetIdx: null
       };
       document.body.classList.add('tr-dragging');
       state.trSuppressFollow = true;
 
       const markGap = (idx) => {
         document.querySelectorAll('.utterance.tr-drop').forEach(el => el.classList.remove('tr-drop'));
+        if (idx == null) return;
         const el = document.querySelector('.utterance[data-idx="' + idx + '"]');
         if (el) el.classList.add('tr-drop');
       };
-      markGap(drag.target);
 
       const onMove = (ev) => {
         const under = document.elementFromPoint(ev.clientX, ev.clientY);
         const utt = under && under.closest('.utterance');
-        if (!utt) return;
+        if (!utt) { drag.targetIdx = null; markGap(null); return; }
         const idx = parseInt(utt.dataset.idx, 10);
-        const r = utt.getBoundingClientRect();
-        let gap = (ev.clientY < r.top + r.height / 2) ? idx : idx + 1;  // before / after
-        gap = Math.max(drag.min, Math.min(drag.max, gap));
-        drag.target = gap;
-        markGap(gap);
+        const slide = MOCK_DATA.utterances[idx].slide;
+        // Only allow drops in the two adjacent slide sections.
+        if (slide !== drag.curSlide && slide !== drag.prevSlide) {
+          drag.targetIdx = null; markGap(null); return;
+        }
+        drag.targetIdx = idx;
+        markGap(idx);
       };
       const onUp = () => {
         document.removeEventListener('pointermove', onMove);
         document.removeEventListener('pointerup', onUp);
         document.body.classList.remove('tr-dragging');
         state.trSuppressFollow = false;
-        if (drag.target !== drag.start) moveBoundaryTo(drag.start, drag.target);
+        if (drag.targetIdx != null) moveBoundaryByDrop(drag.curSlide, drag.prevSlide, drag.targetIdx);
         else document.querySelectorAll('.utterance.tr-drop').forEach(el => el.classList.remove('tr-drop'));
       };
       document.addEventListener('pointermove', onMove);
       document.addEventListener('pointerup', onUp);
     }
 
-    // Reassign utterances so the boundary at `oldStart` moves to `newStart`.
-    function moveBoundaryTo(oldStart, newStart) {
+    // Reassign utterances so the boundary between prevSlide and curSlide
+    // lands on (and includes) `dropIdx`. Drop in prevSlide's section moves
+    // dropIdx and all chronologically-later same-slide utterances forward;
+    // drop in curSlide's section moves dropIdx and all earlier same-slide
+    // utterances back. The other slide must keep at least one utterance.
+    function moveBoundaryByDrop(curSlide, prevSlide, dropIdx) {
       const us = MOCK_DATA.utterances;
-      if (!us[oldStart] || !us[oldStart - 1] || newStart === oldStart) return;
-      const thisSlide = us[oldStart].slide;
-      const prevSlide = us[oldStart - 1].slide;
-      if (newStart < oldStart) {            // pull earlier utterances into this slide
-        for (let i = newStart; i < oldStart; i++) us[i].slide = thisSlide;
-      } else {                              // give leading utterances to the previous slide
-        for (let i = oldStart; i < newStart; i++) us[i].slide = prevSlide;
+      const dropSlide = us[dropIdx].slide;
+      const moves = [];
+      if (dropSlide === prevSlide) {
+        us.forEach((u, i) => { if (u.slide === prevSlide && i >= dropIdx) moves.push(i); });
+        if (moves.length && us.filter(u => u.slide === prevSlide).length > moves.length) {
+          moves.forEach(i => { us[i].slide = curSlide; });
+        }
+      } else if (dropSlide === curSlide) {
+        us.forEach((u, i) => { if (u.slide === curSlide && i <= dropIdx) moves.push(i); });
+        if (moves.length && us.filter(u => u.slide === curSlide).length > moves.length) {
+          moves.forEach(i => { us[i].slide = prevSlide; });
+        }
       }
       renderTranscript();
     }
 
-    // Move the run boundary at flat-index `start` by one utterance.
-    function moveBoundary(start, dir) {
+    // Move one utterance between curSlide and the previous slide that has
+    // utterances. ▲ pulls prev's chronologically-last utterance into
+    // curSlide; ▼ gives curSlide's chronologically-first utterance to prev.
+    function moveBoundary(curSlide, dir) {
       const us = MOCK_DATA.utterances;
-      if (dir === 'up') {            // previous utterance joins this run's slide
-        if (start <= 0) return;
-        us[start - 1].slide = us[start].slide;
-      } else {                       // this run's first utterance joins previous run's slide
-        if (start <= 0 || start >= us.length) return;
-        us[start].slide = us[start - 1].slide;
+      const slidesPresent = [...new Set(us.map(u => u.slide))].sort((a, b) => a - b);
+      const pos = slidesPresent.indexOf(curSlide);
+      if (pos <= 0) return;
+      const prevSlide = slidesPresent[pos - 1];
+      if (dir === 'up') {
+        let lastIdx = -1;
+        us.forEach((u, i) => { if (u.slide === prevSlide) lastIdx = i; });
+        if (lastIdx >= 0) us[lastIdx].slide = curSlide;
+      } else {
+        const firstIdx = us.findIndex(u => u.slide === curSlide);
+        if (firstIdx >= 0) us[firstIdx].slide = prevSlide;
       }
       renderTranscript();
     }
