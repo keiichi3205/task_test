@@ -34,7 +34,7 @@
 function doGet(e) {
   return HtmlService.createTemplateFromFile('index')
     .evaluate()
-    .setTitle('SalesCoach | 商談分析ツール')
+    .setTitle('商談フィードバックツール')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
 }
