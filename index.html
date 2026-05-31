@@ -4785,7 +4785,6 @@
         return `
           <section class="tr-section ${run.slide === cur ? 'current' : ''}" id="trRun${ri}" data-slide="${run.slide}">
             <div class="tr-sec-head" data-trnav="${run.slide}">
-              <span class="tr-sec-num">${String(run.slide + 1).padStart(2, '0')}</span>
               <span class="tr-sec-title">${escapeHtml(s.title || '')}</span>
               ${mover}
             </div>
