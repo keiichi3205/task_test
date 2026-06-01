@@ -1304,6 +1304,15 @@
       font: 700 9px var(--font-mono); color: var(--danger);
       background: var(--danger-weak); border-radius: var(--r-sm); padding: 1px 5px;
     }
+    /* Red ! badge — matches the 弱かった点 tab badge so users can map
+       thumbnail flags ↔ the feedback panel. Sits next to the score. */
+    .thumb-urgent {
+      display: inline-grid; place-items: center;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--danger); color: #fff;
+      font: 700 9px var(--font-mono); line-height: 1;
+      cursor: help;
+    }
     .thumb-prio { display: flex; gap: 5px; }
     .thumb-prio-chip {
       font: 700 9px var(--font-mono); letter-spacing: 0.03em;
@@ -4988,12 +4997,17 @@
         if (needsWork) classes.push('needs-work');
         thumb.className = classes.join(' ');
         const band = slide.score != null ? scoreBand(slide.score) : null;
+        const hasUrgent = !!(slide.feedback && slide.feedback.improve && slide.feedback.improve.some(i => typeof i === 'object' && i.urgent));
         const scoreTip = slide.score != null
           ? `スコア ${slide.score}/100（${band ? band.label : ''}）\n評価軸: ${SCORE_RUBRIC.axes.map(a => a.label + ' ' + a.weight + '%').join(' / ')}\nP1=要改善 ${slide.p1 || 0}件 / P2=改善余地 ${slide.p2 || 0}件`
+          : '';
+        const urgentBadge = hasUrgent
+          ? '<span class="thumb-urgent" title="重要度の高い弱点が含まれています（優先的に対処すべき項目）">!</span>'
           : '';
         const scoreRow = (slide.score != null) ? `
           <div class="thumb-score-row" title="${escapeHtml(scoreTip)}">
             <span class="thumb-score ${needsWork ? 'low' : ''}">スコア ${slide.score}</span>
+            ${urgentBadge}
             ${needsWork ? '<span class="thumb-flag">⚠ 要改善</span>' : ''}
           </div>` : '';
         thumb.innerHTML = `
