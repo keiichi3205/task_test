@@ -852,7 +852,10 @@
     }
     .scen-improve-tab.active .scen-improve-count { background: var(--primary-light); color: var(--primary-dark); }
     .scen-improve-list { display: flex; flex-direction: column; gap: 10px; }
-    .scen-improve-item { background: var(--surface-low); border-radius: var(--r-lg); padding: 12px 14px; }
+    .scen-improve-item { background: var(--surface-low); border-radius: var(--r-lg); padding: 12px 14px; transition: background var(--dur-fast), transform var(--dur-fast); }
+    .scen-improve-item.clickable { cursor: pointer; }
+    .scen-improve-item.clickable:hover { background: var(--primary-light); }
+    .scen-improve-item.clickable:active { transform: scale(0.995); }
     .scen-improve-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 5px; }
     .scen-improve-prio {
       flex-shrink: 0; font: 700 9.5px var(--font-mono); color: #fff;
@@ -863,9 +866,8 @@
     .scen-improve-title { font-size: 12.5px; font-weight: 700; color: var(--on-surface); flex: 1; min-width: 0; }
     .scen-improve-target {
       flex-shrink: 0; font: 600 10px var(--font-mono); color: var(--primary-dark);
-      background: var(--primary-light); border-radius: 6px; padding: 2px 7px; cursor: pointer;
+      background: var(--primary-light); border-radius: 6px; padding: 2px 7px;
     }
-    .scen-improve-target:hover { background: var(--primary-fixed-dim); }
     .scen-improve-reason { font-size: 11.5px; line-height: 1.6; color: var(--on-surface-variant); margin-bottom: 9px; }
     .scen-improve-actions { display: flex; gap: 8px; }
     .scen-improve-btn {
@@ -3565,27 +3567,27 @@
       emergedIssues: [
         { id: 'e01', title: '店舗現場の入力負荷・店舗評価への影響', type: 'リスク',
           evidence: '鈴木様「追加入力は抵抗」「店舗評価に通販の定期便移行を入れるのは難しい」',
-          occurrences: 2, severity: 'high',
+          occurrences: 2, severity: 'high', sourceSlides: [3],
           suggestedAction: '次版で「現場負荷を増やさないデータ取得」と「店舗評価は変えずTF-KPIで見る」を明示',
           positions: { suzuki: { state: 'concern' } } },
         { id: 'e02', title: '既存印刷ベンダーとの関係・社内調整', type: '権限/プロセス',
           evidence: '佐藤様「TOPPANが全部取るように見えると反発が出る」',
-          occurrences: 1, severity: 'high',
+          occurrences: 1, severity: 'high', sourceSlides: [5],
           suggestedAction: '移行ステップと既存ベンダーの位置づけ図を次版に追加。初期はPOP/キャンペーン資材に限定',
           positions: { sato: { state: 'concern' } } },
         { id: 'e03', title: '効果の定量根拠（運用1/2・LP単価）不足', type: '機会',
           evidence: '中村様「LP60万円はSEO記事LPの相場では。うちの制作単価とは一致しない」',
-          occurrences: 1, severity: 'mid',
+          occurrences: 1, severity: 'mid', sourceSlides: [6],
           suggestedAction: '制作件数・単価・校閲工数の棚卸し前提で効果試算を再提示',
           positions: {} },
         { id: 'e04', title: '決裁者（経営層）の不在・投資規模未議論', type: '権限/プロセス',
           evidence: '出席は実務部門中心。投資規模・PoC費用の議論が一度も発生していない',
-          occurrences: 1, severity: 'high',
+          occurrences: 1, severity: 'high', sourceSlides: [8],
           suggestedAction: '次回 経営層同席アポを依頼し、PoC概算規模レンジを提示',
           positions: {} },
         { id: 'e05', title: 'ECリニューアル（2年以内）との連携順序', type: 'スケジュール',
           evidence: '中村様「ECリニューアルが2年以内。デザインシステムを先か同時か」',
-          occurrences: 1, severity: 'mid',
+          occurrences: 1, severity: 'mid', sourceSlides: [7],
           suggestedAction: 'デザインシステムを最小構成で先行させEC要件に組み込む順序を文書化',
           positions: { nakamura: { state: 'interested' } } }
       ],
@@ -4200,20 +4202,26 @@
       return flat;
     }
 
-    async function loadFanclSession() {
+    async function loadFanclSession(opts) {
+      const fastPath = !!(opts && opts.fast);
       const utterances = parseWhisper(FANCL_DATA.whisper);
       const bySlide = buildFanclTranscripts(utterances);
       MOCK_DATA.utterances = buildFanclUtterances(utterances);
 
-      // Read the proposal PDF from Google Drive; fall back to the bundled
-      // render if Drive can't be reached from this context (CORS/offline).
+      // Default behavior: try Drive first so the demo shows "Drive 取得済み".
+      // Fast path (used by the auto-load on startup): skip Drive and render
+      // the bundled images immediately — we kick off a background Drive
+      // refresh afterwards so the deck still ends up labelled as Drive
+      // sourced, but the first paint isn't blocked on the network.
       let deckImages = FANCL_DATA.deckImages;
-      let deckSource = 'バンドル（Drive取得不可）';
-      try {
-        const imgs = await fetchDriveDeckImages(DEMO_DRIVE_FILE.id);
-        if (imgs && imgs.length) { deckImages = imgs; deckSource = 'Google Drive'; }
-      } catch (e) {
-        console.warn('[deck] Google Drive読込に失敗、バンドル描画で代替:', e && e.message);
+      let deckSource = fastPath ? 'バンドル（高速読込）' : 'バンドル（Drive取得不可）';
+      if (!fastPath) {
+        try {
+          const imgs = await fetchDriveDeckImages(DEMO_DRIVE_FILE.id);
+          if (imgs && imgs.length) { deckImages = imgs; deckSource = 'Google Drive'; }
+        } catch (e) {
+          console.warn('[deck] Google Drive読込に失敗、バンドル描画で代替:', e && e.message);
+        }
       }
 
       MOCK_DATA.meta = JSON.parse(JSON.stringify(FANCL_META));
@@ -5486,11 +5494,15 @@
           <div class="scen-improve-list">
             ${propList.map(p => {
               const sref = slideRefOf(p);
-              return `<div class="scen-improve-item">
+              // When the proposal points to a deck slide, the whole card
+              // is clickable and jumps the left rail to that slide.
+              const cardAttr = sref ? ` data-goslide="${sref - 1}"` : '';
+              const cardCls  = sref ? 'scen-improve-item clickable' : 'scen-improve-item';
+              return `<div class="${cardCls}"${cardAttr}>
                 <div class="scen-improve-head">
                   <span class="scen-improve-prio ${p.priority}">${p.priority === 'high' ? 'P1' : 'P2'}</span>
                   <span class="scen-improve-title">${escapeHtml(p.title)}</span>
-                  ${sref ? `<button class="scen-improve-target" data-goslide="${sref - 1}">対象: Slide ${String(sref).padStart(2, '0')}</button>` : ''}
+                  ${sref ? `<span class="scen-improve-target">対象: Slide ${String(sref).padStart(2, '0')}</span>` : ''}
                 </div>
                 <div class="scen-improve-reason">${escapeHtml(p.reason)}</div>
               </div>`;
@@ -5802,9 +5814,23 @@
       // the deck/transcript/feedback are ready without clicking through the
       // onboarding each time. (Skipped only if a session is already loaded.)
       if (!state.loaded) {
-        updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name }, { loading: true, loadingLabel: 'Drive取得中' });
+        updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name });
         updateUploadCard('audio', { name: FANCL_META.files.audio });
-        loadFanclSession().then(() => { renderHeader(); switchTab('summary'); });
+        // Fast path: render the bundled deck immediately, then refresh
+        // from Drive in the background so the network isn't on the
+        // critical path of the first paint.
+        loadFanclSession({ fast: true }).then(() => {
+          renderHeader();
+          switchTab('summary');
+          // Background Drive refresh — silent failure is fine, bundled
+          // images are already on screen.
+          fetchDriveDeckImages(DEMO_DRIVE_FILE.id).then(imgs => {
+            if (!imgs || !imgs.length) return;
+            MOCK_DATA.slides.forEach((s, i) => { if (imgs[i]) s.content.imageUrl = imgs[i]; });
+            MOCK_DATA.meta.slidesSource = 'Google Drive';
+            renderThumbnails(); renderSlide();
+          }).catch(() => {});
+        });
       }
     });
   </script>
