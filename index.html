@@ -964,27 +964,36 @@
       padding: 14px 16px;
     }
     .scen-dash-section-head {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "title count"
+        "sub   count";
+      column-gap: 8px;
+      row-gap: 3px;
       align-items: baseline;
-      gap: 8px;
       margin-bottom: 10px;
     }
     .scen-dash-section-title {
+      grid-area: title;
       font-size: 13px;
       font-weight: 600;
       color: var(--on-surface);
     }
     .scen-dash-section-sub {
+      grid-area: sub;
       font-size: 11px;
       color: var(--text-muted);
     }
     .scen-dash-section-count {
-      margin-left: auto;
+      grid-area: count;
+      align-self: start;
       font: 600 10px var(--font-mono);
       color: var(--text-muted);
       padding: 2px 7px;
       background: var(--surface-low);
       border-radius: 8px;
+      white-space: nowrap;
     }
 
     /* === Matrix: Stakeholder × Issue agreement === */
@@ -3477,63 +3486,68 @@
         { id: 'suzuki',    name: '鈴木 様（店舗/現場）',        role: 'User',           lastContact: '2026-05-15', strength: 'mid',  shortName: '鈴木' },
         { id: 'exec',      name: '経営層 (未接触)',            role: 'Economic Buyer', lastContact: null,         strength: 'none', shortName: '経営層' }
       ],
+      // Issues are consolidated into ~7 top-level themes (each one a real
+      // decision point stakeholders must agree on). Sub-issues have been
+      // rolled up into the parent theme with combined evidence — so the
+      // matrix stays compact (~7 rows) while keeping per-stakeholder
+      // reactions rich.
       issues: [
         // ── AS-IS（現状の課題） ──
-        { id: 'a01', type: 'AS-IS', title: 'チャネル分断（顧客視点）',
-          summary: '通販・店舗・流通が個別最適。顧客から見ると分断', sourceSlides: [1, 3],
-          positions: { sato: { state: 'agreed', evidence: '「顧客から見るとまだ分断されている、今日のテーマはそこ」と自ら課題提起' } } },
-        { id: 'a02', type: 'AS-IS', title: '顧客ID基盤の未統合',
-          summary: '会員基盤・EC・アプリ・POS・診断が別ID', sourceSlides: [4],
-          positions: { yamaguchi: { state: 'agreed', evidence: '「すべて同じIDで繋がっているわけではない」と明言' } } },
-        { id: 'a03', type: 'AS-IS', title: '制作の媒体別分断・最新素材不明',
-          summary: 'アプリ/EC/情報誌/LINE/紙DMで担当も会社も別。DAMはローカル管理', sourceSlides: [5, 7],
-          positions: { tanaka: { state: 'agreed', evidence: '「制作会社も担当部署も違う」' }, yamaguchi: { state: 'agreed', evidence: '「各部署がローカル管理、最新版が分からない」' } } },
+        { id: 'a01', type: 'AS-IS', title: 'チャネル/ID/制作の分断（現状）',
+          summary: '通販・店舗・流通の個別最適、会員/EC/アプリ/POSの別ID、媒体別の制作分断', sourceSlides: [1, 3, 5, 7],
+          positions: {
+            sato:      { state: 'agreed', evidence: '「顧客から見るとまだ分断されている、今日のテーマはそこ」と自ら課題提起' },
+            yamaguchi: { state: 'agreed', evidence: '「すべて同じIDで繋がっているわけではない」「各部署がローカル管理、最新版が分からない」' },
+            tanaka:    { state: 'agreed', evidence: '「制作会社も担当部署も違う」' }
+          } },
         // ── TO-BE（目指す姿） ──
-        { id: 't01', type: 'TO-BE', title: '顧客ID起点の相互送客',
-          summary: 'どこが偉いかでなく、IDを起点に送客しあう', sourceSlides: [3],
-          positions: { sato: { state: 'agreed', evidence: '基本方針に同意' }, suzuki: { state: 'partial', evidence: '店舗の役割定義に当初違和感、再定義で軟化' } } },
-        { id: 't02', type: 'TO-BE', title: '流通購入→自社ID取得→次の体験',
-          summary: '製品登録→診断→来店→定期便のジャーニー', sourceSlides: [4],
-          positions: { tanaka: { state: 'partial', evidence: 'CRM観点で前向き、出し分けの運用負荷を懸念' }, nakamura: { state: 'partial', evidence: '製品登録の不正対策が前提' } } },
-        { id: 't03', type: 'TO-BE', title: '1to1強化（コンテンツのパーソナライズ）',
-          summary: '顧客インサイトに応じた出し分け', sourceSlides: [6],
-          positions: { tanaka: { state: 'interested', evidence: '関心は高いが運用破綻を懸念' } } },
-        // ── 解決策 ──
-        { id: 's01', type: '解決策', title: '直営店＝体験・リサーチ（売上に接続）',
-          summary: '診断・会話・サンプル反応をCRMへ', sourceSlides: [3],
-          positions: { suzuki: { state: 'partial', evidence: '「売上責任がある」と反発→売上向上のための接続と再定義で納得' } } },
+        { id: 't01', type: 'TO-BE', title: '顧客ID起点のオムニチャネル化',
+          summary: 'ID起点の相互送客、流通購入→自社ID→次の体験、1to1の出し分け', sourceSlides: [3, 4, 6],
+          positions: {
+            sato:     { state: 'agreed',  evidence: '基本方針に同意' },
+            suzuki:   { state: 'partial', evidence: '店舗の役割を体験・リサーチに再定義し軟化' },
+            tanaka:   { state: 'partial', evidence: 'CRM観点で前向き、出し分けの運用負荷を懸念' },
+            nakamura: { state: 'partial', evidence: '製品登録の不正対策が前提' }
+          } },
+        // ── 解決策（基盤系） ──
         { id: 's02', type: '解決策', title: 'OneID 段階統合（対応表→CDP→ログイン）',
-          summary: '完全統合でなく3段階で接続', sourceSlides: [4],
-          positions: { yamaguchi: { state: 'partial', evidence: '「段階を分けるなら現実的」と理解' } } },
-        { id: 's03', type: '解決策', title: '製品登録（JAN/不正の割り切り設計）',
-          summary: '初期は割り切り、レシートOCRは高額施策限定', sourceSlides: [4],
-          positions: { nakamura: { state: 'partial', evidence: '「以前検討、不正がネック」→初期割り切り・OCR限定で軟化' } } },
-        { id: 's04', type: '解決策', title: 'AI制作センター（運用1/2）',
-          summary: 'カラバリ/コピー案/校閲/配信を生成AI×人で', sourceSlides: [6],
-          positions: { tanaka: { state: 'partial', evidence: '運用破綻への解として関心' }, sato: { state: 'partial', evidence: '薬機法・ブランドトーンのリスクを懸念→統制設計で軟化' } } },
-        { id: 's05', type: '解決策', title: '印刷幹事制度（幹事機能・限定開始）',
-          summary: '既存ベンダー排除でなく管理ルール共通化', sourceSlides: [5],
-          positions: { sato: { state: 'negative', evidence: '「TOPPANが全部取るように見えると反発が出る」' } } },
-        { id: 's06', type: '解決策', title: 'デザインシステム（最小構成先行）',
-          summary: 'スキンケア・サプリ代表商品で先行整備', sourceSlides: [7],
-          positions: { nakamura: { state: 'partial', evidence: 'ECリニューアルとの順序を確認' }, yamaguchi: { state: 'partial', evidence: 'DAM運用ルールが前提' } } },
-        { id: 's07', type: '解決策', title: '広告インハウス化（準内製化）',
-          summary: '代理店マージン型→固定費型で運用移管', sourceSlides: [5],
-          positions: { tanaka: { state: 'partial', evidence: '社内に運用スキル不足、常駐の度合いを確認' } } },
+          summary: '完全統合でなく3段階で接続。製品登録・CRM接続の前提', sourceSlides: [4],
+          positions: {
+            yamaguchi: { state: 'partial', evidence: '「段階を分けるなら現実的」と理解' },
+            nakamura:  { state: 'partial', evidence: '製品登録は初期割り切り・OCR限定で軟化' },
+            tanaka:    { state: 'partial', evidence: 'CRM観点で前向き、出し分けの運用負荷を懸念' }
+          } },
+        // ── 解決策（運用系：AI制作＋デザインシステム） ──
+        { id: 's04', type: '解決策', title: 'AI制作センター＋デザインシステム',
+          summary: 'カラバリ/コピー/校閲/配信を生成AI×人で。最小構成のデザインシステムを先行', sourceSlides: [6, 7],
+          positions: {
+            tanaka:    { state: 'partial', evidence: '運用破綻への解として関心' },
+            sato:      { state: 'partial', evidence: '薬機法・ブランドトーンのリスクを統制設計で軟化' },
+            nakamura:  { state: 'partial', evidence: 'ECリニューアルとの順序を確認' },
+            yamaguchi: { state: 'partial', evidence: 'DAM運用ルールが前提' }
+          } },
+        // ── 解決策（社内調整：印刷幹事） ──
+        { id: 's05', type: '解決策', title: '印刷幹事制度（社内調整・要再設計）',
+          summary: '既存ベンダー排除でなく管理ルール共通化、POP/キャンペーン資材から限定開始', sourceSlides: [5],
+          positions: {
+            sato: { state: 'negative', evidence: '「TOPPANが全部取るように見えると反発が出る」' }
+          } },
         // ── ROI ──
-        { id: 'r01', type: 'ROI', title: '効果試算（運用1/2・LP単価）の根拠',
-          summary: '目標効果の算定根拠', sourceSlides: [6],
-          positions: { nakamura: { state: 'negative', evidence: '「LP60万円はSEO記事LPの相場、うちの単価と一致しない」と疑義' }, sato: { state: 'unknown', evidence: '根拠提示は棚卸し後' } } },
-        { id: 'r02', type: 'ROI', title: 'KPI 3層設計＋LTV先行指標',
-          summary: '媒体/行動/事業KPI、LTVは先行指標で月次評価', sourceSlides: [5],
-          positions: { sato: { state: 'partial', evidence: '3層整理に理解' }, suzuki: { state: 'partial', evidence: '店舗KPIを現場評価に入れるのは難しい' } } },
+        { id: 'r01', type: 'ROI', title: '効果試算の根拠とKPI設計',
+          summary: '運用1/2・LP単価の算定根拠、媒体/行動/事業の3層KPI＋LTV先行指標', sourceSlides: [5, 6],
+          positions: {
+            nakamura: { state: 'negative', evidence: '「LP60万円はSEO記事LPの相場、うちの単価と一致しない」' },
+            sato:     { state: 'partial',  evidence: '3層整理に理解、定量根拠は棚卸し後に提示' },
+            suzuki:   { state: 'partial',  evidence: '店舗KPIを現場評価に入れるのは難しい' }
+          } },
         // ── スケジュール ──
-        { id: 'sc01', type: 'スケジュール', title: '実行プロセス（25年度準備→26年4月実行）',
-          summary: 'TF組成・施策/制作棚卸・方針検討', sourceSlides: [8],
-          positions: { sato: { state: 'partial', evidence: '「ややタイト」' }, yamaguchi: { state: 'agreed', evidence: '業務改善とシステムの切り分けに同意' } } },
-        { id: 'sc02', type: 'スケジュール', title: 'PoC設計（範囲・対象カテゴリ）',
-          summary: 'アプリ/LINEで製品登録→診断→EC/店舗案内', sourceSlides: [8],
-          positions: { tanaka: { state: 'partial', evidence: 'ミニマム連携の範囲に同意' }, sato: { state: 'partial', evidence: '対象カテゴリは社内検討' } } }
+        { id: 'sc02', type: 'スケジュール', title: 'PoC設計と実行プロセス',
+          summary: '対象カテゴリ・成功基準・概算規模、25年度準備→26年4月実行', sourceSlides: [8],
+          positions: {
+            sato:      { state: 'partial', evidence: '「ややタイト」、対象カテゴリは社内検討' },
+            tanaka:    { state: 'partial', evidence: 'ミニマム連携の範囲に同意' },
+            yamaguchi: { state: 'agreed',  evidence: '業務改善とシステムの切り分けに同意' }
+          } }
       ],
       emergedIssues: [
         { id: 'e01', title: '店舗現場の入力負荷・店舗評価への影響', type: 'リスク',
@@ -3583,7 +3597,7 @@
           targetVersion: null, linkedIssue: 'e04' },
         { priority: 'mid', type: 'deck_update', title: '顧客体験ジャーニーに複数ルート（店舗遠隔→オンライン診断/チャット）を明示',
           reason: '理想の一本線で、店舗数制約への分岐が口頭のみ',
-          targetVersion: 'v2', linkedIssue: 't02' },
+          targetVersion: 'v2', linkedIssue: 't01' },
         { priority: 'mid', type: 'deck_add', title: '印刷幹事制度の移行ステップ＋既存ベンダー位置づけ図',
           reason: '社内調整（既存ベンダー関係）が最大障壁。誤解を避ける図解が必要',
           targetVersion: 'v2', linkedIssue: 'e02' },
@@ -3593,10 +3607,10 @@
       ],
       sessionUpdate: {
         progressed: [
-          { issueId: 's01', summary: '直営店の役割定義への反発を再定義で解消、店舗のCRM接続に前進' },
+          { issueId: 't01', summary: '顧客ID起点のオムニチャネル像に基本合意。店舗の役割も体験化で再定義' },
           { issueId: 's02', summary: 'OneIDを段階統合に分解し、現実解として理解を得た' },
           { issueId: 's04', summary: 'AI制作の薬機法・セキュリティ懸念に統制設計で応答' },
-          { issueId: 'a02', summary: 'ID基盤の未統合という現状課題が共有された' }
+          { issueId: 'a01', summary: 'チャネル・ID・制作の分断が現状課題として共有された' }
         ],
         regressed: [
           { issueId: 's05', summary: '印刷幹事制度に「全部取られる」反発、移行ステップの提示が必要' },
@@ -3604,8 +3618,8 @@
         ],
         emerged: ['e02', 'e03', 'e04'],
         unaddressed: [
-          { issueId: 'r02', reason: '店舗KPIを現場評価に入れる設計を詰められず' },
-          { issueId: 'sc02', reason: 'PoC対象カテゴリの選定がFANCL社内検討に留保' }
+          { issueId: 'sc02', reason: 'PoC対象カテゴリの選定がFANCL社内検討に留保' },
+          { issueId: 'r01',  reason: '店舗KPIを現場評価に入れる設計まで踏み込めず' }
         ]
       }
     };
