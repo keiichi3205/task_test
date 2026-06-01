@@ -1434,7 +1434,14 @@
     .slide-pane.presenter .slide-stage { position: relative; }
     .slide-pane-hd-right { display: flex; align-items: center; gap: 14px; }
 
-    .fb-iconbar { display: flex; align-items: center; gap: 4px; }
+    .fb-group { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .fb-group-label {
+      display: inline-flex; align-items: center; gap: 5px;
+      font: 700 9.5px var(--font-mono); letter-spacing: 0.04em;
+      color: var(--primary-dark); text-transform: uppercase;
+    }
+    .fb-group-label svg { color: var(--primary); }
+    .fb-iconbar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
     .fb-ic {
       position: relative;
       display: inline-flex; align-items: center; gap: 6px;
@@ -2746,7 +2753,10 @@
             <span class="slide-pane-title" id="paneTitle">—</span>
           </div>
           <div class="slide-pane-hd-controls">
-            <div class="fb-iconbar" id="fbIconbar"></div>
+            <div class="fb-group">
+              <span class="fb-group-label"><svg width="12" height="12"><use href="#i-sparkle"/></svg>スライド別フィードバック</span>
+              <div class="fb-iconbar" id="fbIconbar"></div>
+            </div>
             <div class="slide-nav">
               <button class="nav-btn" id="prevBtn" aria-label="前のスライド">
                 <svg width="14" height="14"><use href="#i-arrow-l"/></svg>
@@ -2776,7 +2786,7 @@
         <div class="pane-tabs" role="tablist">
           <button class="tab-btn active" data-tab="summary" role="tab">
             <svg width="14" height="14"><use href="#i-chart"/></svg>
-            <span>AIフィードバック</span>
+            <span>総合フィードバック</span>
           </button>
           <button class="tab-btn" data-tab="transcript" role="tab">
             <svg width="14" height="14"><use href="#i-transcript"/></svg>
