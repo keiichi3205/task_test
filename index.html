@@ -5342,10 +5342,18 @@
         const active = state.openFb === t.key ? ' active' : '';
         let badge = '';
         if (t.key === 'good' || t.key === 'weak') {
-          const urgentCls = (t.key === 'weak' && weakUrgent) ? ' urgent' : '';
-          badge = `<span class="fb-ic-badge${urgentCls}">${t.key === 'weak' && weakUrgent ? '!' : counts[t.key]}</span>`;
+          const isUrgent = t.key === 'weak' && weakUrgent;
+          const badgeTitle = isUrgent
+            ? '重要度の高い弱点が含まれています（優先的に対処すべき項目）'
+            : (t.key === 'weak'
+                ? `AIが検出した弱点 ${counts.weak} 件`
+                : `AIが検出した良かった点 ${counts.good} 件`);
+          badge = `<span class="fb-ic-badge${isUrgent ? ' urgent' : ''}" title="${escapeHtml(badgeTitle)}">${isUrgent ? '!' : counts[t.key]}</span>`;
         }
-        return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
+        const btnTitle = (t.key === 'weak' && weakUrgent)
+          ? t.title + ' — 重要度の高い弱点あり（赤バッジは優先対処）'
+          : t.title;
+        return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(btnTitle)}">
           <span class="fb-ic-ico">${svgIcon(t.icon, 16)}</span>
           <span class="fb-ic-label">${t.label}</span>${badge}
         </button>`;
