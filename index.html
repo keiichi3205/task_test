@@ -1484,6 +1484,18 @@
     }
     @keyframes deckSpin { to { transform: rotate(360deg); } }
     @keyframes pillFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    /* Inline "loading from Drive" indicator on the empty slide stage. */
+    .deck-loading-inline {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+      color: #cfd6dd;
+    }
+    .deck-loading-inline .deck-loading-spin {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-top-color: #fff;
+    }
+    .deck-loading-inline .empty-slide-title { margin: 0; }
 
     .fb-group { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .fb-group-label {
@@ -4241,19 +4253,18 @@
     }
 
     async function loadFanclSession(opts) {
-      const fastPath = !!(opts && opts.fast);
+      opts = opts || {};
       const utterances = parseWhisper(FANCL_DATA.whisper);
       const bySlide = buildFanclTranscripts(utterances);
       MOCK_DATA.utterances = buildFanclUtterances(utterances);
 
-      // Default behavior: try Drive first so the demo shows "Drive 取得済み".
-      // Fast path (used by the auto-load on startup): skip Drive and render
-      // the bundled images immediately — we kick off a background Drive
-      // refresh afterwards so the deck still ends up labelled as Drive
-      // sourced, but the first paint isn't blocked on the network.
-      let deckImages = FANCL_DATA.deckImages;
-      let deckSource = fastPath ? 'バンドル（高速読込）' : 'バンドル（Drive取得不可）';
-      if (!fastPath) {
+      // Drive is the source of truth for the deck. Callers can pass
+      // pre-fetched images (the recommended startup flow), let this
+      // function fetch them itself (legacy callers), or pass a bundled
+      // fallback explicitly.
+      let deckImages = opts.images || FANCL_DATA.deckImages;
+      let deckSource = opts.source || 'バンドル（Drive取得不可）';
+      if (!opts.images && !opts.skipDriveFetch) {
         try {
           const imgs = await fetchDriveDeckImages(DEMO_DRIVE_FILE.id);
           if (imgs && imgs.length) { deckImages = imgs; deckSource = 'Google Drive'; }
@@ -4966,6 +4977,39 @@
 
     // Empty state — no deck/transcript loaded yet. Shows an onboarding
     // card with a one-click "load the sample session" CTA.
+    // Pre-load state used while we are fetching the deck PDF from
+    // Google Drive on startup. Looks like the empty state, but the slide
+    // stage clearly says "Driveから取得中…" instead of "未読み込み".
+    function renderDriveLoadingState() {
+      document.body.classList.add('no-session');
+      state.openFb = null;
+      document.getElementById('meetingTitle').textContent = MOCK_DATA.meta.title || '商談セッションを読み込み中…';
+      document.querySelector('#audioUpload .upload-filename').textContent = MOCK_DATA.meta.files.audio || '—';
+      document.getElementById('thumbnailStrip').innerHTML = '';
+      document.getElementById('paneTitle').textContent = MOCK_DATA.meta.files.slides || DEMO_DRIVE_FILE.name;
+      document.getElementById('slideCounter').textContent = '— / —';
+      document.getElementById('prevBtn').disabled = true;
+      document.getElementById('nextBtn').disabled = true;
+
+      const view = document.getElementById('slideView');
+      view.className = 'slide template-empty';
+      view.innerHTML = `
+        <div class="empty-slide">
+          <div class="deck-loading-inline">
+            <span class="deck-loading-spin" aria-hidden="true"></span>
+            <span class="empty-slide-title">Google Driveから提案資料を読み込み中…</span>
+          </div>
+          <div class="empty-slide-sub">${escapeHtml(DEMO_DRIVE_FILE.name)} を取得しています。完了後、商談文字起こしと AI フィードバックを表示します。</div>
+        </div>`;
+      document.getElementById('summaryContent').innerHTML =
+        '<div class="empty-hint">提案資料の読み込みが完了すると、総合フィードバックを表示します。</div>';
+      document.getElementById('transcriptList').innerHTML =
+        '<div class="empty-hint">提案資料の読み込み後、文字起こしを表示します。</div>';
+      document.getElementById('feedbackContent').innerHTML =
+        '<div class="empty-hint">提案資料の読み込み後、スライド別フィードバックを表示します。</div>';
+      document.getElementById('transcriptCount').textContent = '0';
+    }
+
     function renderEmptyState() {
       document.body.classList.add('no-session');
       state.openFb = null;
@@ -5857,40 +5901,34 @@
       // Warm up the server config so the first Picker click feels instant
       drive.loadConfig();
 
-      // Demo convenience: auto-load the FANCL sample session on startup so
-      // the deck/transcript/feedback are ready without clicking through the
-      // onboarding each time. (Skipped only if a session is already loaded.)
+      // Demo convenience: auto-load the FANCL sample session on startup.
+      // Google Drive is the source of truth — we don't show any deck
+      // preview until Drive returns. The slide stage shows a clean
+      // "Drive取得中" state until the PDF arrives (or fails and we fall
+      // back to the bundled copy explicitly).
       if (!state.loaded) {
-        // Drive is the canonical source for the deck. Render the bundled
-        // copy immediately as a preview so the UI isn't empty, but surface
-        // a clear "Drive取得中" state on both the upload card and the slide
-        // stage until the real PDF arrives.
         updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name }, { loading: true, loadingLabel: 'Drive取得中' });
         updateUploadCard('audio', { name: FANCL_META.files.audio });
         setDeckLoading(true);
-        loadFanclSession({ fast: true }).then(() => {
-          renderHeader();
-          // renderHeader rewrites .upload-filename → re-apply the Drive-取得中
-          // chip so the loading state remains visible during the Drive fetch.
-          updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name }, { loading: true, loadingLabel: 'Drive取得中' });
-          switchTab('summary');
-          fetchDriveDeckImages(DEMO_DRIVE_FILE.id)
-            .then(imgs => {
-              if (imgs && imgs.length) {
-                MOCK_DATA.slides.forEach((s, i) => { if (imgs[i]) s.content.imageUrl = imgs[i]; });
-                MOCK_DATA.meta.slidesSource = 'Google Drive';
-                renderThumbnails();
-                renderSlide();
-              }
-            })
-            .catch(e => {
-              console.warn('[deck] Google Drive読込に失敗、バンドル描画で代替:', e && e.message);
-            })
-            .finally(() => {
-              setDeckLoading(false);
-              updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name });
-            });
-        });
+        renderDriveLoadingState();
+
+        fetchDriveDeckImages(DEMO_DRIVE_FILE.id)
+          .then(imgs => {
+            if (imgs && imgs.length) {
+              return loadFanclSession({ images: imgs, source: 'Google Drive' });
+            }
+            return loadFanclSession({ source: 'バンドル（Drive取得空）' });
+          })
+          .catch(e => {
+            console.warn('[deck] Google Drive読込に失敗、バンドル描画で代替:', e && e.message);
+            return loadFanclSession({ source: 'バンドル（Drive取得不可）' });
+          })
+          .then(() => {
+            renderHeader();
+            updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name });
+            setDeckLoading(false);
+            switchTab('summary');
+          });
       }
     });
   </script>
