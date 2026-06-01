@@ -491,6 +491,32 @@
     .scen-score-state { margin: 8px 2px 0; font-size: 11px; color: var(--text-muted); }
     @media (max-width: 1200px) { .scen-score { grid-template-columns: auto 1fr; } .scen-score-col:last-child { grid-column: 1 / -1; } }
 
+    /* Score method explainer */
+    .score-info-btn {
+      width: 15px; height: 15px; border-radius: 50%; margin-left: 5px;
+      background: var(--surface-high); color: var(--on-surface-variant);
+      border: none; font: 700 10px var(--font-mono); cursor: pointer; vertical-align: middle;
+      display: inline-grid; place-items: center;
+    }
+    .score-info-btn:hover, .score-info-btn.active { background: var(--primary); color: var(--on-primary); }
+    .score-method {
+      margin-top: 10px; padding: 14px 16px; border-radius: var(--r-xl);
+      background: var(--surface-low); border: 1px solid var(--outline-variant);
+    }
+    .score-method-lead { font-size: 11.5px; line-height: 1.65; color: var(--on-surface-variant); margin-bottom: 12px; }
+    .score-method-axes { display: flex; flex-direction: column; gap: 10px; }
+    .score-axis-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .score-axis-label { font-size: 12px; font-weight: 700; color: var(--on-surface); }
+    .score-axis-weight { font: 700 11px var(--font-mono); color: var(--primary-dark); }
+    .score-axis-bar { height: 5px; border-radius: 3px; background: var(--surface-high); margin: 4px 0 3px; overflow: hidden; }
+    .score-axis-bar span { display: block; height: 100%; background: var(--primary); border-radius: 3px; }
+    .score-axis-desc { font-size: 10.5px; line-height: 1.5; color: var(--text-muted); }
+    .score-method-bands { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .score-band { font: 700 9.5px var(--font-mono); border-radius: 6px; padding: 2px 7px; }
+    .score-band.high { background: var(--done-bg); color: var(--done-text); }
+    .score-band.mid { background: var(--warning-bg); color: var(--warning-text); }
+    .score-band.low { background: var(--danger-weak); color: var(--danger); }
+
     .scen-verdict {
       display: flex;
       align-items: center;
@@ -2831,7 +2857,15 @@
             <div class="file-picker" id="modalSlidePicker">
               <div class="file-picker-icon"><svg width="16" height="16"><use href="#i-doc"/></svg></div>
               <div class="file-picker-info">
-                <div class="file-picker-label">提案資料</div>
+                <div class="file-picker-label">提案資料（PDF）</div>
+                <div class="file-picker-name empty">未選択</div>
+              </div>
+              <div class="file-picker-action">選択</div>
+            </div>
+            <div class="file-picker" id="modalScriptPicker">
+              <div class="file-picker-icon"><svg width="16" height="16"><use href="#i-transcript"/></svg></div>
+              <div class="file-picker-info">
+                <div class="file-picker-label">想定スクリプト（任意・txt / JSON）</div>
                 <div class="file-picker-name empty">未選択</div>
               </div>
               <div class="file-picker-action">選択</div>
@@ -3169,6 +3203,28 @@
       { score: 46, p1: 2, p2: 2 }
     ];
 
+    /* Scoring rubric — how each 0-100 score is derived. Shown to the user
+       via the スコアの算出方法 tooltip / panel so the numbers are explainable.
+       Weights sum to 100; a slide's score is the weighted sum of its
+       per-axis 0-100 ratings, then the deck score is the page-weighted mean.
+       (In production these ratings come from the LLM; here they are fixed.) */
+    const SCORE_RUBRIC = {
+      summary: '各スライドを5つの観点で0〜100点で評価し、重み付き平均をそのスライドのスコアにします。提案全体のスコアは各スライドスコアの平均です。検出した課題は重大度で P1（要改善）/ P2（改善余地）に分類されます。',
+      axes: [
+        { key: 'clarity',  label: '伝達の明確さ',     weight: 20, desc: 'スライドの主張が明確に言語化され、口頭で過不足なく伝えられたか' },
+        { key: 'evidence', label: '根拠・定量性',     weight: 25, desc: '主張が数値・事例・出所で裏付けられているか（効果やROIの根拠）' },
+        { key: 'fit',      label: '課題との整合',     weight: 20, desc: '顧客の課題・関心に紐づけて提案できているか' },
+        { key: 'response', label: '顧客反応への対応', weight: 20, desc: '質問・懸念・反論に的確に応答し合意形成できたか' },
+        { key: 'action',   label: '次アクション誘導', weight: 15, desc: '意思決定や次ステップに繋がる問いかけ・合意ができたか' }
+      ],
+      bands: [
+        { min: 80, label: '優良', tone: 'high' },
+        { min: 60, label: '良好', tone: 'mid' },
+        { min: 50, label: '改善余地', tone: 'mid' },
+        { min: 0,  label: '要改善', tone: 'low' }
+      ]
+    };
+
     const FANCL_OVERALL = {
       score: 7.8,
       scoreLabel: '良好 / 次フェーズへ',
@@ -3491,7 +3547,8 @@
       dealId: null,
       goal: '',
       slides: null,
-      audio: null
+      audio: null,
+      script: null   // optional uploaded talk-script { meta, scripts:[...] }
     };
 
     /* ============================================================
@@ -4042,6 +4099,17 @@
       renderLoadedAll();
     }
 
+    // Apply an uploaded talk-script file: its entries override the per-slide
+    // 想定スクリプト in order. Re-renders the slide feedback if loaded.
+    function applyUploadedScripts(picked) {
+      if (!picked || !picked.scripts || !picked.scripts.length) return;
+      MOCK_DATA.slides.forEach((s, i) => {
+        if (picked.scripts[i] != null && picked.scripts[i] !== '') s.script = picked.scripts[i];
+      });
+      MOCK_DATA.meta.scriptFile = picked.meta.name;
+      if (state.loaded) renderFeedback();
+    }
+
     // ── Replace slide visuals while preserving transcript/feedback ─
     function replaceSlides(newSlides) {
       const merged = newSlides.map((ns, i) => {
@@ -4366,7 +4434,7 @@
     }
 
     function updateModalFilePicker(kind, meta) {
-      const id = kind === 'slides' ? 'modalSlidePicker' : 'modalAudioPicker';
+      const id = kind === 'slides' ? 'modalSlidePicker' : kind === 'script' ? 'modalScriptPicker' : 'modalAudioPicker';
       const el = document.getElementById(id);
       const nameEl = el.querySelector('.file-picker-name');
       if (meta) {
@@ -4385,6 +4453,13 @@
 
     async function handleModalFilePick(kind) {
       try {
+        if (kind === 'script') {
+          const picked = await pickScriptFile();
+          if (!picked) return;
+          pendingNewSession.script = picked;
+          updateModalFilePicker('script', picked.meta);
+          return;  // optional input — does not gate the start button
+        }
         const picked = kind === 'slides'
           ? await pickSlideFromAnywhere()
           : await pickAudioFromAnywhere();
@@ -4397,15 +4472,51 @@
       }
     }
 
+    // Read a prepared talk-script file (per-slide notes). Accepts a JSON
+    // array / {scripts:[...]} or a plain-text file split on blank lines or
+    // a "---" separator. Returns { meta, scripts:[...] }.
+    function pickScriptFile() {
+      return new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.txt,.json,text/plain,application/json';
+        input.style.display = 'none';
+        input.addEventListener('change', async () => {
+          const file = input.files && input.files[0];
+          input.remove();
+          if (!file) { resolve(null); return; }
+          let scripts = [];
+          try {
+            const text = await file.text();
+            if (/\.json$/i.test(file.name) || text.trim().startsWith('[') || text.trim().startsWith('{')) {
+              const j = JSON.parse(text);
+              scripts = Array.isArray(j) ? j : (j.scripts || j.slides || []);
+              scripts = scripts.map(s => typeof s === 'string' ? s : (s.script || s.text || ''));
+            } else {
+              scripts = text.split(/\n-{3,}\n|\n\s*\n/).map(s => s.trim()).filter(Boolean);
+            }
+          } catch (e) {
+            alert('スクリプトファイルの解析に失敗しました: ' + (e && e.message ? e.message : e));
+            resolve(null); return;
+          }
+          resolve({ meta: { name: file.name, sizeBytes: file.size }, scripts });
+        });
+        document.body.appendChild(input);
+        input.click();
+      });
+    }
+
     function resetNewSessionModal() {
       pendingNewSession.dealId = null;
       pendingNewSession.goal = '';
       pendingNewSession.slides = null;
       pendingNewSession.audio = null;
+      pendingNewSession.script = null;
       document.getElementById('dealSelector').value = '';
       document.getElementById('dealPreview').style.display = 'none';
       document.getElementById('sessionGoal').value = '';
       updateModalFilePicker('slides', null);
+      updateModalFilePicker('script', null);
       updateModalFilePicker('audio', null);
       updateNewSessionStartButton();
     }
@@ -4437,6 +4548,7 @@
         pipelineSync.sessionStarted({ sessionId, dealId: deal.id, startedAt: new Date().toISOString(), goal });
         await runAnalysisProgress();
         await loadFanclSession();
+        applyUploadedScripts(pendingNewSession.script);
         if (goal) { MOCK_DATA.meta.goal = goal; renderHeader(); }
         pipelineSync.sessionAnalyzed({ sessionId, dealId: deal.id, slideCount: MOCK_DATA.slides.length, avgMappingConfidence: avgConfidence() });
         pipelineSync.actionsGenerated(MOCK_DATA.overall.nextActions || []);
@@ -4619,6 +4731,10 @@
       return 'low';
     }
 
+    function scoreBand(score) {
+      return SCORE_RUBRIC.bands.find(b => score >= b.min) || null;
+    }
+
     function renderThumbnails() {
       const strip = document.getElementById('thumbnailStrip');
       strip.innerHTML = '';
@@ -4629,8 +4745,12 @@
         const needsWork = slide.score != null && slide.score < 50;
         if (needsWork) classes.push('needs-work');
         thumb.className = classes.join(' ');
+        const band = slide.score != null ? scoreBand(slide.score) : null;
+        const scoreTip = slide.score != null
+          ? `スコア ${slide.score}/100（${band ? band.label : ''}）\n評価軸: ${SCORE_RUBRIC.axes.map(a => a.label + ' ' + a.weight + '%').join(' / ')}\nP1=要改善 ${slide.p1 || 0}件 / P2=改善余地 ${slide.p2 || 0}件`
+          : '';
         const scoreRow = (slide.score != null) ? `
-          <div class="thumb-score-row">
+          <div class="thumb-score-row" title="${escapeHtml(scoreTip)}">
             <span class="thumb-score ${needsWork ? 'low' : ''}">スコア ${slide.score}</span>
             ${needsWork ? '<span class="thumb-flag">⚠ 要改善</span>' : ''}
           </div>` : '';
@@ -5073,7 +5193,7 @@
       const verdictHtml = `
         <div class="scen-score">
           <div class="scen-score-num">
-            <div class="scen-score-eyebrow">総合スコア</div>
+            <div class="scen-score-eyebrow">総合スコア<button class="score-info-btn" id="scoreInfoBtn" title="スコアの算出方法">?</button></div>
             <div class="scen-score-figure"><span class="scen-score-val">${ov.score100 != null ? ov.score100 : '—'}</span><span class="scen-score-max">/ 100</span></div>
           </div>
           <div class="scen-score-col">
@@ -5083,6 +5203,20 @@
           <div class="scen-score-col">
             <div class="scen-score-eyebrow">減点要因 TOP3</div>
             <ol class="scen-score-deduct">${(ov.deductions || []).map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ol>
+          </div>
+        </div>
+        <div class="score-method" id="scoreMethod" hidden>
+          <div class="score-method-lead">${escapeHtml(SCORE_RUBRIC.summary)}</div>
+          <div class="score-method-axes">
+            ${SCORE_RUBRIC.axes.map(a => `
+              <div class="score-axis">
+                <div class="score-axis-top"><span class="score-axis-label">${escapeHtml(a.label)}</span><span class="score-axis-weight">${a.weight}%</span></div>
+                <div class="score-axis-bar"><span style="width:${a.weight * 4}%"></span></div>
+                <div class="score-axis-desc">${escapeHtml(a.desc)}</div>
+              </div>`).join('')}
+          </div>
+          <div class="score-method-bands">
+            ${SCORE_RUBRIC.bands.map(b => `<span class="score-band ${b.tone}">${b.min}+ ${escapeHtml(b.label)}</span>`).join('')}
           </div>
         </div>
         <div class="scen-verdict-state scen-score-state">${stateParts.join(' · ')}</div>
@@ -5149,7 +5283,7 @@
       const stakeHtml = `
         <div class="scen-dash-section">
           <div class="scen-dash-section-head">
-            <span class="scen-dash-section-title">バイイングセンター</span>
+            <span class="scen-dash-section-title">ステークホルダー</span>
             <span class="scen-dash-section-sub">未接触の決裁関係者を可視化</span>
             <span class="scen-dash-section-count">${stakes.length}名</span>
           </div>
@@ -5284,6 +5418,13 @@
         </div>
       `;
 
+      // Score method explainer toggle
+      const sib = document.getElementById('scoreInfoBtn');
+      if (sib) sib.addEventListener('click', () => {
+        const m = document.getElementById('scoreMethod');
+        if (m) { m.hidden = !m.hidden; sib.classList.toggle('active', !m.hidden); }
+      });
+
       // Sub-tab switching
       document.querySelectorAll('.scen-subtab').forEach(btn => {
         btn.addEventListener('click', () => { state.scenSubTab = btn.dataset.sub; renderScenario(); });
@@ -5396,6 +5537,7 @@
       document.querySelector('#newSessionModal .modal-overlay').addEventListener('click', closeNewSessionModal);
       document.getElementById('dealSelector').addEventListener('change', (e) => selectDealInModal(e.target.value));
       document.getElementById('modalSlidePicker').addEventListener('click', () => handleModalFilePick('slides'));
+      document.getElementById('modalScriptPicker').addEventListener('click', () => handleModalFilePick('script'));
       document.getElementById('modalAudioPicker').addEventListener('click', () => handleModalFilePick('audio'));
       document.getElementById('newSessionStart').addEventListener('click', startNewSession);
       document.addEventListener('keydown', (e) => {
@@ -5406,6 +5548,15 @@
 
       // Warm up the server config so the first Picker click feels instant
       drive.loadConfig();
+
+      // Demo convenience: auto-load the FANCL sample session on startup so
+      // the deck/transcript/feedback are ready without clicking through the
+      // onboarding each time. (Skipped only if a session is already loaded.)
+      if (!state.loaded) {
+        updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name }, { loading: true, loadingLabel: 'Drive取得中' });
+        updateUploadCard('audio', { name: FANCL_META.files.audio });
+        loadFanclSession().then(() => { renderHeader(); switchTab('summary'); });
+      }
     });
   </script>
 </body>
