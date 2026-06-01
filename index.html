@@ -1466,7 +1466,6 @@
       font: 700 9.5px var(--font-mono); display: inline-grid; place-items: center;
     }
     .fb-ic.weak .fb-ic-badge.urgent { background: var(--danger); color: #fff; }
-    .fb-ic-divider { width: 1px; align-self: stretch; margin: 3px 4px; background: var(--outline-variant); }
     @media (max-width: 1366px) { .fb-ic-label { display: none; } .fb-ic { padding: 7px; } }
 
     /* Feedback panel — frosted overlay on the top of the slide. Kept
@@ -1910,10 +1909,6 @@
     .fb-slidehead { margin-bottom: 14px; }
     .fb-slidehead-title { font-size: 14px; font-weight: 700; color: var(--on-surface); letter-spacing: -0.01em; }
     .fb-slidehead-sub { font-size: 11.5px; color: var(--on-surface-variant); margin-top: 3px; line-height: 1.5; }
-    .fb-block.script-prepared {
-      background: var(--surface-low);
-      font-size: 12.5px; line-height: 1.7; color: var(--on-surface);
-    }
 
     .fb-block {
       padding: 12px 14px;
@@ -1961,16 +1956,6 @@
       font-size: 12.5px;
       line-height: 1.7;
       color: var(--on-surface);
-      position: relative;
-      padding-left: 18px;
-    }
-    .script-quote::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 12px; bottom: 12px;
-      width: 3px;
-      background: var(--primary);
-      border-radius: 2px;
     }
 
     /* Summary */
@@ -2322,6 +2307,75 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
+
+    /* Speaker assignment (step 04 in new-session modal) */
+    .speaker-assign-note {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      background: var(--surface-low);
+      border-radius: var(--r);
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .speaker-assign-note code {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      background: var(--surface-lowest);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--on-surface);
+    }
+    .speaker-group { margin-bottom: 10px; }
+    .speaker-group:last-child { margin-bottom: 0; }
+    .speaker-group-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .speaker-side-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: var(--r-sm);
+      font: 600 10.5px var(--font-mono);
+      letter-spacing: 0.04em;
+    }
+    .speaker-side-badge.sales {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+    .speaker-side-badge.customer {
+      background: rgba(154, 163, 157, 0.15);
+      color: #5a6660;
+    }
+    .speaker-add-btn {
+      font: 600 11px var(--font-mono);
+      color: var(--primary);
+      letter-spacing: 0.02em;
+      padding: 2px 6px;
+      border-radius: var(--r-sm);
+      transition: background var(--dur-fast);
+    }
+    .speaker-add-btn:hover { background: var(--primary-light); }
+    .speaker-rows { display: flex; flex-direction: column; gap: 5px; }
+    .speaker-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+    .speaker-row .form-control { padding: 6px 9px; font-size: 12.5px; }
+    .speaker-row-del {
+      width: 26px; height: 26px;
+      border-radius: var(--r-sm);
+      display: grid; place-items: center;
+      color: var(--text-muted);
+      transition: background var(--dur-fast), color var(--dur-fast);
+    }
+    .speaker-row-del:hover { background: var(--surface-low); color: var(--danger); }
+    .speaker-row-del:disabled { opacity: 0.3; cursor: not-allowed; }
 
     /* New Session button in header */
     .btn-new-session {
@@ -2878,6 +2932,31 @@
               </div>
               <div class="file-picker-action">選択</div>
             </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-step">04</div>
+            <div class="form-section-label">話者の割当</div>
+          </div>
+          <div class="speaker-assign-note">
+            商談録音は Whisper の話者分離で <code>SPEAKER_00 / SPEAKER_01 …</code> に分かれます。
+            ここで参加者を宣言しておくと、分析後にロールと氏名が反映されます。
+          </div>
+          <div class="speaker-group" data-side="sales">
+            <div class="speaker-group-hd">
+              <span class="speaker-side-badge sales">自社（営業）</span>
+              <button type="button" class="speaker-add-btn" data-side="sales">＋ 追加</button>
+            </div>
+            <div class="speaker-rows" id="speakerRowsSales"></div>
+          </div>
+          <div class="speaker-group" data-side="customer">
+            <div class="speaker-group-hd">
+              <span class="speaker-side-badge customer">顧客</span>
+              <button type="button" class="speaker-add-btn" data-side="customer">＋ 追加</button>
+            </div>
+            <div class="speaker-rows" id="speakerRowsCustomer"></div>
           </div>
         </div>
       </div>
@@ -3538,7 +3617,7 @@
       currentSlideIdx: 0,
       currentTab: 'summary',
       loaded: false,        // no session/deck loaded until analyzed
-      openFb: null,         // which feedback drawer is open ('script'|'good'|'weak'|'next'|null)
+      openFb: null,         // which feedback drawer is open ('good'|'weak'|'next'|null)
       scenSubTab: 'action', // 商談サマリー sub-tab ('action'|'change'|'people')
       improveTab: 'deck'    // 資料改善('deck') / 商談改善('meeting')
     };
@@ -3548,7 +3627,10 @@
       goal: '',
       slides: null,
       audio: null,
-      script: null   // optional uploaded talk-script { meta, scripts:[...] }
+      script: null,  // optional uploaded talk-script { meta, scripts:[...] }
+      // Declared participants per side. Each: { name, title }.
+      // Used after analysis to map Whisper's SPEAKER_NN labels → role + name.
+      speakers: { sales: [{ name: '営業 田中', title: '' }], customer: [{ name: '', title: '' }] }
     };
 
     /* ============================================================
@@ -4513,6 +4595,11 @@
         if (!picked) return;
         pendingNewSession[kind] = picked;
         updateModalFilePicker(kind, picked.meta);
+        // If the FANCL demo audio is selected, pre-fill the participant list
+        // so the speaker assignment step shows realistic data out of the box.
+        if (kind === 'audio' && picked.meta && picked.meta.id === 'fancl-whisper') {
+          prefillSpeakersFromFancl();
+        }
         updateNewSessionStartButton();
       } catch (e) {
         alert('ファイル選択エラー: ' + (e && e.message ? e.message : e));
@@ -4568,13 +4655,85 @@
       pendingNewSession.slides = null;
       pendingNewSession.audio = null;
       pendingNewSession.script = null;
+      pendingNewSession.speakers = {
+        sales:    [{ name: '営業 田中', title: '' }],
+        customer: [{ name: '', title: '' }]
+      };
       document.getElementById('dealSelector').value = '';
       document.getElementById('dealPreview').style.display = 'none';
       document.getElementById('sessionGoal').value = '';
       updateModalFilePicker('slides', null);
       updateModalFilePicker('script', null);
       updateModalFilePicker('audio', null);
+      renderSpeakerRows();
       updateNewSessionStartButton();
+    }
+
+    /* ============================================================
+       Speaker assignment (step 04 in the new-session modal)
+       Declares the participants on each side ahead of time, so
+       Whisper's diarized SPEAKER_00 / SPEAKER_01 … can be relabeled
+       with real roles + names after analysis.
+       ============================================================ */
+    function renderSpeakerRows() {
+      ['sales', 'customer'].forEach(side => {
+        const host = document.getElementById(side === 'sales' ? 'speakerRowsSales' : 'speakerRowsCustomer');
+        const rows = pendingNewSession.speakers[side];
+        const placeholderName = side === 'sales' ? '例: 営業 田中' : '例: 山田 太郎';
+        const placeholderTitle = side === 'sales' ? '例: アカウントマネージャ' : '例: マーケティング部 部長';
+        host.innerHTML = rows.map((r, i) => `
+          <div class="speaker-row" data-side="${side}" data-idx="${i}">
+            <input type="text" class="form-control" data-field="name"  value="${escapeHtml(r.name || '')}"  placeholder="${placeholderName}">
+            <input type="text" class="form-control" data-field="title" value="${escapeHtml(r.title || '')}" placeholder="${placeholderTitle}">
+            <button type="button" class="speaker-row-del" data-side="${side}" data-idx="${i}" title="削除"${rows.length <= 1 ? ' disabled' : ''}>
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M3 3 L11 11 M11 3 L3 11"/>
+              </svg>
+            </button>
+          </div>`).join('');
+        host.querySelectorAll('input').forEach(inp => {
+          inp.addEventListener('input', ev => {
+            const row = ev.target.closest('.speaker-row');
+            const idx = parseInt(row.dataset.idx, 10);
+            const field = ev.target.dataset.field;
+            pendingNewSession.speakers[side][idx][field] = ev.target.value;
+          });
+        });
+        host.querySelectorAll('.speaker-row-del').forEach(btn => {
+          btn.addEventListener('click', ev => {
+            const idx = parseInt(ev.currentTarget.dataset.idx, 10);
+            if (pendingNewSession.speakers[side].length <= 1) return;
+            pendingNewSession.speakers[side].splice(idx, 1);
+            renderSpeakerRows();
+          });
+        });
+      });
+    }
+
+    function addSpeakerRow(side) {
+      pendingNewSession.speakers[side].push({ name: '', title: '' });
+      renderSpeakerRows();
+      // Focus the new row's name input
+      const host = document.getElementById(side === 'sales' ? 'speakerRowsSales' : 'speakerRowsCustomer');
+      const rows = host.querySelectorAll('.speaker-row');
+      const last = rows[rows.length - 1];
+      if (last) last.querySelector('input[data-field="name"]').focus();
+    }
+
+    // Auto-fill speakers from the bundled FANCL transcript so the
+    // demo shows what the screen looks like in a typical session.
+    function prefillSpeakersFromFancl() {
+      pendingNewSession.speakers = {
+        sales: [{ name: '秋月', title: 'TOPPAN 営業' }],
+        customer: [
+          { name: '佐藤',  title: 'FANCL マーケ部長' },
+          { name: '田中',  title: 'FANCL EC' },
+          { name: '鈴木',  title: 'FANCL CRM' },
+          { name: '伊藤',  title: 'FANCL 店舗' },
+          { name: '高橋',  title: 'FANCL DX' }
+        ]
+      };
+      renderSpeakerRows();
     }
 
     function openNewSessionModal() {
@@ -4588,6 +4747,16 @@
     async function startNewSession() {
       const deal = dealService.get(pendingNewSession.dealId);
       if (!deal || !pendingNewSession.slides || !pendingNewSession.audio) return;
+
+      // Validate speaker assignment — at least one named participant per side.
+      const participants = {
+        sales:    pendingNewSession.speakers.sales.filter(s => s.name && s.name.trim()),
+        customer: pendingNewSession.speakers.customer.filter(s => s.name && s.name.trim())
+      };
+      if (!participants.sales.length || !participants.customer.length) {
+        alert('話者の割当：自社・顧客それぞれ最低1名の氏名を入力してください。');
+        return;
+      }
 
       const goal = document.getElementById('sessionGoal').value.trim();
       const today = new Date();
@@ -4605,7 +4774,9 @@
         await runAnalysisProgress();
         await loadFanclSession();
         applyUploadedScripts(pendingNewSession.script);
-        if (goal) { MOCK_DATA.meta.goal = goal; renderHeader(); }
+        MOCK_DATA.meta.participants = participants;
+        if (goal) { MOCK_DATA.meta.goal = goal; }
+        renderHeader();
         pipelineSync.sessionAnalyzed({ sessionId, dealId: deal.id, slideCount: MOCK_DATA.slides.length, avgMappingConfidence: avgConfidence() });
         pipelineSync.actionsGenerated(MOCK_DATA.overall.nextActions || []);
         pipelineSync.frameworkUpdated({ sessionId, dealId: deal.id, bant: MOCK_DATA.overall.bant });
@@ -4620,6 +4791,7 @@
       MOCK_DATA.meta.goal = goal;
       MOCK_DATA.meta.files.slides = pendingNewSession.slides.meta.name;
       MOCK_DATA.meta.files.audio = pendingNewSession.audio.meta.name;
+      MOCK_DATA.meta.participants = participants;
 
       pickedFiles.slides = pendingNewSession.slides.meta;
       pickedFiles.audio = pendingNewSession.audio.meta;
@@ -5115,31 +5287,27 @@
 
     // The 4 feedback categories shown as overlay icon-tabs on the slide.
     const FB_TABS = [
-      { key: 'script', icon: 'i-transcript', label: '想定スクリプト', title: '想定トークスクリプト（PPTノート）' },
-      { key: 'good',   icon: 'i-check',      label: '良かった点',    title: '良かった点' },
+      { key: 'good',   icon: 'i-check',      label: '良かった点',    title: '良かった点（想定と実際のギャップ）' },
       { key: 'weak',   icon: 'i-alert',      label: '弱かった点',    title: '弱かった点（想定と実際のギャップ）' },
-      { key: 'next',   icon: 'i-bulb',       label: '次回改善',      title: '次回への改善提案' }
+      { key: 'next',   icon: 'i-bulb',       label: '改善点',        title: '改善点' }
     ];
 
     function fbDrawerContent(slide, key) {
       const fb = slide.feedback;
-      if (key === 'script') {
-        return `<div class="fb-block script-prepared">${escapeHtml(slide.script || '（このスライドのスクリプトは設定されていません）')}</div>`;
-      }
+      const gap = `<div class="fb-gap">
+          <div class="fb-gap-col"><span class="fb-gap-hd">想定（PPTスピーカーノート）</span><span class="fb-gap-text">${escapeHtml(slide.script || '—')}</span></div>
+          <div class="fb-gap-arrow">→</div>
+          <div class="fb-gap-col"><span class="fb-gap-hd">実際の発話</span><span class="fb-gap-text">${escapeHtml(slide.actualPoint || '—')}</span></div>
+        </div>`;
       if (key === 'good') {
-        return `<div class="fb-block good"><ul class="fb-list">${fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('')}</ul></div>`;
+        const goodList = fb.good.map(g => `<li>${escapeHtml(g)}</li>`).join('');
+        return `${gap}<div class="fb-block good"><div class="fb-block-hd">AIが検出した良かった点</div><ul class="fb-list">${goodList}</ul></div>`;
       }
       if (key === 'weak') {
         const improveList = fb.improve.map(i => {
           const t = typeof i === 'string' ? { text: i } : i;
           return `<li${t.urgent ? ' class="urgent"' : ''}>${escapeHtml(t.text)}</li>`;
         }).join('');
-        // Show the 想定→実際 gap first (context), then the AI's weak points.
-        const gap = `<div class="fb-gap">
-          <div class="fb-gap-col"><span class="fb-gap-hd">想定（スクリプト）</span><span class="fb-gap-text">${escapeHtml(slide.script || '—')}</span></div>
-          <div class="fb-gap-arrow">→</div>
-          <div class="fb-gap-col"><span class="fb-gap-hd">実際の発話</span><span class="fb-gap-text">${escapeHtml(slide.actualPoint || '—')}</span></div>
-        </div>`;
         return `${gap}<div class="fb-block improve"><div class="fb-block-hd">AIが検出した弱点</div><ul class="fb-list">${improveList}</ul></div>`;
       }
       return `<div class="script-quote">${escapeHtml(fb.suggestedScript)}</div>`;
@@ -5149,7 +5317,6 @@
       const slide = MOCK_DATA.slides[state.currentSlideIdx];
       const fb = slide.feedback;
       const counts = {
-        script: slide.script ? 1 : 0,
         good: fb.good.length,
         weak: fb.improve.length,
         next: fb.suggestedScript ? 1 : 0
@@ -5164,9 +5331,7 @@
           const urgentCls = (t.key === 'weak' && weakUrgent) ? ' urgent' : '';
           badge = `<span class="fb-ic-badge${urgentCls}">${t.key === 'weak' && weakUrgent ? '!' : counts[t.key]}</span>`;
         }
-        // Divider before the AI-evaluation group (good/weak/next)
-        const div = t.key === 'good' ? '<span class="fb-ic-divider" aria-hidden="true"></span>' : '';
-        return `${div}<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
+        return `<button class="fb-ic ${t.key}${active}" data-fb="${t.key}" title="${escapeHtml(t.title)}">
           <span class="fb-ic-ico">${svgIcon(t.icon, 16)}</span>
           <span class="fb-ic-label">${t.label}</span>${badge}
         </button>`;
@@ -5581,6 +5746,9 @@
       document.getElementById('modalScriptPicker').addEventListener('click', () => handleModalFilePick('script'));
       document.getElementById('modalAudioPicker').addEventListener('click', () => handleModalFilePick('audio'));
       document.getElementById('newSessionStart').addEventListener('click', startNewSession);
+      document.querySelectorAll('.speaker-add-btn').forEach(btn => {
+        btn.addEventListener('click', () => addSpeakerRow(btn.dataset.side));
+      });
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && document.getElementById('newSessionModal').classList.contains('open')) {
           closeNewSessionModal();
