@@ -1454,6 +1454,37 @@
     .slide-pane.presenter .slide-stage { position: relative; }
     .slide-pane-hd-right { display: flex; align-items: center; gap: 14px; }
 
+    /* Loading pill on the slide stage — shown while the canonical
+       Google Drive PDF is being fetched in the background. */
+    .deck-loading-pill {
+      position: absolute;
+      top: 12px; right: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px 6px 10px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      font: 600 11px 'Inter', 'Noto Sans JP', sans-serif;
+      letter-spacing: 0.01em;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      animation: pillFadeIn 0.2s ease-out;
+      z-index: 5;
+    }
+    .deck-loading-pill[hidden] { display: none; }
+    .deck-loading-spin {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      animation: deckSpin 0.8s linear infinite;
+    }
+    @keyframes deckSpin { to { transform: rotate(360deg); } }
+    @keyframes pillFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
     .fb-group { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .fb-group-label {
       display: inline-flex; align-items: center; gap: 5px;
@@ -2843,6 +2874,13 @@
         </div>
         <div class="slide-stage">
           <div class="slide" id="slideView"></div>
+          <!-- Loading pill: visible while we fetch the canonical PDF from
+               Google Drive in the background. The bundled deck is shown
+               underneath as a quick preview. -->
+          <div class="deck-loading-pill" id="deckLoadingPill" hidden>
+            <span class="deck-loading-spin" aria-hidden="true"></span>
+            <span class="deck-loading-text">Google Driveから提案資料を取得中…</span>
+          </div>
           <div class="fb-drawer" id="fbDrawer">
             <div class="fb-drawer-hd">
               <span class="fb-drawer-title" id="fbDrawerTitle"></span>
@@ -4318,6 +4356,15 @@
       card.querySelector('.upload-filename').innerHTML = escapeHtml(file.name) + ' ' + chip;
       card.classList.add('swapped');
       card.classList.toggle('is-loading', !!opts.loading);
+    }
+
+    // Toggle the "Google Driveから提案資料を取得中…" pill on the slide stage.
+    // The bundled deck is shown underneath in the meantime, but Drive is
+    // treated as the source of truth — once it resolves we overwrite the
+    // images and clear this indicator.
+    function setDeckLoading(on) {
+      const pill = document.getElementById('deckLoadingPill');
+      if (pill) pill.hidden = !on;
     }
 
     /* ──────────────────────────────────────────────────────────────
@@ -5814,22 +5861,35 @@
       // the deck/transcript/feedback are ready without clicking through the
       // onboarding each time. (Skipped only if a session is already loaded.)
       if (!state.loaded) {
-        updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name });
+        // Drive is the canonical source for the deck. Render the bundled
+        // copy immediately as a preview so the UI isn't empty, but surface
+        // a clear "Drive取得中" state on both the upload card and the slide
+        // stage until the real PDF arrives.
+        updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name }, { loading: true, loadingLabel: 'Drive取得中' });
         updateUploadCard('audio', { name: FANCL_META.files.audio });
-        // Fast path: render the bundled deck immediately, then refresh
-        // from Drive in the background so the network isn't on the
-        // critical path of the first paint.
+        setDeckLoading(true);
         loadFanclSession({ fast: true }).then(() => {
           renderHeader();
+          // renderHeader rewrites .upload-filename → re-apply the Drive-取得中
+          // chip so the loading state remains visible during the Drive fetch.
+          updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name }, { loading: true, loadingLabel: 'Drive取得中' });
           switchTab('summary');
-          // Background Drive refresh — silent failure is fine, bundled
-          // images are already on screen.
-          fetchDriveDeckImages(DEMO_DRIVE_FILE.id).then(imgs => {
-            if (!imgs || !imgs.length) return;
-            MOCK_DATA.slides.forEach((s, i) => { if (imgs[i]) s.content.imageUrl = imgs[i]; });
-            MOCK_DATA.meta.slidesSource = 'Google Drive';
-            renderThumbnails(); renderSlide();
-          }).catch(() => {});
+          fetchDriveDeckImages(DEMO_DRIVE_FILE.id)
+            .then(imgs => {
+              if (imgs && imgs.length) {
+                MOCK_DATA.slides.forEach((s, i) => { if (imgs[i]) s.content.imageUrl = imgs[i]; });
+                MOCK_DATA.meta.slidesSource = 'Google Drive';
+                renderThumbnails();
+                renderSlide();
+              }
+            })
+            .catch(e => {
+              console.warn('[deck] Google Drive読込に失敗、バンドル描画で代替:', e && e.message);
+            })
+            .finally(() => {
+              setDeckLoading(false);
+              updateUploadCard('slides', { name: DEMO_DRIVE_FILE.name });
+            });
         });
       }
     });
