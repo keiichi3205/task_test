@@ -3289,15 +3289,19 @@
        feeds the pipelineSync event log (actions / BANT). Kept lightweight. */
     /* Per-slide score (0-100) + priority issue counts, shown on the
        thumbnail strip so weak sections are spotted at a glance. */
+    // Slides 4 (重点領域) and 7 (実行プロセス) carry an urgent improve
+    // item, so their scores sit in the 良好 band (<80) — clearly below
+    // every non-urgent slide. Average ≈ 84 still lines up with the
+    // overall score.
     const FANCL_SCORES = [
+      { score: 88, p1: 0, p2: 1 },
+      { score: 85, p1: 0, p2: 2 },
       { score: 87, p1: 0, p2: 1 },
-      { score: 84, p1: 0, p2: 2 },
+      { score: 85, p1: 0, p2: 2 },
+      { score: 78, p1: 1, p2: 2 },  // urgent: 4領域の優先順位
+      { score: 85, p1: 0, p2: 2 },
       { score: 86, p1: 0, p2: 1 },
-      { score: 82, p1: 1, p2: 2 },
-      { score: 80, p1: 1, p2: 2 },
-      { score: 84, p1: 0, p2: 2 },
-      { score: 85, p1: 0, p2: 1 },
-      { score: 82, p1: 1, p2: 1 }
+      { score: 76, p1: 2, p2: 1 }   // urgent: 投資規模・PoC定量化
     ];
 
     /* Scoring rubric — how each 0-100 score is derived. Shown to the user
